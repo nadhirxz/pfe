@@ -1,0 +1,27 @@
+var js_lang_text = {
+    other_text: "Other",
+    next_text: "Next",
+    submit_text: "Submit",
+    cancel_text: "Cancel",
+    from_text: "From",
+    to_text: "To",
+    shops_place: (shop) => { return shop + "'s place" },
+    choose_a_pos_text: "Please choose a position",
+    your_delivery_text: "Your Delivery",
+    clc_route_text: "Calculating Route ..",
+    clc_price_text: "Calculating Price ..",
+    dstnc_too_far_text: "Distance is too far for our service. Please try other places",
+    we_dont_wrk_now_text: "Sorry, we don't work around this time",
+    cant_fnsh_in_wrk_time_txt: "Sorry, we cannot finish your delivery within our working time",
+    dlvr_info_txt: (distance, price, time, w) => {
+        let text = `Distance: ${distance} km`;
+        if (w) text += `<s><br>Price : ${price} DZD</s> FREE!`
+        else text += `<br>Price : ${price} DZD`;
+        if (time) text += `<br>Waiting time : ~${time} min`;
+        else text += '<br>No drivers available right now';
+        return text;
+    },
+    shop_not_wrkn: (name) => {
+        return `Sorry, "${name}" isn't working around this time of the day`;
+    }
+}

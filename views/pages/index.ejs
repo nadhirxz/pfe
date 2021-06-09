@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+    <%- include ('../partials/head') %>
+    <% if (lang == 'en') {%>
+    <meta name="description" content="With Wesseli, enjoy fast and secure delivery at an unbeatable price. What are you waiting for? Make your order!"/>
+    <% } else if (lang == 'fr') { %>
+    <meta name="description" content="Avec Wesseli, profitez d'une livraison rapide et sécurisée à un prix imbattable. Qu'attendez-vous ? Faites votre commande !"/>
+    <% } else { %>
+    <meta name="description" content="مع وصّللي، استمتع بتوصيل سريع و آمن بأسعار تنافسية. ماذا تنتظر ؟ قدّم طلبك الآن !"/>
+    <% } %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shards-ui/3.0.0/css/shards-extras.min.css" integrity="sha512-nIB3Zb7r8zJizEODjthafBpl7PXbTZqHEFNwAKdO9WEKsFchVVdCeiGrk+35hDE9wRjKoq+Rv3h19koyuaMtSg==" crossorigin="anonymous">
+</head>
+
+<body class="index-div">
+    <img style="margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" src="/img/loading.gif" id="loading-img">
+    <div id="header" class="d-none"><%- include ('../partials/navbar') %></div>
+    <div id="app"></div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<script src="/js/main.js"></script>
+</html>

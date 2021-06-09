@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+
+<head>
+    <%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+        <% if (partner) { %>
+        <h4 class="mt-4"><%= partner.name %></h4>
+        <img src="<%= partner.img %>" class="rounded m-auto border">
+
+
+        <hr class="my-5">
+
+        <form method="post" enctype="multipart/form-data" action="/partner_img/<%= partner.id %>">
+            <div class="custom-file w-100">
+                <label class="custom-file-label" for="partner-image">Choose file...</label>
+                <input type="file" class="custom-file-input" name="img" id="partner-image" accept="image/*" required>
+                <button type="submit" class="btn btn-success my-2">Save</button>
+            </div>
+        </form>
+
+        <hr class="my-5">
+
+        <form method="post" action="/partner_desc/<%= partner.id %>">
+            <div class="custom-file w-100">
+                <div class="form-group">
+                    <label for="exampleTextarea">Description</label>
+                    <textarea class="form-control" name="desc" id="exampleTextarea" rows="3"><%= partner.desc %></textarea>
+                </div>
+                <button type="submit" class="btn btn-success my-2">Save</button>
+            </div>
+        </form>
+        <% } %>
+    </div>
+    <%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<script>
+    $("#partner-image").change(() => {
+        $('.custom-file-label').html($('#partner-image')[0].files[0].name);
+    });
+</script>
+
+</html>

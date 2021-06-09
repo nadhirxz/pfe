@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+    <%
+        function pad(n,z) {
+            z = z || '0';
+            n = n + '';
+            return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
+        }
+    %>
+    <% if (locals.expected_finish_time) { %>
+    <script>var finish_time = <%= expected_finish_time %>;</script>
+    <% } else { %>
+    <script>var finish_time = 0;</script>
+    <% } %>
+    <script>var status = <%= status %>;</script>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-lg-7 col-md-10 px-3 m-auto text-center">
+        <img src="/img/loading.gif" id="loading-img" class="pt-5 d-none">
+        <div class="jumbotron" id="delivery-info">
+            <h3 class="delivery_text"></h3>
+            <hr class="my-4 mx-md-3 mx-0-xs">
+            <br>
+            <% if (lang == 'ar') { %>
+            <div class="text-right mr-md-5 mr-2-xs">
+            <% } else { %>
+            <div class="text-left ml-md-5 ml-2-xs">
+            <% } %>
+
+                <% if (locals.car_delivery) { %>
+                    <p class="delivery-info-text"><b class="type_text"></b> <span class="l_d_dlvr_text"></span></p>
+                <% } else { %>
+                    <% if(!d_type) {%>
+                    <p class="delivery-info-text"><b class="type_text"></b> <span class="nrml_dlvr_text"></span></p>
+                    <% } else { %>
+                    <p class="delivery-info-text"><b class="type_text"></b> <span class="buy_frm_text"></span> <%= fromPlace %></p>
+                    <% } %>
+                <% } %>
+                <p class="delivery-info-text"><b class="user_text"></b> <%= name %></p>
+                <p class="delivery-info-text"><b class="thing_text"></b> <%= thing %></p>
+                <p class="delivery-info-text"><b class="price_text"></b> <%= price %> <span class="dzd_text"></span></p>
+
+                <% if (locals.car_delivery) { %>
+                
+                    <p class="delivery-info-text"><b class="from_text"></b> <%= from %></p>
+                    <p class="delivery-info-text"><b class="to_text"></b> <%= to %></p>
+
+                <% } else { %>
+
+                    <p class="delivery-info-text"><b class="distance_text"></b> <%= distance %> <span class="km_text"></span></p>
+                    <p class="delivery-info-text"><b class="date_submitted_text"></b>
+                        <%= `${pad(date.getDate())}-${pad(date.getMonth()+1)}-${date.getFullYear()}` %> <span class="at_time_text"></span> <%= `${pad(date.getHours())}:${pad(date.getMinutes())}` %>
+                    </p>
+                    <% if (expected_finish_time) { %>
+                    <% if (expected_finish_time - Date.now() > 0) { %>
+                    <% var finishDate = new Date(expected_finish_time) %>
+                    <p class="delivery-info-text"><b class="finish_time_text"></b> ~ <span id="finish-time"><%= pad(finishDate.getHours()) %>:<%= pad(finishDate.getMinutes()) %></p>
+                    <% } %>
+                    <% } %>
+
+                <% } %>
+
+                <% if (driver) { %>
+                <p class="delivery-info-text" id="driver-info"><b class="driver_text"></b> <%= driver.name %> - <%= driver.phone %></p>
+                <% }%>
+
+            </div>
+            <button type="button" id="delivery-status-info-btn" class="" style="display: none;"></button>
+            <p id="delivery-status-info-text" class="mt-2" style="display: none;"></p>
+            <% if ((!locals.car_delivery && (status < 2 || status > 5)) || (locals.car_delivery && status == 0)) { %>
+
+            <button type="button" class="btn btn-danger mt-2 cncl_delivery_text" data-toggle="modal" data-target="#modal"></button>
+
+            <div class="modal" id="modal">
+                <div class="vertical-alignment-helper">
+                    <div class="modal-dialog vertical-align-center" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title cncl_cnfrm_text" id="modal-title">
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-footer">
+                                <form action="/d/cancel" method="post">
+                                    <input type="text" id="did" name="did" style="display: none;">
+                                    <button type="submit" class="btn btn-danger mx-2 sure_text" id="modal-button"></button>
+                                </form>
+                                <button type="button" class="btn btn-secondary mx-2 no_text" data-dismiss="modal"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+        </div>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<%- include ('../partials/socket') %>
+<% if (locals.car_delivery) { %>
+    <script> var car_delivery = <%= car_delivery %>; </script>
+<% } %>
+<script src="/lang/js-pages/delivery/<%= lang %>.js"></script>
+<script src="/js/delivery.js"></script>
+</html>

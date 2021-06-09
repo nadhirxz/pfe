@@ -1,0 +1,25 @@
+lang_text = {
+    new_delivery_text: "طلب توصيل جديد",
+    buy_sth_from_shop_text: "شراء من متجر",
+    drliver_from_place_text: "توصيل من مكان إلى آخر",
+    long_d_d_text: "توصيل للمسافات طويلة (20-50 كم)",
+    out_of_srvc_text: "نحن حاليا خارج الخدمة",
+    ttl_delvrs_text: "إجمالي التوصيلات :",
+    ttl_spnt_text: "إجمال الصرف :",
+    todays_deliveries_text: "التوصيلات اليوم :",
+    thing_text: "الغرض :",
+    distance_text: "المسافة :",
+    price_text: "السعر :",
+    status_text: "الحالة :",
+    from_text: "من :",
+    date_submitted_text: "تاريخ الطلب :",
+    details_text: "تفاصيل",
+    no_dlvrs_today_text: "لا يوجد توصيلات اليوم",
+    dlvrs_to_clients_text: "توصيلات للعملاء منك :",
+    amount_to_pay_text: "مبلغ الدفع :",
+    at_text: "على",
+    free_dlvr_text: "<span class='text-white'>تهانينا !</span> لقد فزت بطلب توصيل مجاني من طرف فريق عمل وصّللي، تقديرا لولائك الدائم.",
+    not_wrkn_now_text: "خدمتنا متوفرة فقط من",
+    to_text: "إلى"
+
+}

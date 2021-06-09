@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+        <img src="/img/loading.gif" class="pt-4" id="loading-img">
+        <div id="delivery" class="d-none">
+            <form action="/new_long_distance_delivery" method="post">
+                <div class="form-group">
+                    <div class="form-group">
+                        <label class="dlvr_from_text"></label>
+                        <select class="custom-select" id="delivery-from" name="from" required>
+                            <option selected value="">-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="dlvr_to_text"></label>
+                        <select class="custom-select" id="delivery-to" name="to" required>
+                            <option selected value="">-</option>
+                        </select>
+                    </div>
+                    <p class="text-<% if (lang == 'ar') { %>right<% } else { %>left<% } %> mb-2"><span class="price_text"></span> <b id="price">-</b> <span class="dzd_text"></span></p>
+                    <div class="form-group">
+                        <label class="dlvr_type_text"></label>
+                        <select class="custom-select" id="delivery-type" name="type" required>
+                            <option selected value="0" class="dlvr_sth_text"></option>
+                            <option value="1" class="buy_sth_text"></option>
+                        </select>
+                    </div>
+                    <div class="form-group d-none" id="another-shop">
+                        <label for="delivery-thing" class="name_of_shop_text"></label>
+                        <input type="text" class="form-control" id="shop-name" name="shop" id="shop">
+                    </div>
+                    <div class="form-group">
+                        <label for="delivery-thing" class="thing_text"></label>
+                        <input type="text" class="form-control" name="thing" id="thing" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="delivery-thing" class="rcvr_phone_text"></label>
+                        <input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="10" class="form-control" name="phone" id="phone" required>
+                    </div>
+                </div>
+                <br>
+                <a class="btn btn-danger col-4 cancel_text" href="/home"></a>
+                <button type="submit" class="btn btn-success col-4 submit_text"></button>
+            </form>
+        </div>
+    </div>
+    
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<%- include ('../partials/socket') %>
+<script src="/js/ldd.js"></script>
+</html>

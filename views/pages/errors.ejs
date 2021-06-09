@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ("../partials/navbar") %>
+    <div class="px-5 py-5 m-auto text-center">
+        <h3><%= error %> </h3>
+        <p><%= body %></p>
+        <button class="btn btn-success" onclick="window.history.back()">Go back</button>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+</html>

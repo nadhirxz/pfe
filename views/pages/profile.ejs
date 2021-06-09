@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+        <h1></h1>
+        <div class="form-group">
+            <label for="name-field" class="name_text"></label>
+            <input type="text" class="form-control text-center" id="name-field" name="phone" value="<%= name %>" disabled>
+        </div>
+        <div class="form-group">
+            <label for="phone-field" class="phone_text"></label>
+            <input type="tel" maxlength="10" class="form-control text-center" id="phone-field" name="phone" value="<%= phone %>" disabled>
+        </div>
+        <a class="btn btn-success col my-2 chng_pwd_text" href="/editpassword"></a>
+        <br>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+
+</html>

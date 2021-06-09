@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+        <h1 class="register_text"></h1>
+        <form action="/staffregister" method="post">
+            <p id="err-msg" class="text-danger"></p>
+            <div class="form-group">
+                <label for="name-field" class="name_text"></label>
+                <input type="text" class="form-control" id="name-field" name="name" required>
+                <div class="invalid-feedback" id="name-feed"></div>
+            </div>
+            <div class="form-group">
+                <label for="phone-field" class="phone_text"></label>
+                <input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="10" class="form-control" id="phone-field" name="phone" required>
+                <div class="invalid-feedback" id="phone-feed"></div>
+            </div>
+            <div class="form-group">
+                <label for="password-field" class="password_text"></label>
+                <div class="input-group input-group-seamless">
+                    <input type="password" data-toggle="password" class="form-control" id="password-field" name="password" required>
+                    <span class="input-group-append">
+                        <span class="input-group-text" id="toggle">
+                            <i id="toggle-icon" class="fa fa-eye-slash"></i>
+                        </span>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="type-field" class="type_text"></label>
+                <select name="type" class="form-control" id="type-field">
+                    <option value="2" selected="" class="driver_text"></option>
+                    <option value="3" class="car_driver_text"></option>
+                </select>
+              </div>
+            <div class="form-group">
+                <label for="secret-field" class="sec_key_text"></label>
+                <input type="text" class="form-control" id="secret-field" name="secret" required>
+                <div class="invalid-feedback" id="secret-feed"></div>
+            </div>
+            <br>
+            <div id="buttons">
+                <button type="submit" class="btn btn-success col-md-5 register_text" id="submit-btn"></button>
+            </div>
+        </form>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<script src="/js/staff.js"></script>
+<script src="/js/toggle_password.js"></script>
+
+</html>

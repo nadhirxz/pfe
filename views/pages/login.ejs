@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center py-4">
+        <h1><span class="login_text"></span></h1>
+        <form action="/login" method="post">
+            <p id="err-msg" class="text-danger"></p>
+            <div class="form-group">
+                <label for="phone-field"><span class="phone_text"></span></label>
+                <input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="10" class="form-control" id="phone-field" name="phone" required>
+                <div class="invalid-feedback" id="phone-feed"></div>
+            </div>
+            <div class="form-group">
+                <label for="password-field"><span class="password_text"></span></label>
+                <div class="input-group input-group-seamless">
+                    <input type="password" data-toggle="password" class="form-control" id="password-field" name="password" required>
+                    <span class="input-group-append">
+                        <span class="input-group-text" id="toggle">
+                            <i id="toggle-icon" class="fa fa-eye-slash"></i>
+                        </span>
+                    </span>
+                </div>
+                <div class="invalid-feedback" id="password-feed"></div>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-success col-md-5" id="submit-btn"><span class="login_text"></span></button>
+        </form>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<script src="/lang/js-pages/log_reg/<%= lang %>.js"></script>
+<script src="/js/log_reg.js"></script>
+<script src="/js/toggle_password.js"></script>
+
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+        <h1><span class="confirm_text"></span></h1>
+        <img src="/img/loading.gif" class="px-5 py-1" id="loading-img">
+        <p id="err-msg" class="text-danger"></p>
+        <h5 id="info-msg"></h5>
+        <br>
+        <div class="form-group">
+            <label for="code-field"><span class=""></span><span class="verification_code_text"></span></label>
+            <input type="text" onkeypress="return onlyNumberKey(event)" maxlength="6" class="form-control verification-code-field" id="code-field" name="code" required>
+            <div class="invalid-feedback" id="code-feed"></div>
+        </div>
+        <p id="try-again"></p>
+        <button type="submit" class="btn btn-success col-md-5" id="confirm"><span class="confirm_text"></span></button>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<%- include ('../partials/socket') %>
+<script src="/lang/js-pages/confirm/<%= lang %>.js"></script>
+<script src="/js/confirm.js"></script>
+</html>

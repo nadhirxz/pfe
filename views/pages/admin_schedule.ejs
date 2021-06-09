@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+        <% if(we_are_working_now) { %>
+        <h5 class="text-success">We are currently working</h5>
+        <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal">Stop working</button>
+        <% } else { %>
+        <h5 class="text-danger">We are currently not working</h5>
+        <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal">Start working</button>
+        <% } %>
+        <hr class="my-4">
+        <form action="/new_schedule" method="post">
+            <div class="col">
+                <h5>Friday</h5>
+                <div class="row mb-4">
+                    <input type="text" class="form-control m-auto col-5" id="secret-field" name="ffo" placeholder="eg. 09:00" value="<%= schedule[1][0][0] %>" required>
+                    <input type="text" class="form-control m-auto col-5" id="secret-field" name="fto" placeholder="eg. 12:00" value="<%= schedule[1][0][1] %>" required>
+                </div>
+                <h5>And</h5>
+                <div class="row">
+                    <input type="text" class="form-control m-auto col-5" id="secret-field" name="fft" placeholder="eg. 14:00" value="<%= schedule[1][1][0] %>" required>
+                    <input type="text" class="form-control m-auto col-5" id="secret-field" name="ftt" placeholder="eg. 18:00" value="<%= schedule[1][1][1] %>" required>    
+                </div>
+                </div>
+            <hr class="my-4">
+            <div class="col">
+                <h5>Other days</h5>
+                <div class="row">
+                    <input type="text" class="form-control m-auto col-5" id="secret-field" name="from" placeholder="eg. 09:00" value="<%= schedule[0][0] %>" required>
+                    <input type="text" class="form-control m-auto col-5" id="secret-field" name="to" placeholder="eg. 18:00" value="<%= schedule[0][1] %>" required>
+                </div>
+            </div>
+            <button class="btn btn-success col-4 my-4" type="submit">Save</button>
+        </form>
+    </div>
+    <div class="modal" id="modal">
+        <div class="vertical-alignment-helper">
+            <div class="modal-dialog vertical-align-center" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <% if(we_are_working_now) { %>
+                        <h5 class="modal-title">Are you sure you want to stop working ?</h5>
+                        <% } else { %>
+                        <h5 class="modal-title">Are you sure you want to start working ?</h5>
+                        <% } %>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <form action="/toggle_working_status" method="post">
+                            <input type = "hidden" name = "nothing" value = "something" />
+                            <% if(we_are_working_now) { %>
+                            <button type="submit" class="btn btn-danger mx-2">Stop</button>
+                            <% } else { %>
+                            <button type="submit" class="btn btn-success mx-2">Start</button>
+                            <% } %>
+                        </form>
+                        <button type="button" class="btn btn-secondary mx-2" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+</html>

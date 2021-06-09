@@ -1,0 +1,29 @@
+.banner-img {
+    display: block;
+    max-height: 54px;
+    width: auto;
+    height: auto;
+}
+
+@media (orientation: landscape) {
+    .logo-main-page {
+        display: block;
+        max-width: 30vw;
+        width: auto;
+        height: auto;
+        margin: auto;
+    }
+}
+  
+@media (orientation: portrait) {
+    .logo-main-page {
+        display: block;
+        max-width: 70%;
+        width: auto;
+        height: auto;
+        margin: auto;
+    }
+    .main-info-img {
+        width: 90%;
+    }
+}

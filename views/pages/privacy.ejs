@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="px-5 py-5 m-auto text-center">
+        <% if (lang == 'en') { %>
+        <h2 class="my-4">Privacy Policy</h2>
+        <p class="col-md-6 m-auto">We don’t sell your personal information, but we still have to tell what we collect from you and how use it. We may update this policy time to time. Your continued use of this application or website indicates your agreement to the updated terms.</p>
+        <% } else if (lang == 'fr') { %>
+        <h2 class="my-4">Politique de confidentialité </h2>
+        <p class="col-md-6 m-auto">Nous ne vendons pas vos informations personnelles, mais nous devons tout de même dire ce que nous recueillons auprès de vous et comment les utiliser. Nous pouvons mettre à jour cette politique de temps en temps. Votre utilisation continue de cette application ou de ce site Web indique votre acceptation des conditions mises à jour.</p>
+        <% } else  { %>
+        <h2 class="my-4">سياسة الخصوصية</h2>
+        <p class="col-md-6 m-auto">نحن لا نبيع معلوماتك الشخصية ، ولكن لا يزال يتعين علينا اعلامك ما نجمعه منك وكيفية استخدامها. قد نقوم بتحديث هذه السياسة من وقت لآخر. يشير استمرار استخدامك لهذا التطبيق أو موقع الويب على موافقتك على الشروط المحدثة.</p>
+        <% } %>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+
+</html>

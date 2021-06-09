@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+        <% if (locals.day) { %>
+            <h4 class="mt-4"><%= day %></h4>
+            <hr class="my-4">
+            <p class="my-1 text-left">Deliveries : <b><%= deliveries %></b></p>
+            <p class="my-1 text-left">Profit : <b><%= profit %></b> DZD</p>
+        <% } else if (locals.drivers) {%>
+            <h4 class="mt-4">Drivers</h4>
+            <% drivers.forEach(driver => { %>
+            <hr class="my-4">
+            <h6 class="my-1 text-center"><%= driver.name %> - <a href="tel:<%= driver.phone %>"><%= driver.phone %></a></h6>
+            <p class="my-1 text-left">Deliveries today : <b><%= driver.daily_deliveries %></b> - Profit today : <b><%= driver.daily_profit %></b> DZD</p>
+            <p class="my-1 text-left">Deliveries this week : <b><%= driver.weekly_deliveries %></b> - Profit this week : <b><%= driver.weekly_profit %></b> DZD</p>
+            <p class="my-1 text-left">All time deliveries : <b><%= driver.all_time_deliveries %></b> - All time profit : <b><%= driver.all_time_profit %></b> DZD</p>
+            <% }); %>
+        <% } else if (locals.partners) { %>
+            <h4 class="mt-4">Partners</h4>
+            <% partners.forEach(partner => { %>
+            <hr class="my-4">
+            <h6 class="my-1 text-center"><%= partner.name %> - <a href="tel:<%= partner.phone %>"><%= partner.phone %></a></h6>
+            <p class="my-1 text-left">Deliveries from this partner this week : <b><%= partner.deliveries_amount %></b> DZD</p>
+            <p class="my-1 text-left">Percentage : <b><%= partner.percentage %>%</b> - Amount to pay us : <b><%= partner.payment_amount %></b> DZD</p>
+            <% }); %>
+        <% } else { %>
+            <% var today = new Date() %>
+            <h4 class="mt-4"><%= today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0'); %></h4>
+            <hr class="my-4">
+            <p class="my-1 text-left">Deliveries today : <b><%= daily_deliveries %></b> - Profit today : <b><%= daily_deliveries %></b> DZD</p>
+            <p class="my-1 text-left">Deliveries this week : <b><%= weekly_deliveries %></b> - Profit this week : <b><%= weekly_deliveries %></b> DZD</p>
+            <p class="my-1 text-left">All time deliveries : <b><%= all_time_deliveries %></b> - All time profit : <b><%= all_time_deliveries %></b> DZD</p>
+            <hr class="my-4">
+            <a class="btn btn-success" href="/details/drivers">Drivers</a>
+            <a class="btn btn-success" href="/details/partners">Partners</a>
+            <hr class="my-4">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="datepicker" placeholder="Date" readonly="readonly">
+                <div class="input-group-append">
+                    <button class="btn btn-success" id="details-btn">Details</button>
+                </div>
+            </div>
+            
+        <% } %>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shards-ui/3.0.0/js/shards.min.js" integrity="sha512-pY3v/NW9hYmsCbTOeU6NHkNbaTAAGXLTZ27i1MIqHVLwniv/0xt26F5vSKI3jr2bZBJP3k2jRvlilMCp3E1bKg==" crossorigin="anonymous"></script>
+<script>
+    $('#datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        calendarWeeks: true,
+        autoclose: true,
+        todayHighlight: true
+    });
+    $('#details-btn').on('click', () => {
+        if ($('#datepicker').val()) {
+            window.location.href = '/details/'+$('#datepicker').val();   
+        }
+    });
+</script>
+  
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2" id="divvv">
+        <h5><span class="deliveries_today"></span><b><%= deliveries_today %></b></h5>
+        <h5><span class="profit_today"></span><b><%= profit_today %></b> <span class="dzd">DZD</span></h5>
+        <% if (winners.length) { %>
+        <h3 class="winners_text"></h3>
+        <% winners.forEach(winner => { %>
+        <p class="my-1"><%= winner.name %> - <%= winner.phone %></p>
+        <% }) %>
+        <% } %>
+        <a type="button" class="btn btn-block btn-success mx-2 mt-5 mb-4 details" href="/details"></a>
+        <a type="button" class="btn btn-block btn-success mx-2 mb-4 shcedule" href="/schedule"></a>
+        <a type="button" class="btn btn-block btn-success mx-2 my-4 blacklist" href="/blacklist"></a>
+        <a type="button" class="btn btn-block btn-success mx-2 my-4 partners" href="/partnersinfo"></a>
+        <a type="button" class="btn btn-block btn-success mx-2 mb-4 new_key" href="/new/key"></a>
+        <a type="button" class="btn btn-block btn-success mx-2 my-4 new_place" href="/new/place"></a>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+
+</html>

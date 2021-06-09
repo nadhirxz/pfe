@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+<%
+var deliveryTypes = {
+    en: ["Place to Place", "Shop to Place"],
+    fr: ["Place vers Place", "Shop à Place"],
+    ar: ["مكان إلى مكان", "محل إلى مكان"],
+}
+%>
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+        <p><span class="tdys_dlvrs_text"></span> <b><%= todays_deliveries %></b> - <span class="tdys_profit_text"></span> <b><%= todays_profit %> <span class="dzd_text"></span></b></p>
+        <p><span class="all_dlvrs_text"></span> <b><%= all_deliveries %></b> - <span class="all_profit_text"></span> <b><%= all_profit %> <span class="dzd_text"></span></b></p>
+        <div id="requests">
+            <% delivery.forEach(delivery => { %>
+            <div id="<%= delivery._id %>" class="d-flex justify-content-center">
+                <div class="jumbotron col-lg-6">
+                    <h4><a href="tel:<%= delivery.phone %>"><%= delivery.phone %></a> - <%= delivery.name %></h4>
+                    <p><span class="thing_text"></span> <b><%= delivery.thing %></b></p>
+                    <p><span class="price_text"></span> <b><%= delivery.price %> <span class="dzd_text"></span></b></p>
+                    <p><span class="type_text"></span> <b><%= delivery.type %></b></p>
+                    <p><span class="rcvr_phone_text"></span> <b><%= deliveryTypes[delivery.type] %></b></p>
+                    <% if (delivery.status == 0) { %>
+                    <button class="btn btn-sm btn-danger mx-2 refuse_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery._id %>', 'r')"></button>
+                    <button class="btn btn-sm btn-success mx-2 accept_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery._id %>', 'a')"></button>
+                    <% } else if (delivery.status == 1) { %>
+                    <button class="btn btn-sm btn-danger mx-2 failed_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery._id %>', 'f')"></button>
+                    <button class="btn btn-sm btn-success mx-2 completed_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery._id %>', 'c')"></button>
+                    <% } %>
+                </div>
+                <hr>
+            </div>
+            <% }); %>
+        </div>
+    </div>
+    <div class="modal" id="modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><span class="ru_sure_text"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-dismiss="modal" id="modal-button" onclick="doStuff()"></button>
+                    <button type="button" class="btn btn-secondary cancel_text" data-dismiss="modal"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<script src="/lang/js-pages/cardriver/<%= lang %>.js"></script>
+<script src="/js/cardriver.js"></script>
+
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center py-3">
+        <h1><span class="register_text"></span></h1>
+        <form action="/register" method="post">
+            <p id="err-msg" class="text-danger"></p>
+            <div class="form-group">
+                <label for="name-field"><span class="name_text"></span></label>
+                <input type="text" maxlength="40" class="form-control" id="name-field" name="name" required>
+                <div class="invalid-feedback" id="name-feed"></div>
+            </div>
+            <div class="form-group">
+                <label for="phone-field"><span class="phone_text"></span></label>
+                <input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="10" class="form-control" id="phone-field" name="phone" required>
+                <div class="invalid-feedback" id="phone-feed"></div>
+            </div>
+            <div class="form-group">
+                <label for="password-field"><span class="password_text"></span></label>
+                <div class="input-group input-group-seamless">
+                    <input type="password" data-toggle="password" class="form-control" id="password-field" name="password" required>
+                    <span class="input-group-append">
+                        <span class="input-group-text" id="toggle">
+                            <i id="toggle-icon" class="fa fa-eye-slash"></i>
+                        </span>
+                    </span>
+                </div>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-success col-md-5" id="submit-btn"><span class="register_text"></span></button>
+            <br><br>
+            <p><span class="are_you_a_partner_text"></span> <a href="/partners"><span class="click_here_text"></span></a></p>
+        </form>
+    </div>
+    <%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<script src="/lang/js-pages/log_reg/<%= lang %>.js"></script>
+<script src="/js/log_reg.js"></script>
+<script src="/js/toggle_password.js"></script>
+
+</html>

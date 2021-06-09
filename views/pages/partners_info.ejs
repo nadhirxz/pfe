@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+        <h4 class="mt-4">Partners</h4>
+        <% if (partners.length) { %>
+        <% partners.forEach(partner => { %>
+        <a class="btn btn-success col-md-5 my-2" href='/partner/<%= partner.id %>'><%= partner.name %></a>
+        <% }); %>
+        <% } %>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+  
+</html>

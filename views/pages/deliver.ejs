@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+    <%- include ('../partials/leaflet') %>
+    <%- include ('../partials/lrm') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 m-auto text-center pt-2">
+        <img src="/img/loading.gif" id="loading-img">
+        <div id="delivery" class="d-none">
+            <div class="form-group">
+                <label for="delivery-thing" class="thing_text"></label>
+                <input type="text" class="form-control" onkeyup="trackInput()" id="delivery-thing">
+            </div>
+            <div class="form-group">
+                <label for="phone-field" class="recpnt_phone_number"></label>
+                <input type="tel" onkeypress="return onlyNumberKey(event)" onkeyup="trackInput()" maxlength="10" class="form-control" id="phone-field" name="phone">
+            </div>
+            <div class="form-group">
+                <label><span class="weight_text"></span></label>
+                <select class="custom-select" id="delivery-weight">
+                  <option value="0" selected="" class="less_than_5_text"></option>
+                  <option value="1" class="not_less_than_5_text"></option>
+                </select>
+            </div>
+            <br>
+            <button type="button" id="cancel-button" class="btn btn-danger col-4 cancel_text"></button>
+            <button type="button" id="first-next" class="btn btn-secondary col-4 disabled next_text"></button>
+        </div>
+    </div>
+    
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<%- include ('../partials/socket') %>
+<script>
+    var at = "<%= at %>";
+    var gh = "<%= gh %>";
+</script>
+<script src="/lang/js-pages/deliver/<%= lang %>.js"></script>
+<script src="/js/disable_refresh.js"></script>
+<script src="/js/deliver.js"></script>
+</html>

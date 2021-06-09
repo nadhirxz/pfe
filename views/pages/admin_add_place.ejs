@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+    <%- include ('../partials/leaflet') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-lg-10 py-1 m-auto text-center" id="container">
+        <div class="row">
+            <div class="col-sm mb-3">
+                <input type="text" class="form-control" id="place-name" placeholder="Name of the place" required>
+            </div>
+            <div class="col-sm mb-3">
+                <input type="text" class="form-control" id="secret-key" placeholder="Secret Key" required>
+            </div>
+            <div class="col-sm-2 mb-3">
+                <button class="btn btn-block btn-success" id="next-btn">Next</button>
+            </div>
+        </div>
+        <div id="map" class="add-places-map" style="height: 70vh;"></div>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<script>
+    var at = "<%= at %>";
+    var gh = "<%= gh %>";
+</script>
+<script src="/js/admin_add_place.js"></script>
+
+</html>

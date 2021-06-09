@@ -1,0 +1,9 @@
+node_modules/
+*.py
+*.txt
+*.env
+!minify.py
+secret.js
+local/
+ecosystem.config.js
+public/img/partners/

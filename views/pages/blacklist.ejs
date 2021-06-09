@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+        <form method="post"></form>
+        <div class="form-group">
+            <label for="phone-field"><span class="phone_text"></span></label>
+            <input type="tel" maxlength="10" class="form-control" name="phone" id="phone-field" required>
+        </div>
+        <button type="submit" formaction="/add_to_blacklist" class="btn btn-success col-md-5" id="submit-btn"><span class="add_text"></span></button>
+        <button type="submit" formaction="/remove_from_blacklist" class="btn btn-danger col-md-5" id="submit-btn"><span class="remove_text"></span></button>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+
+</html>

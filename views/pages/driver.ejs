@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-<% if (lang == 'ar') { %>right<% } else { %>left<% } %> pt-2">
+        <p class="mb-1"><span class="todays_deliveries_text"></span> <b><%= daily_deliveries %></b> / <span class="tdys_profit_text"></span> <b><%= daily_profit %> <span class="dzd_text"></span></b></p>
+        <p class="my-1"><span class="dis_weeks_dlvrs_text"></span> <b><%= weekly_deliveries %></b> / <span class="dis_weeks_profit_text"></span> <b><%= weekly_profit %> <span class="dzd_text"></span></b></p>
+        <p class="my-1"><span class="ttl_delvrs_text"></span> <b><%= all_time_deliveries %></b> / <span class="all_profit_text"></span> <b><%= all_time_profit %> <span class="dzd_text"></span></b></p>
+        <div id="requests" class="text-center">
+            <img src="/img/loading-blue.gif" id="loading-img">
+        </div>
+    </div>
+    <div class="modal" id="modal">
+        <div class="vertical-alignment-helper">
+            <div class="modal-dialog vertical-align-center" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-title"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn mx-2" data-dismiss="modal" id="modal-button" onclick="current_function()"></button>
+                        <button type="button" class="btn btn-secondary mx-2 cancel_text" data-dismiss="modal"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<%- include ('../partials/socket') %>
+<script src="/lang/js-pages/driver/<%= lang %>.js"></script>
+<script src="/js/driver.js"></script>
+
+</html>
