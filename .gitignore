@@ -1,6 +1,6 @@
 node_modules/
 *.py
-*.txt
+dbOptions.txt
 *.env
 !minify.py
 secret.js
