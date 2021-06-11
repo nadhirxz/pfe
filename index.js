@@ -14,7 +14,7 @@ const dotenv = require('dotenv');
 
 // Getting some values
 dotenv.config();
-const { HASH_SECRET, COOKIE_SECRET, COOKIE_PARSER_SECRET, SESSION_STORE_SECRET, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, PORT, TWILIO_SID, TWILIO_AUTH_TOKEN, TWILIO_SERVICE_SID } = process.env;
+const { HASH_SECRET, COOKIE_SECRET, COOKIE_PARSER_SECRET, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, PORT, TWILIO_SID, TWILIO_AUTH_TOKEN, TWILIO_SERVICE_SID } = process.env;
 
 
 // Twilio setup
@@ -99,14 +99,14 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Cookie parser
-app.use(cookieParser(settings.cookieParserSecret))
+app.use(cookieParser(COOKIE_PARSER_SECRET))
 
 // Session Cookie
 const sessionOptions = {
 	name: settings.sessionName,
 	resave: false,
 	saveUninitialized: false,
-	secret: settings.cookieSecret,
+	secret: COOKIE_SECRET,
 	store: sessionStore,
 }
 
@@ -548,7 +548,7 @@ function calculateTimeLeft(end, startDate, coef = 1) {
 
 // PIN validation
 function handlePinConfirmation(socket, user, data) {
-	if (typeof(user.pin_retries) == 'undefined' || user.pin_retries > 1) {
+	if (typeof (user.pin_retries) == 'undefined' || user.pin_retries > 1) {
 		let status = 'pending';
 		twilio.verify.services(TWILIO_SERVICE_SID).verificationChecks.create({ to: `+213${user.phone.substr(1)}`, code: '' + data }).then((verification_check) => {
 			status = verification_check.status;
