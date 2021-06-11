@@ -78,8 +78,8 @@ var partners_schedule = {};
 
 var we_are_working_now = false;
 var our_schedule = [
-	["08:00", "23:59"], // other days
-	[["04:00", "04:00"], ["08:00", "23:59"]] // friday
+	['08:00', '23:59'], // other days
+	[['04:00', '04:00'], ['08:00', '23:59']] // friday
 ];
 
 
@@ -106,67 +106,67 @@ var graphhopper_apis = [];
 client.connect(err => {
 	db = client.db(settings.dbName);
 
-	db.collection("users").find({}).toArray(function (err, result) {
+	db.collection('users').find({}).toArray(function (err, result) {
 		if (err) console.log(err);
 		users = result;
 		drivers = getDrivers();
-		console.log("Users loaded from database !");
+		console.log('Users loaded from database !');
 	});
 
-	db.collection("deliveries").find({}).toArray(function (err, result) {
+	db.collection('deliveries').find({}).toArray(function (err, result) {
 		if (err) console.log(err);
 		deliveries = result;
 		fillDeliveriesBuffer();
-		console.log("Deliveries loaded from database !");
+		console.log('Deliveries loaded from database !');
 	});
-	db.collection("cardeliveries").find({}).toArray(function (err, result) {
+	db.collection('cardeliveries').find({}).toArray(function (err, result) {
 		if (err) console.log(err);
 		car_deliveries = result;
-		console.log("Car deliveries loaded from database !");
+		console.log('Car deliveries loaded from database !');
 	});
 
-	db.collection("places").find({}).toArray(function (err, result) {
+	db.collection('places').find({}).toArray(function (err, result) {
 		if (err) console.log(err);
 		places = result;
 		makePlaceSchedules();
-		console.log("Places loaded from database !");
+		console.log('Places loaded from database !');
 	});
 
-	db.collection("schedule").findOne({ id: "schedule" }, (err, result) => {
+	db.collection('schedule').findOne({ id: 'schedule' }, (err, result) => {
 		if (err) console.log(err);
 		if (result) {
 			if (typeof (result.working) != 'undefined') we_are_working_now = result.working;
 			if (typeof (result.schedule) != 'undefined') our_schedule = result.schedule;
 		}
 		loadSchedules();
-		console.log("Schedules loaded from database !");
+		console.log('Schedules loaded from database !');
 	});
 
-	db.collection("admin").findOne({ id: "mapbox" }, (err, result) => {
+	db.collection('admin').findOne({ id: 'mapbox' }, (err, result) => {
 		if (err) console.log(err);
 		mapbox_apis = result.apis;
-		console.log("MapBox apis loaded from database !");
+		console.log('MapBox apis loaded from database !');
 	});
 
-	db.collection("admin").findOne({ id: "graphhopper" }, (err, result) => {
+	db.collection('admin').findOne({ id: 'graphhopper' }, (err, result) => {
 		if (err) console.log(err);
 		graphhopper_apis = result.apis;
-		console.log("GraphHopper apis loaded from database !");
+		console.log('GraphHopper apis loaded from database !');
 	});
 
-	db.collection("admin").findOne({ id: "car_delivery_prices" }, (err, result) => {
+	db.collection('admin').findOne({ id: 'car_delivery_prices' }, (err, result) => {
 		if (err) console.log(err);
 		car_delivery_prices = result.prices;
-		console.log("Car delivery prices loaded from database !");
+		console.log('Car delivery prices loaded from database !');
 	});
 
-	db.collection("admin").findOne({ id: "blacklist" }, (err, result) => {
+	db.collection('admin').findOne({ id: 'blacklist' }, (err, result) => {
 		if (err) console.log(err);
 		if (result && result.numbers) blacklist = result.numbers;
-		console.log("Blacklist loaded from database !");
+		console.log('Blacklist loaded from database !');
 	});
 
-	db.collection("finance").findOne({ id: todays_date }, (err, result) => {
+	db.collection('finance').findOne({ id: todays_date }, (err, result) => {
 		if (err) console.log(err);
 		if (result) {
 			daily_deliveries = result.deliveries_today;
@@ -175,7 +175,7 @@ client.connect(err => {
 		console.log("Today's finance loaded from database !");
 	});
 
-	db.collection("finance").findOne({ id: "this_week" }, (err, result) => {
+	db.collection('finance').findOne({ id: 'this_week' }, (err, result) => {
 		if (err) console.log(err);
 		if (result) {
 			weekly_deliveries = result.deliveries_this_week;
@@ -183,13 +183,13 @@ client.connect(err => {
 		}
 		console.log("This week's finance loaded from database !");
 	});
-	db.collection("finance").findOne({ id: "all_time" }, (err, result) => {
+	db.collection('finance').findOne({ id: 'all_time' }, (err, result) => {
 		if (err) console.log(err);
 		if (result) {
 			all_time_deliveries = result.all_time_deliveries;
 			all_time_profit = result.all_time_profit;
 		}
-		console.log("All time finance loaded from database !");
+		console.log('All time finance loaded from database !');
 	});
 });
 
@@ -268,7 +268,7 @@ let checkAuth = (req, res, next) => {
 	}
 }
 let mustBeConfirmed = (req, res, next) => {
-	let user = getUser("id", req.session.uid);
+	let user = getUser('id', req.session.uid);
 	if (user && (user.type == 0 || user.type == 1) && user.confirmed) {
 		next();
 	} else {
@@ -276,7 +276,7 @@ let mustBeConfirmed = (req, res, next) => {
 	}
 }
 let mustBeNotConfirmed = (req, res, next) => {
-	let user = getUser("id", req.session.uid);
+	let user = getUser('id', req.session.uid);
 	if (user && !user.confirmed && (user.type == 0 || user.type == 1)) {
 		next();
 	} else {
@@ -284,7 +284,7 @@ let mustBeNotConfirmed = (req, res, next) => {
 	}
 }
 let mustBeAgreedOnTerms = (req, res, next) => {
-	let user = getUser("id", req.session.uid);
+	let user = getUser('id', req.session.uid);
 	if (user && (user.type != 0 || user.agreed_on_terms)) {
 		next();
 	} else {
@@ -296,7 +296,7 @@ let mustBeUser = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/login');
 	} else {
-		let user = getUser("id", req.session.uid);
+		let user = getUser('id', req.session.uid);
 		if (user && user.type == 0) {
 			next();
 		} else {
@@ -308,7 +308,7 @@ let mustBePartner = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/login');
 	} else {
-		let user = getUser("id", req.session.uid);
+		let user = getUser('id', req.session.uid);
 		if (user && user.type == 1) {
 			next();
 		} else {
@@ -329,7 +329,7 @@ let mustBeDriver = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/');
 	} else {
-		user = getUser("id", req.session.uid);
+		user = getUser('id', req.session.uid);
 		if (user && user.type == 2) {
 			next();
 		} else {
@@ -341,7 +341,7 @@ let mustBeCarDriver = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/');
 	} else {
-		user = getUser("id", req.session.uid);
+		user = getUser('id', req.session.uid);
 		if (user && user.type == 2) {
 			next();
 		} else {
@@ -353,7 +353,7 @@ let mustBeAdmin = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/');
 	} else {
-		user = getUser("id", req.session.uid);
+		user = getUser('id', req.session.uid);
 		if (user && user.type == 4) {
 			next();
 		} else {
@@ -369,7 +369,7 @@ let mustBeInWorkHours = (req, res, next) => {
 		else return res.render('pages/errors', {
 			title: titles[lang].out_of_srvc + settings.titleSuffix[lang],
 			error: titles[lang].crrntly_out_of_srvc + settings.titleSuffix[lang],
-			body: "",
+			body: '',
 			name: user.name,
 			type: user.type,
 			lang: lang
@@ -383,7 +383,7 @@ let goHomeIfStaffAuth = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		next();
 	} else {
-		let user = getUser("id", req.session.uid)
+		let user = getUser('id', req.session.uid)
 		if (user) {
 			switch (user.type) {
 				case 2: res.redirect('/driver'); break;
@@ -401,7 +401,7 @@ let goHomeIfStaffAuth = (req, res, next) => {
 // Routes
 app.get('/', (req, res) => {
 	if (req.session.uid) { // user authenticated
-		let user = getUser("id", req.session.uid);
+		let user = getUser('id', req.session.uid);
 		if (user) {
 			switch (user.type) {
 				case 0: return res.redirect('/home');
@@ -413,7 +413,7 @@ app.get('/', (req, res) => {
 			}
 		}
 	}
-	req.session.uid = "";
+	req.session.uid = '';
 	let lang = getAndSetPageLanguage(req, res);
 	return res.render('pages/index', {
 		title: titles[lang].welcome + settings.titleSuffix[lang],
@@ -439,9 +439,9 @@ app.get('/home', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 
 		if (!inWorkHours()) dataToSend.schedule = our_schedule;
 
-		let page = "home";
+		let page = 'home';
 		if (user.type == 1) {
-			page = "home_partner";
+			page = 'home_partner';
 			dataToSend.client_deliveries_amount = user.client_deliveries_amount;
 			dataToSend.percentage = user.percentage;
 			dataToSend.amount_to_pay_us = normalizePrice(((user.percentage / 100) * (user.client_deliveries_amount || 0)), 50);
@@ -995,15 +995,15 @@ app.post('/login', checkNotAuth, (req, res) => {
 	let { phone, password } = req.body;
 	if (phone && password) {
 		if (phoneValid(phone)) {
-			let user = getUser("phone", phone);
+			let user = getUser('phone', phone);
 			if (user) {
 				if (user.password == generateHash(password, user.id)) {
 					req.session.uid = user.id;
 					return res.redirect('/home');
 				}
-				return res.redirect("/login?err=" + errors.wrongPasswordErr + '&phone=' + phone);
+				return res.redirect('/login?err=' + errors.wrongPasswordErr + '&phone=' + phone);
 			} else {
-				return res.redirect("/login?err=" + errors.phoneDoesntExistErr + '&phone=' + phone);
+				return res.redirect('/login?err=' + errors.phoneDoesntExistErr + '&phone=' + phone);
 			}
 		} else {
 			res.redirect('/login?err=' + errors.invalidPhoneErr + '&phone=' + phone);
@@ -1020,8 +1020,8 @@ app.post('/register', checkNotAuth, (req, res) => {
 			if (phoneValid(phone)) {
 				if (!phoneBlacklisted(phone)) {
 					if (passwordValid(password)) {
-						if (getUser("phone", phone)) {
-							return res.redirect("/register?err=" + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
+						if (getUser('phone', phone)) {
+							return res.redirect('/register?err=' + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
 						} else {
 							let id = generateUserId(4); // 4 = number of bytes
 							let newUser = {
@@ -1036,10 +1036,10 @@ app.post('/register', checkNotAuth, (req, res) => {
 								last_delivery: 0,
 								reg_date: Date.now()
 							}
-							db.collection("users").insertOne(newUser, (err, result) => {
+							db.collection('users').insertOne(newUser, (err, result) => {
 								if (err) {
 									console.log(err);
-									return res.redirect("/register?err=" + errors.generalErr + '&name=' + name + '&phone=' + phone);
+									return res.redirect('/register?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 								}
 								users.push(newUser);
 								sendPin(phone, getAndSetPageLanguage(req, res));
@@ -1069,10 +1069,10 @@ app.post('/staffregister', checkNotAuth, async (req, res) => {
 	if (phone && name && password && secret && type) {
 		let check = await checkStaffSecret(secret, phone, type).catch((error) => { console.log(error) });
 		if (check) {
-			let user = getUser("phone", phone);
+			let user = getUser('phone', phone);
 			secret = generateStaffKey(secret, phone, type);
 			if (user) {
-				return res.redirect("/staff");
+				return res.redirect('/staff');
 			} else {
 				let id = generateUserId(4);
 				let type = parseInt(secret[0]);
@@ -1084,10 +1084,10 @@ app.post('/staffregister', checkNotAuth, async (req, res) => {
 					password: generateHash(password, id),
 					status: 0
 				}
-				db.collection("users").insertOne(user, (err, result) => {
+				db.collection('users').insertOne(user, (err, result) => {
 					if (err) {
 						console.log(err);
-						return res.redirect("/staff");
+						return res.redirect('/staff');
 					}
 					users.push(user);
 					if (type == 2) drivers.push(user);
@@ -1115,12 +1115,12 @@ app.post('/partnerregister', checkNotAuth, async (req, res) => {
 			if (emailValid(email)) {
 				let check = await checkStaffSecret(secret, phone, 1).catch((error) => { console.log(error) });
 				if (check) {
-					let user = getUser("phone", phone);
+					let user = getUser('phone', phone);
 					let plainTextSecret = secret;
 					secret = generateStaffKey(secret, phone, 1);
 					let percentage = await getPercentage(secret, phone, 1).catch((error) => { console.log(error) });
 					if (user) {
-						return res.redirect("/partners?err=" + settings.phoneExistsErr);
+						return res.redirect('/partners?err=' + settings.phoneExistsErr);
 					} else {
 						let id = generateUserId(4);
 						let pos = await getPartnerPos(generateStaffKey(secret, phone, 1)).catch((error) => { console.log(error) });
@@ -1141,7 +1141,7 @@ app.post('/partnerregister', checkNotAuth, async (req, res) => {
 						p.uid = id;
 						db.collection('places').updateOne({ secret: plainTextSecret }, { $set: { uid: id } });
 
-						db.collection("users").insertOne(user, (err, result) => {
+						db.collection('users').insertOne(user, (err, result) => {
 							if (err) {
 								console.log(err);
 								res.redirect('/partners?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone + '&email=' + email);
@@ -1167,7 +1167,7 @@ app.post('/partnerregister', checkNotAuth, async (req, res) => {
 });
 
 app.post('/d/request', checkAuth, mustBeAgreedOnTerms, (req, res) => {
-	let user = getUser("id", req.session.uid);
+	let user = getUser('id', req.session.uid);
 	if (user && user.hash) {
 		let { type, fromPlace, from, to, distance, price, phone, thing, weight, partner } = req.body;
 		if (typeof (type) && typeof (from) && typeof (to) && typeof (distance) && typeof (price) && typeof (thing) && typeof (weight) && generateHash(('' + distance).substring(0, 5), '' + price) == user.hash && price == user.last_delivery_price) {
@@ -1185,7 +1185,7 @@ app.post('/d/request', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 });
 
 app.post('/new_long_distance_delivery', checkAuth, mustBeAgreedOnTerms, (req, res) => {
-	let user = getUser("id", req.session.uid);
+	let user = getUser('id', req.session.uid);
 	if (user) {
 		let { from, to, type, thing, phone, shop } = req.body;
 		if (typeof (from) && typeof (to) && typeof (type) && typeof (thing) && typeof (phone)) {
@@ -1218,7 +1218,7 @@ app.post('/new_long_distance_delivery', checkAuth, mustBeAgreedOnTerms, (req, re
 });
 
 app.post('/long_distance_delivery_status', checkAuth, mustBeCarDriver, (req, res) => {
-	let user = getUser("id", req.session.uid);
+	let user = getUser('id', req.session.uid);
 	if (user && user.hash) {
 		let { did, func } = req.body;
 		if (typeof (did) && typeof (func)) {
@@ -1258,7 +1258,7 @@ app.post('/long_distance_delivery_status', checkAuth, mustBeCarDriver, (req, res
 });
 
 app.post('/d/cancel', checkAuth, (req, res) => {
-	let user = getUser("id", req.session.uid);
+	let user = getUser('id', req.session.uid);
 	if (user) {
 		let { did } = req.body;
 		if (typeof (did)) {
@@ -1267,7 +1267,7 @@ app.post('/d/cancel', checkAuth, (req, res) => {
 				let delivery = getCarDelivery('id', did);
 				if (delivery && delivery.uid == user.id && delivery.status == 0) {
 					car_deliveries = car_deliveries.filter(obj => obj.id != delivery.id);
-					db.collection("cardeliveries").deleteOne({ id: did });
+					db.collection('cardeliveries').deleteOne({ id: did });
 					return res.redirect('/home');
 				}
 				return res.redirect('/ldd/' + did);
@@ -1287,7 +1287,7 @@ app.post('/d/cancel', checkAuth, (req, res) => {
 						io.to(driver.socket).emit('canceled_delivery', did);
 					}
 					deliveries = deliveries.filter(obj => obj.id != delivery.id);
-					db.collection("deliveries").deleteOne({ id: delivery.id });
+					db.collection('deliveries').deleteOne({ id: delivery.id });
 					return res.redirect('/home');
 				}
 				return res.redirect('/d/' + did);
@@ -1298,7 +1298,7 @@ app.post('/d/cancel', checkAuth, (req, res) => {
 });
 
 app.post('/agree_on_terms', checkAuth, mustBeConfirmed, (req, res) => {
-	let user = getUser("id", req.session.uid);
+	let user = getUser('id', req.session.uid);
 	if (user) {
 		user.agreed_on_terms = true;
 		db.collection('users').updateOne({ id: user.id }, { $set: { agreed_on_terms: true } });
@@ -1308,7 +1308,7 @@ app.post('/agree_on_terms', checkAuth, mustBeConfirmed, (req, res) => {
 
 app.post('/toggle_working_status', mustBeAdmin, (req, res) => {
 	we_are_working_now = !we_are_working_now;
-	db.collection('schedule').updateOne({ id: "schedule" }, { $set: { working: we_are_working_now } })
+	db.collection('schedule').updateOne({ id: 'schedule' }, { $set: { working: we_are_working_now } })
 	return res.redirect('/schedule');
 });
 
@@ -1318,7 +1318,7 @@ app.post('/new_schedule', mustBeAdmin, (req, res) => {
 		[from, to], // other days
 		[[ffo, fto], [fft, ftt]], // friday
 	];
-	db.collection('schedule').updateOne({ id: "schedule" }, { $set: { schedule: our_schedule } });
+	db.collection('schedule').updateOne({ id: 'schedule' }, { $set: { schedule: our_schedule } });
 	return res.redirect('/schedule');
 });
 
@@ -1326,7 +1326,7 @@ app.post('/add_to_blacklist', mustBeAdmin, (req, res) => {
 	let { phone } = req.body;
 	if (phone && phoneValid(phone) && !blacklist.includes(phone)) {
 		blacklist.push(phone);
-		db.collection('admin').updateOne({ id: "blacklist" }, { $push: { numbers: phone } });
+		db.collection('admin').updateOne({ id: 'blacklist' }, { $push: { numbers: phone } });
 	}
 	return res.redirect('/blacklist' + msg);
 });
@@ -1335,7 +1335,7 @@ app.post('/add_to_blacklist', mustBeAdmin, (req, res) => {
 	let { phone } = req.body;
 	if (phone && phoneValid(phone) && blacklist.includes(phone)) {
 		blacklist = blacklist.filter(e => e != phone);
-		db.collection('admin').updateOne({ id: "blacklist" }, { $pull: { numbers: phone } });
+		db.collection('admin').updateOne({ id: 'blacklist' }, { $pull: { numbers: phone } });
 	}
 	return res.redirect('/blacklist');
 });
@@ -1513,14 +1513,14 @@ setTimeout(() => {
 
 // Handling sockets
 
-io.on("connection", (socket) => {
-	let user = getUser("id", socket.request.session.uid) || {};
+io.on('connection', (socket) => {
+	let user = getUser('id', socket.request.session.uid) || {};
 	if (user) user.socket = socket.id;
 
 
 
 	// USER CONFIRMATION
-	socket.on("confirm_page", (data) => {
+	socket.on('confirm_page', (data) => {
 		function timeleft() {
 			user.hash = randomHash(12);
 			let time_left = 0;
@@ -1536,7 +1536,7 @@ io.on("connection", (socket) => {
 			}
 			time_left = calculateTimeLeft(settings.intervalBetweenSMS, date, coef);
 
-			socket.emit("retry_time_left", {
+			socket.emit('retry_time_left', {
 				time_left: time_left,
 				hash: user.hash,
 			});
@@ -1545,9 +1545,9 @@ io.on("connection", (socket) => {
 		timeleft();
 		setInterval(timeleft, 1000 * 60); // send how much time left for retry every minute
 
-		socket.emit("confirm_page_data", user.phone);
+		socket.emit('confirm_page_data', user.phone);
 	});
-	socket.on("retry", (data) => {
+	socket.on('retry', (data) => {
 		if (data.hash == user.hash) {
 			if (user.pin_requested_times) user.pin_requested_times++;
 			else user.pin_requested_times = 1;
@@ -1555,7 +1555,7 @@ io.on("connection", (socket) => {
 			sendPin(user.phone, user.lang || settings.defaultWebsiteLanguage);
 		}
 	});
-	socket.on("confirm_pin", (data) => {
+	socket.on('confirm_pin', (data) => {
 		handlePinConfirmation(socket, user, data);
 	});
 
@@ -1576,7 +1576,7 @@ io.on("connection", (socket) => {
 
 
 	// DELIVERY THINGS
-	socket.on("new_price_request", (data) => {
+	socket.on('new_price_request', (data) => {
 		let dataToSend = {};
 
 		// STATUS 
@@ -1594,7 +1594,7 @@ io.on("connection", (socket) => {
 				if (data.thingsPrice == 2) user.last_delivery_price = calculatePrice((data.distance * (2 / 3)), data.weight);
 				else user.last_delivery_price = calculatePrice(data.distance, data.weight);
 				let d = getLeastBusyDriver(data.from);
-				if (d == "no driver available right now") {
+				if (d == 'no driver available right now') {
 					user.hash = generateHash(('' + data.distance).substring(0, 5), '' + user.last_delivery_price);
 					dataToSend.status = 1;
 					dataToSend.price = user.last_delivery_price;
@@ -1615,7 +1615,7 @@ io.on("connection", (socket) => {
 		} else {
 			dataToSend.status = 3;
 		}
-		socket.emit("price", dataToSend);
+		socket.emit('price', dataToSend);
 	});
 
 
@@ -1626,24 +1626,24 @@ io.on("connection", (socket) => {
 
 
 	// DRIVER STUFF
-	socket.on("driver_connected", (data) => {
+	socket.on('driver_connected', (data) => {
 		user.pos = data;
 		user.socket = socket.id;
 		user.status = 1;
 		newDriverConnected(user);
-		socket.emit("driver_tasks_info", {
+		socket.emit('driver_tasks_info', {
 			tasks: getDriverTasks(user),
 			current_task: user.current_task,
 		});
 	});
-	socket.on("driver_position", (data) => {
+	socket.on('driver_position', (data) => {
 		user.pos = data;
 		user.socket = socket.id;
 		user.status = 1;
 	});
 
 	// DELIVERY HANDLING BY DRIVER STUFF
-	socket.on("accepted_delivery", (data) => {
+	socket.on('accepted_delivery', (data) => {
 		var delivery = getDelivery('id', data);
 		if (delivery) {
 			delivery.status = 2;
@@ -1653,7 +1653,7 @@ io.on("connection", (socket) => {
 			db.collection('deliveries').updateOne({ id: data }, { $set: { status: delivery.status } });
 		}
 	});
-	socket.on("refused_delivery", (data) => {
+	socket.on('refused_delivery', (data) => {
 		var delivery = getDelivery('id', data);
 		if (delivery) {
 			delivery.status = 3;
@@ -1674,7 +1674,7 @@ io.on("connection", (socket) => {
 			newDriverConnected(user);
 		}
 	});
-	socket.on("completed_delivery", (data) => {
+	socket.on('completed_delivery', (data) => {
 		var delivery = getDelivery('id', data);
 		if (delivery) {
 			user = getUser('id', delivery.driver);
@@ -1759,16 +1759,16 @@ io.on("connection", (socket) => {
 			weekly_profit += delivery.price;
 			all_time_profit += delivery.price;
 
-			db.collection('finance').updateOne({ id: "today" }, { $set: { deliveries: daily_deliveries, profit: daily_profit } });
-			db.collection('finance').updateOne({ id: "this_week" }, { $set: { deliveries: weekly_deliveries, profit: weekly_profit } });
-			db.collection('finance').updateOne({ id: "all_time" }, { $set: { deliveries: all_time_profit, profit: all_time_deliveries } });
+			db.collection('finance').updateOne({ id: 'today' }, { $set: { deliveries: daily_deliveries, profit: daily_profit } });
+			db.collection('finance').updateOne({ id: 'this_week' }, { $set: { deliveries: weekly_deliveries, profit: weekly_profit } });
+			db.collection('finance').updateOne({ id: 'all_time' }, { $set: { deliveries: all_time_profit, profit: all_time_deliveries } });
 
 			db.collection('deliveries').updateOne({ id: data }, { $set: { status: delivery.status } });
 
 			newDriverConnected(user);
 		}
 	});
-	socket.on("failed_delivery", (data) => {
+	socket.on('failed_delivery', (data) => {
 		var delivery = getDelivery('id', data);
 		if (delivery) {
 			delivery.status = 5;
@@ -1793,7 +1793,7 @@ io.on("connection", (socket) => {
 
 
 	// DISCONNECTION
-	socket.on("disconnect", function () {
+	socket.on('disconnect', function () {
 		if (user && user.socket) {
 			let s = user.socket;
 			setTimeout(() => {
@@ -1821,7 +1821,7 @@ function randomHash(bytes) {
 
 function generateUserId(bytes) {
 	let id = crypto.randomBytes(bytes).toString('hex');
-	if (getUser("id", id)) { // this is so sooooooo unlikely to happen even with millions of users, but i like to be 100% sure not only 99.9999999999999999999999999999999999999999999999%
+	if (getUser('id', id)) { // this is so sooooooo unlikely to happen even with millions of users, but i like to be 100% sure not only 99.9999999999999999999999999999999999999999999999%
 		return generateUserId(bytes);
 	}
 	return id;
@@ -1831,7 +1831,7 @@ function generateUserId(bytes) {
 
 // Some validations and stuff
 function phoneValid(phone) {
-	if (phone.length == 10 && phone.startsWith("05") || phone.startsWith("06") || phone.startsWith("07")) return true;
+	if (phone.length == 10 && phone.startsWith('05') || phone.startsWith('06') || phone.startsWith('07')) return true;
 	return false;
 }
 
@@ -1853,7 +1853,7 @@ function passwordValid(password) {
 }
 
 function emailValid(email) {
-	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	var re = /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	return re.test(String(email).toLowerCase());
 }
 
@@ -1866,30 +1866,30 @@ function formatName(name) {
 // PIN validation
 function handlePinConfirmation(socket, user, data) {
 	if (user.pin_retries || user.pin_retries > 1) {
-		let status = "pending";
-		twilio.verify.services(settings.twilioServiceSID).verificationChecks.create({ to: `+213${user.phone.substr(1)}`, code: "" + data }).then((verification_check) => {
+		let status = 'pending';
+		twilio.verify.services(settings.twilioServiceSID).verificationChecks.create({ to: `+213${user.phone.substr(1)}`, code: '' + data }).then((verification_check) => {
 			status = verification_check.status;
-			if (status == "approved") {
+			if (status == 'approved') {
 				user.confirmed = true;
 				delete user.last_sent_pin;
 				delete user.pin_requested_times;
 				delete user.last_pin_submission;
 				delete user.pin_retries;
-				db.collection("users").updateOne({ id: user.id }, { $set: { confirmed: true } });
-				socket.emit("pin_confirmed");
+				db.collection('users').updateOne({ id: user.id }, { $set: { confirmed: true } });
+				socket.emit('pin_confirmed');
 			} else {
 				if (user.pin_retries) user.pin_retries -= 1;
 				else user.pin_retries = settings.maxPinRetries;
 				user.last_pin_submission = Date.now();
-				socket.emit("pin_invalid", user.pin_retries);
+				socket.emit('pin_invalid', user.pin_retries);
 			}
 		}).catch((error) => {
-			socket.emit("err_happened");
+			socket.emit('err_happened');
 		});
 	} else {
 		let time_left = calculateTimeLeft(settings.intervalWhenTooManyPinSubmissions, user.last_pin_submission);
 		if (time_left) {
-			socket.emit("tried_too_much", time_left);
+			socket.emit('tried_too_much', time_left);
 		} else {
 			user.pin_retries = settings.maxPinRetries;
 			delete user.last_pin_submission;
@@ -2011,7 +2011,7 @@ function getDriverAvailableIn(driver) {
 
 async function getPercentage(secretText, phone, type) {
 	let key = generateStaffKey(secretText, phone, type);
-	let result = await db.collection("secretkeys").findOne({ "key": key, "secretText": secretText });
+	let result = await db.collection('secretkeys').findOne({ 'key': key, 'secretText': secretText });
 	if (result && result.secretText == secretText) {
 		return result.percentage || settings.partnerPercentage;
 	}
@@ -2100,7 +2100,7 @@ function getPlacesInfo() {
 // Staff validation and stuff
 async function checkStaffSecret(secretText, phone, type) {
 	let key = generateStaffKey(secretText, phone, type);
-	let result = await db.collection("secretkeys").findOne({ "key": key, "secretText": secretText });
+	let result = await db.collection('secretkeys').findOne({ 'key': key, 'secretText': secretText });
 	if (result && result.secretText == secretText) {
 		return true;
 	}
@@ -2108,7 +2108,7 @@ async function checkStaffSecret(secretText, phone, type) {
 }
 
 async function getPartnerPos(secret) {
-	let result = await db.collection("places").findOne({ "secret": secret });
+	let result = await db.collection('places').findOne({ 'secret': secret });
 	if (result && result.secret) {
 		return result.place;
 	}
@@ -2116,7 +2116,7 @@ async function getPartnerPos(secret) {
 }
 
 function destroyStaffSecret(secret) {
-	db.collection("secretkeys").deleteOne({ "key": secret }, (err, result) => {
+	db.collection('secretkeys').deleteOne({ 'key': secret }, (err, result) => {
 		if (err) return false;
 	});
 }
@@ -2128,7 +2128,7 @@ function saveStaffKey(secretText, phone, type, percentage) {
 	let key = generateStaffKey(secretText, phone, type);
 	let insertion = { key: key, secretText: secretText }
 	if (percentage) insertion.percentage = percentage;
-	db.collection("secretkeys").insertOne(insertion, (err, res) => {
+	db.collection('secretkeys').insertOne(insertion, (err, res) => {
 		if (err) return false;
 	});
 }
@@ -2228,7 +2228,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 	if (type == 1) delivery.partner = partner;
 
 	deliveries.push(delivery);
-	db.collection("deliveries").insertOne(delivery, (err, res) => {
+	db.collection('deliveries').insertOne(delivery, (err, res) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 			console.log(err)
@@ -2236,7 +2236,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		};
 		let user = getUser('id', uid)
 		user.last_delivery = Date.now();
-		user.hash = "";
+		user.hash = '';
 		handleNewDelivery(delivery);
 	});
 	return true;
@@ -2246,7 +2246,7 @@ function deliveryInfoPage(delivery) {
 	return {
 		d_type: delivery.type,
 		status: delivery.status,
-		name: getUser("id", delivery.uid).name,
+		name: getUser('id', delivery.uid).name,
 		fromPlace: delivery.fromPlace,
 		thing: delivery.thing,
 		distance: delivery.distance,
@@ -2260,7 +2260,7 @@ function carDeliveryInfoPage(delivery) {
 	return {
 		d_type: delivery.type,
 		status: delivery.status,
-		name: getUser("id", delivery.uid).name,
+		name: getUser('id', delivery.uid).name,
 		from: delivery.from,
 		to: delivery.to,
 		fromPlace: delivery.shop,
@@ -2274,7 +2274,7 @@ function handleNewDelivery(delivery, driverConnected) {
 	if (delivery) {
 		let result = getLeastBusyDriver(delivery.from);
 
-		if (result == "no driver available right now") {
+		if (result == 'no driver available right now') {
 			delivery.status = 6;
 			deliveriesBuffer.push(delivery);
 			db.collection('deliveries').updateOne({ id: delivery.id }, { $set: { status: delivery.status } });
@@ -2308,7 +2308,7 @@ function handleNewDelivery(delivery, driverConnected) {
 			}
 
 			if (driver.socket && !driverConnected) {
-				io.to(driver.socket).emit("got_a_new_delivery", getDetailsToSendToDriver(delivery));
+				io.to(driver.socket).emit('got_a_new_delivery', getDetailsToSendToDriver(delivery));
 			}
 		}
 		sendNewDeliveryStatus(delivery.id);
@@ -2336,7 +2336,7 @@ function getLeastBusyDriver(from) {
 			}
 		}
 	}
-	return "no driver available right now";
+	return 'no driver available right now';
 }
 
 function sendNewDeliveryStatus(delivery) {
@@ -2398,7 +2398,7 @@ function removeDriverTask(driver, taskid) {
 	let index = driver.tasks.indexOf(taskid);
 	driver.tasks.splice(index, 1);
 	driver.available_in.splice(index, 1);
-	driver.current_task = "";
+	driver.current_task = '';
 	if (driver.tasks && driver.tasks.length) {
 		driver.tasks.forEach(task => {
 			let delivery = getDelivery('id', task);
@@ -2486,7 +2486,7 @@ function loadSchedules() {
 // SCHEDULES
 
 // Daily saving
-schedule.scheduleJob("0 30 18,22 * * *", () => { // 18:30 and 22:30 everyday
+schedule.scheduleJob('0 30 18,22 * * *', () => { // 18:30 and 22:30 everyday
 	let insertion = {
 		id: todays_date,
 		deliveries: daily_deliveries,
@@ -2513,14 +2513,14 @@ schedule.scheduleJob("0 30 18,22 * * *", () => { // 18:30 and 22:30 everyday
 				}
 			},
 				{ upsert: true }
-			).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 		} else {
 			insertion.id = todays_date;
-			db.collection('finance').insertOne(insertion).catch((err) => console.log("Error : " + Date.now() + "  " + err));
+			db.collection('finance').insertOne(insertion).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));
 		}
 	});
-	db.collection('finance').updateOne({ id: "this_week" }, { $set: { deliveries: weekly_deliveries, profit: weekly_profit } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
-	db.collection('finance').updateOne({ id: "all_time" }, { $set: { deliveries: all_time_deliveries, profit: all_time_profit } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('finance').updateOne({ id: 'this_week' }, { $set: { deliveries: weekly_deliveries, profit: weekly_profit } }, { upsert: true }).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
+	db.collection('finance').updateOne({ id: 'all_time' }, { $set: { deliveries: all_time_deliveries, profit: all_time_profit } }, { upsert: true }).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 });
 
 // Daily saving right before midnight
@@ -2561,16 +2561,16 @@ schedule.scheduleJob({ hour: 23, minute: 59, second: 0 }, () => { // 23:59 every
 				}
 			},
 				{ upsert: true }
-			).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 		} else {
 			insertion.id = todays_date;
-			db.collection('finance').insertOne(insertion).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			db.collection('finance').insertOne(insertion).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 		}
 	});
 });
 
 // Refreshing date and schedules
-schedule.scheduleJob("0 0 0,4 * * *", () => { // 00:00 and 04:00 everyday
+schedule.scheduleJob('0 0 0,4 * * *', () => { // 00:00 and 04:00 everyday
 	today = new Date();
 	if (today.getDay() == 5) { // Friday
 		todays_schedule = [
@@ -2595,13 +2595,13 @@ schedule.scheduleJob("0 0 0,4 * * *", () => { // 00:00 and 04:00 everyday
 });
 
 // Weekly car deliveries deletion
-schedule.scheduleJob("0 7 4 * * 0", () => { // 04:07 every Sunday
+schedule.scheduleJob('0 7 4 * * 0', () => { // 04:07 every Sunday
 	car_deliveries = []; // removing car deliveries from ram
 	db.collection('cardeliveries').deleteMany({ status: { $ne: 3 } }); // keeping only finished car deliveries in db
 });
 
 // Weekly drivers refreshion
-schedule.scheduleJob("0 7 0,4 * * 5", () => { // 00:07 and 04:07 every Friday
+schedule.scheduleJob('0 7 0,4 * * 5', () => { // 00:07 and 04:07 every Friday
 	if (drivers) {
 		drivers.forEach(driver => {
 			driver.weekly_deliveries = 0;
@@ -2610,18 +2610,18 @@ schedule.scheduleJob("0 7 0,4 * * 5", () => { // 00:07 and 04:07 every Friday
 		});
 	}
 
-	db.collection('finance').findOne({ id: "this_week" }, (err, result) => {
+	db.collection('finance').findOne({ id: 'this_week' }, (err, result) => {
 		if (result) {
-			db.collection('finance').updateOne({ id: "this_week" }, { $set: { deliveries: 0, profit: 0 } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			db.collection('finance').updateOne({ id: 'this_week' }, { $set: { deliveries: 0, profit: 0 } }, { upsert: true }).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 		} else {
-			db.collection('finance').insertOne({ id: "this_week", deliveries: 0, profit: 0 }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			db.collection('finance').insertOne({ id: 'this_week', deliveries: 0, profit: 0 }).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 		}
 	});
 });
 
 
 // Partners weekly data
-schedule.scheduleJob("0 13 1 * * 5", () => { // 01:13 every Friday
+schedule.scheduleJob('0 13 1 * * 5', () => { // 01:13 every Friday
 	let partners = [];
 	let allPartners = getPartners();
 	if (allPartners) {
@@ -2636,18 +2636,18 @@ schedule.scheduleJob("0 13 1 * * 5", () => { // 01:13 every Friday
 			partner.client_deliveries_amount = 0;
 		});
 	}
-	db.collection('finance').findOne({ id: "this_week" }, (err, result) => {
+	db.collection('finance').findOne({ id: 'this_week' }, (err, result) => {
 		if (result) {
-			db.collection('finance').updateOne({ id: "this_week" }, { $set: { partners: partners } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			db.collection('finance').updateOne({ id: 'this_week' }, { $set: { partners: partners } }, { upsert: true }).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 		} else {
-			db.collection('finance').insertOne({ id: "this_week", deliveries: 0, profit: 0, partners: partners }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			db.collection('finance').insertOne({ id: 'this_week', deliveries: 0, profit: 0, partners: partners }).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 		}
 	});
 });
 
 
 // Saving user spending
-schedule.scheduleJob("0 42 0 * * 0", () => { // 00:42 every Sunday
+schedule.scheduleJob('0 42 0 * * 0', () => { // 00:42 every Sunday
 	weekly_winners = [];
 	if (users) {
 		let normal_users = users.filter(obj => obj.type == 0);
@@ -2690,7 +2690,7 @@ schedule.scheduleJob("0 42 0 * * 0", () => { // 00:42 every Sunday
 });
 
 // Deleting unconfirmed users
-schedule.scheduleJob("0 14 3 * * 0,3", () => { // 03:14 every Sunday and Wednesday
+schedule.scheduleJob('0 14 3 * * 0,3', () => { // 03:14 every Sunday and Wednesday
 	let unconfirmed_users = users.filter(obj => obj.confirmed == false);
 	unconfirmed_users.forEach(u => {
 		if (calculateHowManyHoursAgo(u.reg_date) > settings.maxHoursWithoutConfirmation) {
@@ -2703,16 +2703,16 @@ schedule.scheduleJob("0 14 3 * * 0,3", () => { // 03:14 every Sunday and Wednesd
 
 // Saving api use
 schedule.scheduleJob({ hour: 13, minute: 38, second: 0 }, () => {
-	db.collection('admin').updateOne({ id: "graphopper" }, { $set: { apis: graphhopper_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('admin').updateOne({ id: 'graphopper' }, { $set: { apis: graphhopper_apis } }, { upsert: true }).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 });
 schedule.scheduleJob({ hour: 23, minute: 38, second: 0 }, () => {
-	db.collection('admin').updateOne({ id: "mapbox" }, { $set: { apis: mapbox_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('admin').updateOne({ id: 'mapbox' }, { $set: { apis: mapbox_apis } }, { upsert: true }).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 });
-schedule.scheduleJob("0 15 2 * * *", () => { // 02:15 everyday
+schedule.scheduleJob('0 15 2 * * *', () => { // 02:15 everyday
 	graphhopper_apis.forEach(api => { api.use = 0; });
-	db.collection('admin').updateOne({ id: "graphopper" }, { $set: { apis: graphhopper_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('admin').updateOne({ id: 'graphopper' }, { $set: { apis: graphhopper_apis } }, { upsert: true }).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 });
-schedule.scheduleJob("0 22 2 1 * *", () => { // 02:22 at the first day of the month
+schedule.scheduleJob('0 22 2 1 * *', () => { // 02:22 at the first day of the month
 	mapbox_apis.forEach(api => { api.use = 0; });
-	db.collection('admin').updateOne({ id: "mapbox" }, { $set: { apis: mapbox_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('admin').updateOne({ id: 'mapbox' }, { $set: { apis: mapbox_apis } }, { upsert: true }).catch((err) => console.log('Error : ' + Date.now() + '  ' + err));;
 });
