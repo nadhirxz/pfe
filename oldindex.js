@@ -260,7 +260,7 @@ app.use('/lang', express.static(path.join(__dirname, 'public/lang')));
 
 
 // Redirect functions
-let mustBeLoggedIn = (req, res, next) => {
+let checkAuth = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/login');
 	} else {
@@ -317,7 +317,7 @@ let mustBePartner = (req, res, next) => {
 	}
 }
 
-let goHomeIfAuth = (req, res, next) => {
+let checkNotAuth = (req, res, next) => {
 	if (req.session.uid) { // user authenticated
 		res.redirect('/home');
 	} else {
@@ -420,7 +420,7 @@ app.get('/', (req, res) => {
 		lang: lang
 	});
 });
-app.get('/home', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
+app.get('/home', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res)
 	if (user && (user.type == 0 || user.type == 1)) {
@@ -453,7 +453,7 @@ app.get('/home', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 		res.redirect('/');
 	}
 });
-app.get('/deliver', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHours, (req, res) => {
+app.get('/deliver', checkAuth, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let at = getLeastUsedMapBoxAPI();
@@ -480,7 +480,7 @@ app.get('/deliver', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWor
 		});
 	}
 });
-app.get('/buy', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHours, (req, res) => {
+app.get('/buy', checkAuth, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	if (((Date.now() - user.last_delivery) / 1000) / 60 > settings.intervalBetweenDeliveries) {
@@ -503,7 +503,7 @@ app.get('/buy', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHou
 	}
 });
 
-app.get('/buy/:id', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHours, (req, res) => {
+app.get('/buy/:id', checkAuth, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let at = getLeastUsedMapBoxAPI();
@@ -552,7 +552,7 @@ app.get('/buy/:id', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWor
 	});
 });
 
-app.get('/partnerdeliver', mustBeLoggedIn, mustBePartner, mustBeInWorkHours, (req, res) => {
+app.get('/partnerdeliver', checkAuth, mustBePartner, mustBeInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let at = getLeastUsedMapBoxAPI();
@@ -570,7 +570,7 @@ app.get('/partnerdeliver', mustBeLoggedIn, mustBePartner, mustBeInWorkHours, (re
 	});
 });
 
-app.get('/longdistance', mustBeLoggedIn, mustBeInWorkHours, (req, res) => {
+app.get('/longdistance', checkAuth, mustBeInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/ldd', {
@@ -581,7 +581,7 @@ app.get('/longdistance', mustBeLoggedIn, mustBeInWorkHours, (req, res) => {
 	});
 });
 
-app.get('/login', goHomeIfAuth, (req, res) => {
+app.get('/login', checkNotAuth, (req, res) => {
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/login', {
 		title: titles[lang].login + settings.titleSuffix[lang],
@@ -589,7 +589,7 @@ app.get('/login', goHomeIfAuth, (req, res) => {
 	});
 });
 
-app.get('/register', goHomeIfAuth, (req, res) => {
+app.get('/register', checkNotAuth, (req, res) => {
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/register', {
 		title: titles[lang].register + settings.titleSuffix[lang],
@@ -597,7 +597,7 @@ app.get('/register', goHomeIfAuth, (req, res) => {
 	});
 });
 
-app.get('/partners', goHomeIfAuth, (req, res) => {
+app.get('/partners', checkNotAuth, (req, res) => {
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/partners', {
 		title: titles[lang].partners_reg + settings.titleSuffix[lang],
@@ -605,7 +605,7 @@ app.get('/partners', goHomeIfAuth, (req, res) => {
 	});
 });
 
-app.get('/confirm', mustBeLoggedIn, mustBeNotConfirmed, (req, res) => {
+app.get('/confirm', checkAuth, mustBeNotConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/confirm', {
@@ -616,7 +616,7 @@ app.get('/confirm', mustBeLoggedIn, mustBeNotConfirmed, (req, res) => {
 	});
 });
 
-app.get('/userterms', mustBeLoggedIn, mustBeConfirmed, (req, res) => {
+app.get('/userterms', checkAuth, mustBeConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/user_terms', {
@@ -893,7 +893,7 @@ app.get('/details/:something', mustBeAdmin, (req, res) => {
 	});
 });
 
-app.get('/delivery_err', mustBeLoggedIn, (req, res) => {
+app.get('/delivery_err', checkAuth, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/errors', {
@@ -906,7 +906,7 @@ app.get('/delivery_err', mustBeLoggedIn, (req, res) => {
 	})
 });
 
-app.get('/your_ldd', mustBeLoggedIn, (req, res) => {
+app.get('/your_ldd', checkAuth, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/your_ldd', {
@@ -918,7 +918,7 @@ app.get('/your_ldd', mustBeLoggedIn, (req, res) => {
 	})
 });
 
-app.get('/d/:did', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
+app.get('/d/:did', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 	let delivery = getDelivery('id', req.params.did);
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
@@ -947,7 +947,7 @@ app.get('/d/:did', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 	return res.render('pages/404', the_return);
 });
 
-app.get('/ldd/:did', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
+app.get('/ldd/:did', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 	let delivery = getCarDelivery('id', req.params.did);
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
@@ -991,7 +991,7 @@ app.post('/addnewplace', mustBeAdmin, (req, res) => {
 	res.redirect('/partner/' + id);
 });
 
-app.post('/login', goHomeIfAuth, (req, res) => {
+app.post('/login', checkNotAuth, (req, res) => {
 	let { phone, password } = req.body;
 	if (phone && password) {
 		if (phoneValid(phone)) {
@@ -1013,7 +1013,7 @@ app.post('/login', goHomeIfAuth, (req, res) => {
 	}
 });
 
-app.post('/register', goHomeIfAuth, (req, res) => {
+app.post('/register', checkNotAuth, (req, res) => {
 	let { name, phone, password } = req.body;
 	if (phone && password && name) {
 		if (nameValid(name)) {
@@ -1064,7 +1064,7 @@ app.post('/register', goHomeIfAuth, (req, res) => {
 	}
 });
 
-app.post('/staffregister', goHomeIfAuth, async (req, res) => {
+app.post('/staffregister', checkNotAuth, async (req, res) => {
 	let { phone, name, password, secret, type } = req.body;
 	if (phone && name && password && secret && type) {
 		let check = await checkStaffSecret(secret, phone, type).catch((error) => { console.log(error) });
@@ -1108,7 +1108,7 @@ app.post('/staffregister', goHomeIfAuth, async (req, res) => {
 	}
 });
 
-app.post('/partnerregister', goHomeIfAuth, async (req, res) => {
+app.post('/partnerregister', checkNotAuth, async (req, res) => {
 	let { phone, name, email, password, secret } = req.body;
 	if (phone && email && name && password && secret) {
 		if (phoneValid(phone)) {
@@ -1166,7 +1166,7 @@ app.post('/partnerregister', goHomeIfAuth, async (req, res) => {
 	}
 });
 
-app.post('/d/request', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
+app.post('/d/request', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 	let user = getUser("id", req.session.uid);
 	if (user && user.hash) {
 		let { type, fromPlace, from, to, distance, price, phone, thing, weight, partner } = req.body;
@@ -1184,7 +1184,7 @@ app.post('/d/request', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 	return res.redirect('/');
 });
 
-app.post('/new_long_distance_delivery', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
+app.post('/new_long_distance_delivery', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 	let user = getUser("id", req.session.uid);
 	if (user) {
 		let { from, to, type, thing, phone, shop } = req.body;
@@ -1217,7 +1217,7 @@ app.post('/new_long_distance_delivery', mustBeLoggedIn, mustBeAgreedOnTerms, (re
 	return res.redirect('/');
 });
 
-app.post('/long_distance_delivery_status', mustBeLoggedIn, mustBeCarDriver, (req, res) => {
+app.post('/long_distance_delivery_status', checkAuth, mustBeCarDriver, (req, res) => {
 	let user = getUser("id", req.session.uid);
 	if (user && user.hash) {
 		let { did, func } = req.body;
@@ -1257,7 +1257,7 @@ app.post('/long_distance_delivery_status', mustBeLoggedIn, mustBeCarDriver, (req
 	return res.redirect('/');
 });
 
-app.post('/d/cancel', mustBeLoggedIn, (req, res) => {
+app.post('/d/cancel', checkAuth, (req, res) => {
 	let user = getUser("id", req.session.uid);
 	if (user) {
 		let { did } = req.body;
@@ -1297,7 +1297,7 @@ app.post('/d/cancel', mustBeLoggedIn, (req, res) => {
 	return res.redirect('/');
 });
 
-app.post('/agree_on_terms', mustBeLoggedIn, mustBeConfirmed, (req, res) => {
+app.post('/agree_on_terms', checkAuth, mustBeConfirmed, (req, res) => {
 	let user = getUser("id", req.session.uid);
 	if (user) {
 		user.agreed_on_terms = true;
@@ -1340,7 +1340,7 @@ app.post('/add_to_blacklist', mustBeAdmin, (req, res) => {
 	return res.redirect('/blacklist');
 });
 
-app.get('/logout', mustBeLoggedIn, (req, res) => {
+app.get('/logout', checkAuth, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	if (user) {
 		req.session.destroy(err => {
@@ -1374,7 +1374,7 @@ app.get('/about', (req, res) => {
 		lang: lang
 	});
 });
-app.get('/profile', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
+app.get('/profile', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/profile', {
@@ -1385,7 +1385,7 @@ app.get('/profile', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 		phone: user.phone
 	});
 });
-app.get('/editpassword', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
+app.get('/editpassword', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	return res.render('pages/edit_password', {
@@ -1395,7 +1395,7 @@ app.get('/editpassword', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 		lang: lang
 	});
 });
-app.post('/new_password', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
+app.post('/new_password', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	if (user) {
 		let { old_password, new_password } = req.body;
