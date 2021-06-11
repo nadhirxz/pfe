@@ -135,8 +135,15 @@ http.listen(port, () => console.log('Server started on port ' + port));
 
 app.get('/', (req, res) => {
 	if (req.session.uid) { // user authenticated
-		if (getObject(users ,'id', req.session.uid) || getObject(partners, 'id', req.session.uid)) return res.redirect('/home');
-		if (getObject(drivers, 'id', req.session.uid)) return res.redirect('/driver');
+		let user = getUser('id', req.session.uid);
+		if (user) {
+			switch (user.type) {
+				case 0: return res.redirect('/home'); // normal user
+				case 1: return res.redirect('/home'); // partner
+				case 2: return res.redirect('/driver');
+				case 3: return res.redirect('/admin');
+			}
+		}
 	}
 	req.session.uid = '';
 	let lang = getAndSetPageLanguage(req, res);
@@ -149,18 +156,25 @@ app.get('/', (req, res) => {
 
 
 // Getting stuff
-
-function getObject(arr ,key, value) {
-	if (arr) return arr.find(obj => obj[key] == value);
-	return false;
+function getUser(key, value) {
+	let user = false;
+	let type = 0;
+	if (users) user = users.find(obj => obj[key] == value);
+	if (!user) {
+		user = partners.find(obj => obj[key] == value);
+		type++;
+	}
+	if (!user) {
+		user = drivers.find(obj => obj[key] == value);
+		type++;
+	}
+	return user ? false : { ...user, type };
 }
 
 function getAndSetPageLanguage(req, res, lang) {
 	let language, user;
 
-	if (req.session.uid) user = getObject(users, 'id', req.session.uid);
-	if (!user) user = getObject(partners, 'id', req.session.uid);
-	if (!user) user = getObject(drivers, 'id', req.session.uid);
+	if (req.session.uid) user = getUser('id', req.session.uid);
 
 	if (lang) {
 		if (user) user.lang = lang;
