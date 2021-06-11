@@ -299,7 +299,7 @@ function getUser(key, value) {
 		user = drivers.find(obj => obj[key] == value);
 		type++;
 	}
-	return user ? false : { ...user, type };
+	return user ? { ...user, type } : false;
 }
 
 function getDeliveriesOfUser(id) {
