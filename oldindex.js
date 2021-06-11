@@ -132,7 +132,7 @@ client.connect(err => {
 		console.log("Places loaded from database !");
 	});
 
-	db.collection("schedule").findOne({ _id: "schedule" }, (err, result) => {
+	db.collection("schedule").findOne({ id: "schedule" }, (err, result) => {
 		if (err) console.log(err);
 		if (result) {
 			if (typeof (result.working) != 'undefined') we_are_working_now = result.working;
@@ -142,31 +142,31 @@ client.connect(err => {
 		console.log("Schedules loaded from database !");
 	});
 
-	db.collection("admin").findOne({ _id: "mapbox" }, (err, result) => {
+	db.collection("admin").findOne({ id: "mapbox" }, (err, result) => {
 		if (err) console.log(err);
 		mapbox_apis = result.apis;
 		console.log("MapBox apis loaded from database !");
 	});
 
-	db.collection("admin").findOne({ _id: "graphhopper" }, (err, result) => {
+	db.collection("admin").findOne({ id: "graphhopper" }, (err, result) => {
 		if (err) console.log(err);
 		graphhopper_apis = result.apis;
 		console.log("GraphHopper apis loaded from database !");
 	});
 
-	db.collection("admin").findOne({ _id: "car_delivery_prices" }, (err, result) => {
+	db.collection("admin").findOne({ id: "car_delivery_prices" }, (err, result) => {
 		if (err) console.log(err);
 		car_delivery_prices = result.prices;
 		console.log("Car delivery prices loaded from database !");
 	});
 
-	db.collection("admin").findOne({ _id: "blacklist" }, (err, result) => {
+	db.collection("admin").findOne({ id: "blacklist" }, (err, result) => {
 		if (err) console.log(err);
 		if (result && result.numbers) blacklist = result.numbers;
 		console.log("Blacklist loaded from database !");
 	});
 
-	db.collection("finance").findOne({ _id: todays_date }, (err, result) => {
+	db.collection("finance").findOne({ id: todays_date }, (err, result) => {
 		if (err) console.log(err);
 		if (result) {
 			daily_deliveries = result.deliveries_today;
@@ -175,7 +175,7 @@ client.connect(err => {
 		console.log("Today's finance loaded from database !");
 	});
 
-	db.collection("finance").findOne({ _id: "this_week" }, (err, result) => {
+	db.collection("finance").findOne({ id: "this_week" }, (err, result) => {
 		if (err) console.log(err);
 		if (result) {
 			weekly_deliveries = result.deliveries_this_week;
@@ -183,7 +183,7 @@ client.connect(err => {
 		}
 		console.log("This week's finance loaded from database !");
 	});
-	db.collection("finance").findOne({ _id: "all_time" }, (err, result) => {
+	db.collection("finance").findOne({ id: "all_time" }, (err, result) => {
 		if (err) console.log(err);
 		if (result) {
 			all_time_deliveries = result.all_time_deliveries;
@@ -268,7 +268,7 @@ let mustBeLoggedIn = (req, res, next) => {
 	}
 }
 let mustBeConfirmed = (req, res, next) => {
-	let user = getUser("_id", req.session.uid);
+	let user = getUser("id", req.session.uid);
 	if (user && (user.type == 0 || user.type == 1) && user.confirmed) {
 		next();
 	} else {
@@ -276,7 +276,7 @@ let mustBeConfirmed = (req, res, next) => {
 	}
 }
 let mustBeNotConfirmed = (req, res, next) => {
-	let user = getUser("_id", req.session.uid);
+	let user = getUser("id", req.session.uid);
 	if (user && !user.confirmed && (user.type == 0 || user.type == 1)) {
 		next();
 	} else {
@@ -284,7 +284,7 @@ let mustBeNotConfirmed = (req, res, next) => {
 	}
 }
 let mustBeAgreedOnTerms = (req, res, next) => {
-	let user = getUser("_id", req.session.uid);
+	let user = getUser("id", req.session.uid);
 	if (user && (user.type != 0 || user.agreed_on_terms)) {
 		next();
 	} else {
@@ -296,7 +296,7 @@ let mustBeUser = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/login');
 	} else {
-		let user = getUser("_id", req.session.uid);
+		let user = getUser("id", req.session.uid);
 		if (user && user.type == 0) {
 			next();
 		} else {
@@ -308,7 +308,7 @@ let mustBePartner = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/login');
 	} else {
-		let user = getUser("_id", req.session.uid);
+		let user = getUser("id", req.session.uid);
 		if (user && user.type == 1) {
 			next();
 		} else {
@@ -329,7 +329,7 @@ let mustBeDriver = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/');
 	} else {
-		user = getUser("_id", req.session.uid);
+		user = getUser("id", req.session.uid);
 		if (user && user.type == 2) {
 			next();
 		} else {
@@ -341,7 +341,7 @@ let mustBeCarDriver = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/');
 	} else {
-		user = getUser("_id", req.session.uid);
+		user = getUser("id", req.session.uid);
 		if (user && user.type == 2) {
 			next();
 		} else {
@@ -353,7 +353,7 @@ let mustBeAdmin = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/');
 	} else {
-		user = getUser("_id", req.session.uid);
+		user = getUser("id", req.session.uid);
 		if (user && user.type == 4) {
 			next();
 		} else {
@@ -362,7 +362,7 @@ let mustBeAdmin = (req, res, next) => {
 	}
 }
 let mustBeInWorkHours = (req, res, next) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	if (user) {
 		if (inWorkHours()) next();
@@ -383,7 +383,7 @@ let goHomeIfStaffAuth = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		next();
 	} else {
-		let user = getUser("_id", req.session.uid)
+		let user = getUser("id", req.session.uid)
 		if (user) {
 			switch (user.type) {
 				case 2: res.redirect('/driver'); break;
@@ -401,7 +401,7 @@ let goHomeIfStaffAuth = (req, res, next) => {
 // Routes
 app.get('/', (req, res) => {
 	if (req.session.uid) { // user authenticated
-		let user = getUser("_id", req.session.uid);
+		let user = getUser("id", req.session.uid);
 		if (user) {
 			switch (user.type) {
 				case 0: return res.redirect('/home');
@@ -421,7 +421,7 @@ app.get('/', (req, res) => {
 	});
 });
 app.get('/home', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res)
 	if (user && (user.type == 0 || user.type == 1)) {
 		let dataToSend = {
@@ -431,7 +431,7 @@ app.get('/home', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 			lang: lang,
 			total_spent: user.total_spent || 0,
 			total_deliveries: user.total_deliveries || 0,
-			userDeliveries: getDeliveriesOfUser(user._id),
+			userDeliveries: getDeliveriesOfUser(user.id),
 			ldd: Boolean(getUserCarDeliveries(req.session.uid).length),
 			working: we_are_working_now,
 			work_hours: inWorkHours()
@@ -454,7 +454,7 @@ app.get('/home', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 	}
 });
 app.get('/deliver', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHours, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let at = getLeastUsedMapBoxAPI();
 	let gh = getLeastUsedGraphHopperAPI();
@@ -481,7 +481,7 @@ app.get('/deliver', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWor
 	}
 });
 app.get('/buy', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHours, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	if (((Date.now() - user.last_delivery) / 1000) / 60 > settings.intervalBetweenDeliveries) {
 		res.render('pages/buy', {
@@ -504,7 +504,7 @@ app.get('/buy', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHou
 });
 
 app.get('/buy/:id', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWorkHours, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let at = getLeastUsedMapBoxAPI();
 	let gh = getLeastUsedGraphHopperAPI();
@@ -514,7 +514,7 @@ app.get('/buy/:id', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWor
 	if (req.params.id == 'other') {
 		p = 'other';
 	} else {
-		p = getPlace('_id', req.params.id);
+		p = getPlace('id', req.params.id);
 		if (p) {
 			place = p.place;
 			p = p.name;
@@ -553,7 +553,7 @@ app.get('/buy/:id', mustBeLoggedIn, mustBeUser, mustBeAgreedOnTerms, mustBeInWor
 });
 
 app.get('/partnerdeliver', mustBeLoggedIn, mustBePartner, mustBeInWorkHours, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let at = getLeastUsedMapBoxAPI();
 	let gh = getLeastUsedGraphHopperAPI();
@@ -571,7 +571,7 @@ app.get('/partnerdeliver', mustBeLoggedIn, mustBePartner, mustBeInWorkHours, (re
 });
 
 app.get('/longdistance', mustBeLoggedIn, mustBeInWorkHours, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/ldd', {
 		title: titles[lang].long_distance_delivery + settings.titleSuffix[lang],
@@ -606,7 +606,7 @@ app.get('/partners', goHomeIfAuth, (req, res) => {
 });
 
 app.get('/confirm', mustBeLoggedIn, mustBeNotConfirmed, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/confirm', {
 		title: titles[lang].confirm + settings.titleSuffix[lang],
@@ -617,7 +617,7 @@ app.get('/confirm', mustBeLoggedIn, mustBeNotConfirmed, (req, res) => {
 });
 
 app.get('/userterms', mustBeLoggedIn, mustBeConfirmed, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/user_terms', {
 		title: titles[lang].terms + settings.titleSuffix[lang],
@@ -628,7 +628,7 @@ app.get('/userterms', mustBeLoggedIn, mustBeConfirmed, (req, res) => {
 });
 
 app.get('/driver', mustBeDriver, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/driver', {
 		title: titles[lang].driver + settings.titleSuffix[lang],
@@ -645,7 +645,7 @@ app.get('/driver', mustBeDriver, (req, res) => {
 });
 
 app.get('/cardriver', mustBeCarDriver, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/cardriver', {
 		title: titles[lang].car_driver + settings.titleSuffix[lang],
@@ -669,7 +669,7 @@ app.get('/staff', goHomeIfStaffAuth, (req, res) => {
 });
 
 app.get('/admin', mustBeAdmin, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/admin', {
 		title: titles[lang].admin + settings.titleSuffix[lang],
@@ -683,7 +683,7 @@ app.get('/admin', mustBeAdmin, (req, res) => {
 });
 
 app.get('/new/place', mustBeAdmin, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let at = getLeastUsedMapBoxAPI();
 	let gh = getLeastUsedGraphHopperAPI();
@@ -700,7 +700,7 @@ app.get('/new/place', mustBeAdmin, (req, res) => {
 });
 
 app.get('/new/key', mustBeAdmin, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/admin_add_key', {
 		title: titles[lang].add_key + settings.titleSuffix[lang],
@@ -711,7 +711,7 @@ app.get('/new/key', mustBeAdmin, (req, res) => {
 });
 
 app.get('/schedule', mustBeAdmin, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/admin_schedule', {
 		title: titles[lang].schedule + settings.titleSuffix[lang],
@@ -724,7 +724,7 @@ app.get('/schedule', mustBeAdmin, (req, res) => {
 });
 
 app.get('/details', mustBeAdmin, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/details', {
 		title: titles[lang].details + settings.titleSuffix[lang],
@@ -741,7 +741,7 @@ app.get('/details', mustBeAdmin, (req, res) => {
 });
 
 app.get('/blacklist', mustBeAdmin, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/blacklist', {
 		title: titles[lang].blacklist + settings.titleSuffix[lang],
@@ -752,7 +752,7 @@ app.get('/blacklist', mustBeAdmin, (req, res) => {
 });
 
 app.get('/partnersinfo', mustBeAdmin, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let p = getPlacesInfo();
 	res.render('pages/partners_info', {
@@ -764,9 +764,9 @@ app.get('/partnersinfo', mustBeAdmin, (req, res) => {
 	});
 });
 app.get('/partner/:id', mustBeAdmin, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let place = getPlace('_id', req.params.id);
+	let place = getPlace('id', req.params.id);
 	if (place) {
 		return res.render('pages/partner_settings', {
 			title: titles[lang].partners + settings.titleSuffix[lang],
@@ -775,10 +775,10 @@ app.get('/partner/:id', mustBeAdmin, (req, res) => {
 			lang: lang,
 			partner: {
 				name: place.name,
-				id: place._id,
+				id: place.id,
 				place: place.place,
 				desc: place.desc,
-				img: fs.existsSync(`./public/img/partners/${place._id}.png`) ? `/img/partners/${place._id}.png` : '/img/partners/default.png'
+				img: fs.existsSync(`./public/img/partners/${place.id}.png`) ? `/img/partners/${place.id}.png` : '/img/partners/default.png'
 			}
 		});
 	}
@@ -819,7 +819,7 @@ app.post('/partner_img/:id', mustBeAdmin, upload.single('img'), (req, res) => {
 
 app.post('/partner_desc/:id', mustBeAdmin, (req, res) => {
 	let { desc } = req.body;
-	let p = getPlace('_id', req.params.id);
+	let p = getPlace('id', req.params.id);
 	if (typeof (desc) && p) {
 		p.desc = desc;
 	}
@@ -828,7 +828,7 @@ app.post('/partner_desc/:id', mustBeAdmin, (req, res) => {
 
 
 app.get('/details/:something', mustBeAdmin, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	if (req.params.something == 'drivers') {
 		let d = [];
@@ -871,7 +871,7 @@ app.get('/details/:something', mustBeAdmin, (req, res) => {
 			partners: partners
 		});
 	}
-	db.collection('finance').findOne({ _id: req.params.something }, (error, result) => {
+	db.collection('finance').findOne({ id: req.params.something }, (error, result) => {
 		if (result) {
 			res.render('pages/details', {
 				title: titles[lang].details + settings.titleSuffix[lang],
@@ -894,7 +894,7 @@ app.get('/details/:something', mustBeAdmin, (req, res) => {
 });
 
 app.get('/delivery_err', mustBeLoggedIn, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/errors', {
 		title: titles[lang].error + settings.titleSuffix[lang],
@@ -907,7 +907,7 @@ app.get('/delivery_err', mustBeLoggedIn, (req, res) => {
 });
 
 app.get('/your_ldd', mustBeLoggedIn, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/your_ldd', {
 		title: titles[lang].ur_ldds + settings.titleSuffix[lang],
@@ -919,8 +919,8 @@ app.get('/your_ldd', mustBeLoggedIn, (req, res) => {
 });
 
 app.get('/d/:did', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
-	let delivery = getDelivery('_id', req.params.did);
-	let user = getUser('_id', req.session.uid);
+	let delivery = getDelivery('id', req.params.did);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	var the_return = {
 		title: titles[lang].delivery + settings.titleSuffix[lang],
@@ -933,7 +933,7 @@ app.get('/d/:did', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 			...the_return, ...deliveryInfoPage(delivery)
 		});
 	} else {
-		db.collection('deliveries').findOne({ _id: req.params.did }, (err, result) => {
+		db.collection('deliveries').findOne({ id: req.params.did }, (err, result) => {
 			if (err) console.log(err);
 			if (result && result[0]) {
 				delivery = result[0];
@@ -948,8 +948,8 @@ app.get('/d/:did', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 });
 
 app.get('/ldd/:did', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
-	let delivery = getCarDelivery('_id', req.params.did);
-	let user = getUser('_id', req.session.uid);
+	let delivery = getCarDelivery('id', req.params.did);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	var the_return = {
 		title: titles[lang].delivery + settings.titleSuffix[lang],
@@ -963,7 +963,7 @@ app.get('/ldd/:did', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 			...the_return, ...carDeliveryInfoPage(delivery)
 		});
 	} else {
-		db.collection('cardeliveries').findOne({ _id: req.params.did }, (err, result) => {
+		db.collection('cardeliveries').findOne({ id: req.params.did }, (err, result) => {
 			if (err) console.log(err);
 			if (result && result[0]) {
 				delivery = result[0];
@@ -997,8 +997,8 @@ app.post('/login', goHomeIfAuth, (req, res) => {
 		if (phoneValid(phone)) {
 			let user = getUser("phone", phone);
 			if (user) {
-				if (user.password == generateHash(password, user._id)) {
-					req.session.uid = user._id;
+				if (user.password == generateHash(password, user.id)) {
+					req.session.uid = user.id;
 					return res.redirect('/home');
 				}
 				return res.redirect("/login?err=" + errors.wrongPasswordErr + '&phone=' + phone);
@@ -1025,7 +1025,7 @@ app.post('/register', goHomeIfAuth, (req, res) => {
 						} else {
 							let id = generateUserId(4); // 4 = number of bytes
 							let newUser = {
-								_id: id,
+								id: id,
 								name: formatName(name),
 								phone: phone,
 								password: generateHash(password, id),
@@ -1077,7 +1077,7 @@ app.post('/staffregister', goHomeIfAuth, async (req, res) => {
 				let id = generateUserId(4);
 				let type = parseInt(secret[0]);
 				let user = {
-					_id: id,
+					id: id,
 					name: formatName(name),
 					phone: phone,
 					type: type,
@@ -1125,7 +1125,7 @@ app.post('/partnerregister', goHomeIfAuth, async (req, res) => {
 						let id = generateUserId(4);
 						let pos = await getPartnerPos(generateStaffKey(secret, phone, 1)).catch((error) => { console.log(error) });
 						let user = {
-							_id: id,
+							id: id,
 							name: formatName(name),
 							phone: phone,
 							email: email,
@@ -1167,7 +1167,7 @@ app.post('/partnerregister', goHomeIfAuth, async (req, res) => {
 });
 
 app.post('/d/request', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
-	let user = getUser("_id", req.session.uid);
+	let user = getUser("id", req.session.uid);
 	if (user && user.hash) {
 		let { type, fromPlace, from, to, distance, price, phone, thing, weight, partner } = req.body;
 		if (typeof (type) && typeof (from) && typeof (to) && typeof (distance) && typeof (price) && typeof (thing) && typeof (weight) && generateHash(('' + distance).substring(0, 5), '' + price) == user.hash && price == user.last_delivery_price) {
@@ -1185,14 +1185,14 @@ app.post('/d/request', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 });
 
 app.post('/new_long_distance_delivery', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
-	let user = getUser("_id", req.session.uid);
+	let user = getUser("id", req.session.uid);
 	if (user) {
 		let { from, to, type, thing, phone, shop } = req.body;
 		if (typeof (from) && typeof (to) && typeof (type) && typeof (thing) && typeof (phone)) {
 			let did = randomHash(14);
 			let ldd = {
-				_id: did,
-				uid: user._id,
+				id: did,
+				uid: user.id,
 				from: getLongDistanceDeliveryPlace(from).name,
 				to: getLongDistanceDeliveryPlace(to).name,
 				type: type,
@@ -1218,13 +1218,13 @@ app.post('/new_long_distance_delivery', mustBeLoggedIn, mustBeAgreedOnTerms, (re
 });
 
 app.post('/long_distance_delivery_status', mustBeLoggedIn, mustBeCarDriver, (req, res) => {
-	let user = getUser("_id", req.session.uid);
+	let user = getUser("id", req.session.uid);
 	if (user && user.hash) {
 		let { did, func } = req.body;
 		if (typeof (did) && typeof (func)) {
-			let delivery = getCarDeliveries('_id', did);
+			let delivery = getCarDeliveries('id', did);
 			switch (func) {
-				case 'a': delivery.status = 1; delivery.driver = user._id; break;
+				case 'a': delivery.status = 1; delivery.driver = user.id; break;
 				case 'r': delivery.status = 2; break;
 				case 'c': delivery.status = 3;
 					delete delivery.driver;
@@ -1243,7 +1243,7 @@ app.post('/long_distance_delivery_status', mustBeLoggedIn, mustBeCarDriver, (req
 					break;
 				case 'f': delivery.status = 4; delete delivery.driver; break;
 			}
-			db.collection('users').updateOne({ _id: user._id }, {
+			db.collection('users').updateOne({ id: user.id }, {
 				$set: {
 					daily_deliveries: user.daily_deliveries,
 					all_time_deliveries: user.all_time_deliveries,
@@ -1251,33 +1251,33 @@ app.post('/long_distance_delivery_status', mustBeLoggedIn, mustBeCarDriver, (req
 					all_time_profit: user.all_time_profit
 				}
 			});
-			db.collection('cardeliveries').updateOne({ _id: did }, { $set: { status: delivery.status } });
+			db.collection('cardeliveries').updateOne({ id: did }, { $set: { status: delivery.status } });
 		}
 	}
 	return res.redirect('/');
 });
 
 app.post('/d/cancel', mustBeLoggedIn, (req, res) => {
-	let user = getUser("_id", req.session.uid);
+	let user = getUser("id", req.session.uid);
 	if (user) {
 		let { did } = req.body;
 		if (typeof (did)) {
 			if (did.startsWith('cardelivery')) {
 				did = did.substr(11);
-				let delivery = getCarDelivery('_id', did);
-				if (delivery && delivery.uid == user._id && delivery.status == 0) {
-					car_deliveries = car_deliveries.filter(obj => obj._id != delivery._id);
-					db.collection("cardeliveries").deleteOne({ _id: did });
+				let delivery = getCarDelivery('id', did);
+				if (delivery && delivery.uid == user.id && delivery.status == 0) {
+					car_deliveries = car_deliveries.filter(obj => obj.id != delivery.id);
+					db.collection("cardeliveries").deleteOne({ id: did });
 					return res.redirect('/home');
 				}
 				return res.redirect('/ldd/' + did);
 			} else {
-				let delivery = getDelivery('_id', did);
-				if (delivery && delivery.uid == user._id && (delivery.status < 2 || delivery.status > 5)) {
+				let delivery = getDelivery('id', did);
+				if (delivery && delivery.uid == user.id && (delivery.status < 2 || delivery.status > 5)) {
 					if (delivery.driver) {
-						let driver = getUser('_id', delivery.driver);
+						let driver = getUser('id', delivery.driver);
 						removeDriverTask(driver, did);
-						db.collection('users').updateOne({ _id: driver._id }, {
+						db.collection('users').updateOne({ id: driver.id }, {
 							$set: {
 								available_in: driver.available_in,
 								current_task: driver.current_task,
@@ -1286,8 +1286,8 @@ app.post('/d/cancel', mustBeLoggedIn, (req, res) => {
 						});
 						io.to(driver.socket).emit('canceled_delivery', did);
 					}
-					deliveries = deliveries.filter(obj => obj._id != delivery._id);
-					db.collection("deliveries").deleteOne({ _id: delivery._id });
+					deliveries = deliveries.filter(obj => obj.id != delivery.id);
+					db.collection("deliveries").deleteOne({ id: delivery.id });
 					return res.redirect('/home');
 				}
 				return res.redirect('/d/' + did);
@@ -1298,17 +1298,17 @@ app.post('/d/cancel', mustBeLoggedIn, (req, res) => {
 });
 
 app.post('/agree_on_terms', mustBeLoggedIn, mustBeConfirmed, (req, res) => {
-	let user = getUser("_id", req.session.uid);
+	let user = getUser("id", req.session.uid);
 	if (user) {
 		user.agreed_on_terms = true;
-		db.collection('users').updateOne({ _id: user._id }, { $set: { agreed_on_terms: true } });
+		db.collection('users').updateOne({ id: user.id }, { $set: { agreed_on_terms: true } });
 	}
 	return res.redirect('/');
 });
 
 app.post('/toggle_working_status', mustBeAdmin, (req, res) => {
 	we_are_working_now = !we_are_working_now;
-	db.collection('schedule').updateOne({ _id: "schedule" }, { $set: { working: we_are_working_now } })
+	db.collection('schedule').updateOne({ id: "schedule" }, { $set: { working: we_are_working_now } })
 	return res.redirect('/schedule');
 });
 
@@ -1318,7 +1318,7 @@ app.post('/new_schedule', mustBeAdmin, (req, res) => {
 		[from, to], // other days
 		[[ffo, fto], [fft, ftt]], // friday
 	];
-	db.collection('schedule').updateOne({ _id: "schedule" }, { $set: { schedule: our_schedule } });
+	db.collection('schedule').updateOne({ id: "schedule" }, { $set: { schedule: our_schedule } });
 	return res.redirect('/schedule');
 });
 
@@ -1326,7 +1326,7 @@ app.post('/add_to_blacklist', mustBeAdmin, (req, res) => {
 	let { phone } = req.body;
 	if (phone && phoneValid(phone) && !blacklist.includes(phone)) {
 		blacklist.push(phone);
-		db.collection('admin').updateOne({ _id: "blacklist" }, { $push: { numbers: phone } });
+		db.collection('admin').updateOne({ id: "blacklist" }, { $push: { numbers: phone } });
 	}
 	return res.redirect('/blacklist' + msg);
 });
@@ -1335,13 +1335,13 @@ app.post('/add_to_blacklist', mustBeAdmin, (req, res) => {
 	let { phone } = req.body;
 	if (phone && phoneValid(phone) && blacklist.includes(phone)) {
 		blacklist = blacklist.filter(e => e != phone);
-		db.collection('admin').updateOne({ _id: "blacklist" }, { $pull: { numbers: phone } });
+		db.collection('admin').updateOne({ id: "blacklist" }, { $pull: { numbers: phone } });
 	}
 	return res.redirect('/blacklist');
 });
 
 app.get('/logout', mustBeLoggedIn, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	if (user) {
 		req.session.destroy(err => {
 			if (err) {
@@ -1360,7 +1360,7 @@ app.get('/logout', mustBeLoggedIn, (req, res) => {
 
 
 app.get('/about', (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let name, type;
 	if (typeof (user) != 'undefined') {
@@ -1375,7 +1375,7 @@ app.get('/about', (req, res) => {
 	});
 });
 app.get('/profile', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/profile', {
 		title: titles[lang].profile + settings.titleSuffix[lang],
@@ -1386,7 +1386,7 @@ app.get('/profile', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 	});
 });
 app.get('/editpassword', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	return res.render('pages/edit_password', {
 		title: titles[lang].edit_password + settings.titleSuffix[lang],
@@ -1396,15 +1396,15 @@ app.get('/editpassword', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 	});
 });
 app.post('/new_password', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	if (user) {
 		let { old_password, new_password } = req.body;
-		if (generateHash(old_password, user._id) == user.password) {
+		if (generateHash(old_password, user.id) == user.password) {
 			console.log('here 1')
 			if (passwordValid(new_password)) {
 				console.log('here 2')
-				user.password = generateHash(new_password, user._id);
-				db.collection('users').updateOne({ _id: user._id }, { $set: { password: user._password } });
+				user.password = generateHash(new_password, user.id);
+				db.collection('users').updateOne({ id: user.id }, { $set: { password: user._password } });
 				return res.redirect('/editpassword?success=1');
 			}
 			return res.redirect('/editpassword?err=' + errors.invalidPasswordErr);
@@ -1414,7 +1414,7 @@ app.post('/new_password', mustBeLoggedIn, mustBeAgreedOnTerms, (req, res) => {
 	return res.redirect('/');
 });
 app.get('/terms', (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let name, type;
 	if (typeof (user) != 'undefined') {
@@ -1429,7 +1429,7 @@ app.get('/terms', (req, res) => {
 	});
 });
 app.get('/privacy', (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let name, type;
 	if (typeof (user) != 'undefined') {
@@ -1484,7 +1484,7 @@ app.get('/ar/:url/:u', (req, res) => {
 
 // 404 route
 app.get('*', (req, res) => {
-	let user = getUser('_id', req.session.uid);
+	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let name, type;
 	if (typeof (user) != 'undefined') {
@@ -1514,7 +1514,7 @@ setTimeout(() => {
 // Handling sockets
 
 io.on("connection", (socket) => {
-	let user = getUser("_id", socket.request.session.uid) || {};
+	let user = getUser("id", socket.request.session.uid) || {};
 	if (user) user.socket = socket.id;
 
 
@@ -1644,46 +1644,46 @@ io.on("connection", (socket) => {
 
 	// DELIVERY HANDLING BY DRIVER STUFF
 	socket.on("accepted_delivery", (data) => {
-		var delivery = getDelivery('_id', data);
+		var delivery = getDelivery('id', data);
 		if (delivery) {
 			delivery.status = 2;
 			sendNewDeliveryStatus(data);
 			user.current_task = data;
-			db.collection('users').updateOne({ _id: user._id }, { $set: { current_task: user.current_task } });
-			db.collection('deliveries').updateOne({ _id: data }, { $set: { status: delivery.status } });
+			db.collection('users').updateOne({ id: user.id }, { $set: { current_task: user.current_task } });
+			db.collection('deliveries').updateOne({ id: data }, { $set: { status: delivery.status } });
 		}
 	});
 	socket.on("refused_delivery", (data) => {
-		var delivery = getDelivery('_id', data);
+		var delivery = getDelivery('id', data);
 		if (delivery) {
 			delivery.status = 3;
 			delete delivery.expected_finish_time;
 			sendNewDeliveryStatus(data);
 			removeDriverTask(user, data);
 
-			if (user.winner_delivery == delivery._id) user.winner = true;
+			if (user.winner_delivery == delivery.id) user.winner = true;
 
-			db.collection('users').updateOne({ _id: user._id }, {
+			db.collection('users').updateOne({ id: user.id }, {
 				$set: {
 					available_in: user.available_in,
 					current_task: user.current_task,
 					tasks: user.tasks
 				}
 			});
-			db.collection('deliveries').updateOne({ _id: data }, { $set: { status: delivery.status } });
+			db.collection('deliveries').updateOne({ id: data }, { $set: { status: delivery.status } });
 			newDriverConnected(user);
 		}
 	});
 	socket.on("completed_delivery", (data) => {
-		var delivery = getDelivery('_id', data);
+		var delivery = getDelivery('id', data);
 		if (delivery) {
-			user = getUser('_id', delivery.driver);
+			user = getUser('id', delivery.driver);
 			delivery.status = 4;
 			delete delivery.expected_finish_time;
 			sendNewDeliveryStatus(data);
 			removeDriverTask(user, data);
 
-			if (user.winner_delivery == delivery._id) delete user.winner_delivery;
+			if (user.winner_delivery == delivery.id) delete user.winner_delivery;
 
 			if (user.daily_deliveries) user.daily_deliveries += 1;
 			else user.daily_deliveries = 1;
@@ -1703,7 +1703,7 @@ io.on("connection", (socket) => {
 			if (user.all_time_profit) user.all_time_profit += delivery.price;
 			else user.all_time_profit = delivery.price;
 
-			let u = getUser('_id', delivery.uid);
+			let u = getUser('id', delivery.uid);
 
 			if (u) {
 				if (u.weekly_deliveries) u.weekly_deliveries += 1;
@@ -1718,7 +1718,7 @@ io.on("connection", (socket) => {
 				if (u.all_time_spending) u.all_time_spending += delivery.price;
 				else u.all_time_spending = delivery.price;
 
-				db.collection('users').updateOne({ _id: u._id }, {
+				db.collection('users').updateOne({ id: u.id }, {
 					$set: {
 						weekly_deliveries: u.weekly_deliveries,
 						weekly_spending: u.weekly_spending,
@@ -1729,15 +1729,15 @@ io.on("connection", (socket) => {
 			}
 
 			if (typeof (delivery.partner) != 'undefined') {
-				let p = getUser('_id', getPlace('_id', delivery.partner).uid);
+				let p = getUser('id', getPlace('id', delivery.partner).uid);
 				if (p) {
 					if (p.client_deliveries_amount) p.client_deliveries_amount += delivery.price;
 					else p.client_deliveries_amount = delivery.price;
-					db.collection('users').updateOne({ _id: p._id }, { $set: { client_deliveries_amount: p.client_deliveries_amount } });
+					db.collection('users').updateOne({ id: p.id }, { $set: { client_deliveries_amount: p.client_deliveries_amount } });
 				}
 			}
 
-			db.collection('users').updateOne({ _id: user._id }, {
+			db.collection('users').updateOne({ id: user.id }, {
 				$set: {
 					available_in: user.available_in,
 					daily_deliveries: user.daily_deliveries,
@@ -1759,33 +1759,33 @@ io.on("connection", (socket) => {
 			weekly_profit += delivery.price;
 			all_time_profit += delivery.price;
 
-			db.collection('finance').updateOne({ _id: "today" }, { $set: { deliveries: daily_deliveries, profit: daily_profit } });
-			db.collection('finance').updateOne({ _id: "this_week" }, { $set: { deliveries: weekly_deliveries, profit: weekly_profit } });
-			db.collection('finance').updateOne({ _id: "all_time" }, { $set: { deliveries: all_time_profit, profit: all_time_deliveries } });
+			db.collection('finance').updateOne({ id: "today" }, { $set: { deliveries: daily_deliveries, profit: daily_profit } });
+			db.collection('finance').updateOne({ id: "this_week" }, { $set: { deliveries: weekly_deliveries, profit: weekly_profit } });
+			db.collection('finance').updateOne({ id: "all_time" }, { $set: { deliveries: all_time_profit, profit: all_time_deliveries } });
 
-			db.collection('deliveries').updateOne({ _id: data }, { $set: { status: delivery.status } });
+			db.collection('deliveries').updateOne({ id: data }, { $set: { status: delivery.status } });
 
 			newDriverConnected(user);
 		}
 	});
 	socket.on("failed_delivery", (data) => {
-		var delivery = getDelivery('_id', data);
+		var delivery = getDelivery('id', data);
 		if (delivery) {
 			delivery.status = 5;
 			delete delivery.expected_finish_time;
 			sendNewDeliveryStatus(data);
 			removeDriverTask(user, data);
 
-			if (user.winner_delivery == delivery._id) user.winner = true;
+			if (user.winner_delivery == delivery.id) user.winner = true;
 
-			db.collection('users').updateOne({ _id: user._id }, {
+			db.collection('users').updateOne({ id: user.id }, {
 				$set: {
 					available_in: user.available_in,
 					current_task: user.current_task,
 					tasks: user.tasks
 				}
 			});
-			db.collection('deliveries').updateOne({ _id: data }, { $set: { status: delivery.status } });
+			db.collection('deliveries').updateOne({ id: data }, { $set: { status: delivery.status } });
 
 			newDriverConnected(user);
 		}
@@ -1821,7 +1821,7 @@ function randomHash(bytes) {
 
 function generateUserId(bytes) {
 	let id = crypto.randomBytes(bytes).toString('hex');
-	if (getUser("_id", id)) { // this is so sooooooo unlikely to happen even with millions of users, but i like to be 100% sure not only 99.9999999999999999999999999999999999999999999999%
+	if (getUser("id", id)) { // this is so sooooooo unlikely to happen even with millions of users, but i like to be 100% sure not only 99.9999999999999999999999999999999999999999999999%
 		return generateUserId(bytes);
 	}
 	return id;
@@ -1875,7 +1875,7 @@ function handlePinConfirmation(socket, user, data) {
 				delete user.pin_requested_times;
 				delete user.last_pin_submission;
 				delete user.pin_retries;
-				db.collection("users").updateOne({ _id: user._id }, { $set: { confirmed: true } });
+				db.collection("users").updateOne({ id: user.id }, { $set: { confirmed: true } });
 				socket.emit("pin_confirmed");
 			} else {
 				if (user.pin_retries) user.pin_retries -= 1;
@@ -1959,7 +1959,7 @@ function getDriverTasks(driver) {
 	if (typeof (driver.tasks) == 'undefined') driver.tasks = [];
 	if (driver.tasks) {
 		driver.tasks.forEach(task => {
-			tasks.push(getDetailsToSendToDriver(getDelivery('_id', task)));
+			tasks.push(getDetailsToSendToDriver(getDelivery('id', task)));
 		});
 	}
 	return tasks;
@@ -1967,10 +1967,10 @@ function getDriverTasks(driver) {
 
 function getDetailsToSendToDriver(delivery) {
 	if (delivery) {
-		let user = getUser('_id', delivery.uid);
+		let user = getUser('id', delivery.uid);
 		if (user) {
 			let data = {
-				_id: delivery._id,
+				id: delivery.id,
 				phone: user.phone,
 				name: user.name,
 				thing: delivery.thing,
@@ -1983,10 +1983,10 @@ function getDetailsToSendToDriver(delivery) {
 				expected_finish_time: delivery.expected_finish_time
 			}
 			if (delivery.type == 1) {
-				let partner = getPlace('_id', delivery.partner);
+				let partner = getPlace('id', delivery.partner);
 				if (typeof (partner) != 'undefined') {
 					data.partner = partner.name;
-					let p = getUser('_id', partner.uid);
+					let p = getUser('id', partner.uid);
 					if (typeof (p) != 'undefined') data.partner_phone = p.phone;
 				}
 			}
@@ -2051,7 +2051,7 @@ function getLongDistanceDeliveryPlace(value) {
 function getAndSetPageLanguage(req, res, lang) {
 	let language, user;
 
-	if (req.session.uid) user = getUser('_id', req.session.uid);
+	if (req.session.uid) user = getUser('id', req.session.uid);
 
 	if (lang) {
 		if (user) user.lang = lang;
@@ -2076,7 +2076,7 @@ function getWinners() {
 	let w = [];
 	if (weekly_winners) {
 		weekly_winners.forEach(winner => {
-			let user = getUser('_id', winner);
+			let user = getUser('id', winner);
 			if (user) w.push({ name: user.name, phone: user.phone });
 		})
 	}
@@ -2087,7 +2087,7 @@ function getPlacesInfo() {
 	let p = [];
 	places.forEach(place => {
 		p.push({
-			id: place._id,
+			id: place.id,
 			name: place.name,
 			desc: place.desc || ''
 		});
@@ -2201,14 +2201,14 @@ function calculateHowManyHoursAgo(date) {
 // Delivery stuff
 function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price, thing, phone, weight, partner) {
 	if (type == 1) {
-		fromPlace = getPlace('_id', fromPlace);
+		fromPlace = getPlace('id', fromPlace);
 		if (fromPlace) {
 			fromPlace = fromPlace.name;
 		}
 	}
 
 	let delivery = {
-		_id: did,
+		id: did,
 		uid: uid,
 		type: parseInt(type),
 		fromPlace: fromPlace,
@@ -2230,11 +2230,11 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 	deliveries.push(delivery);
 	db.collection("deliveries").insertOne(delivery, (err, res) => {
 		if (err) {
-			deliveries = deliveries.filter(obj => obj._id != delivery._id);
+			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 			console.log(err)
 			return false
 		};
-		let user = getUser('_id', uid)
+		let user = getUser('id', uid)
 		user.last_delivery = Date.now();
 		user.hash = "";
 		handleNewDelivery(delivery);
@@ -2246,13 +2246,13 @@ function deliveryInfoPage(delivery) {
 	return {
 		d_type: delivery.type,
 		status: delivery.status,
-		name: getUser("_id", delivery.uid).name,
+		name: getUser("id", delivery.uid).name,
 		fromPlace: delivery.fromPlace,
 		thing: delivery.thing,
 		distance: delivery.distance,
 		price: delivery.price,
 		date: new Date(delivery.date),
-		driver: getDriver('_id', delivery.driver),
+		driver: getDriver('id', delivery.driver),
 		expected_finish_time: delivery.expected_finish_time,
 	}
 }
@@ -2260,13 +2260,13 @@ function carDeliveryInfoPage(delivery) {
 	return {
 		d_type: delivery.type,
 		status: delivery.status,
-		name: getUser("_id", delivery.uid).name,
+		name: getUser("id", delivery.uid).name,
 		from: delivery.from,
 		to: delivery.to,
 		fromPlace: delivery.shop,
 		thing: delivery.thing,
 		price: delivery.price,
-		driver: getDriver('_id', delivery.driver)
+		driver: getDriver('id', delivery.driver)
 	}
 }
 
@@ -2277,7 +2277,7 @@ function handleNewDelivery(delivery, driverConnected) {
 		if (result == "no driver available right now") {
 			delivery.status = 6;
 			deliveriesBuffer.push(delivery);
-			db.collection('deliveries').updateOne({ _id: delivery._id }, { $set: { status: delivery.status } });
+			db.collection('deliveries').updateOne({ id: delivery.id }, { $set: { status: delivery.status } });
 		} else {
 			let driver = result.driver;
 			let time = result.time + settings.driverRestTime; // result.time = leastbusyrdriver.available_in
@@ -2286,16 +2286,16 @@ function handleNewDelivery(delivery, driverConnected) {
 
 			delivery.expected_finish_time = getExpectedFinishTime(time, delivery.to, delivery.from);
 
-			delivery.driver = driver._id;
+			delivery.driver = driver.id;
 
-			if (driver.tasks) driver.tasks.push(delivery._id);
-			else driver.tasks = [delivery._id];
+			if (driver.tasks) driver.tasks.push(delivery.id);
+			else driver.tasks = [delivery.id];
 
 			if (driver.available_in) driver.available_in.push(Math.ceil((time + delivery.takes_time) / settings.nearestMinute) * settings.nearestMinute);
 			else driver.available_in = [Math.ceil((time + delivery.takes_time) / settings.nearestMinute) * settings.nearestMinute];
 
-			db.collection('users').updateOne({ _id: driver._id }, { $set: { available_in: driver.available_in, tasks: driver.tasks, } });
-			db.collection('deliveries').updateOne({ _id: delivery._id }, {
+			db.collection('users').updateOne({ id: driver.id }, { $set: { available_in: driver.available_in, tasks: driver.tasks, } });
+			db.collection('deliveries').updateOne({ id: delivery.id }, {
 				$set: {
 					driver: delivery.driver,
 					status: delivery.status,
@@ -2304,14 +2304,14 @@ function handleNewDelivery(delivery, driverConnected) {
 			});
 
 			if (deliveriesBuffer.includes(delivery)) {
-				deliveriesBuffer = deliveriesBuffer.filter(obj => obj._id != delivery._id);
+				deliveriesBuffer = deliveriesBuffer.filter(obj => obj.id != delivery.id);
 			}
 
 			if (driver.socket && !driverConnected) {
 				io.to(driver.socket).emit("got_a_new_delivery", getDetailsToSendToDriver(delivery));
 			}
 		}
-		sendNewDeliveryStatus(delivery._id);
+		sendNewDeliveryStatus(delivery.id);
 	}
 }
 
@@ -2340,11 +2340,11 @@ function getLeastBusyDriver(from) {
 }
 
 function sendNewDeliveryStatus(delivery) {
-	delivery = getDelivery('_id', delivery);
+	delivery = getDelivery('id', delivery);
 	if (delivery) {
-		io.to(delivery._id).emit('new_delivery_status', {
+		io.to(delivery.id).emit('new_delivery_status', {
 			status: delivery.status,
-			driver: getDriver('_id', delivery.driver),
+			driver: getDriver('id', delivery.driver),
 			expected_finish_time: delivery.expected_finish_time
 		});
 	}
@@ -2356,13 +2356,13 @@ function fillDeliveriesBuffer() {
 	}
 }
 
-function getCarDeliveries(user_id) {
+function getCarDeliveries(userid) {
 	let d = [];
 	car_deliveries.forEach(delivery => {
-		let user = getUser('_id', delivery.uid);
+		let user = getUser('id', delivery.uid);
 		if (delivery.status < 3) {
 			let dd = {
-				_id: delivery._id,
+				id: delivery.id,
 				user: user.name,
 				phone: user.phone,
 				from: delivery.from,
@@ -2372,14 +2372,14 @@ function getCarDeliveries(user_id) {
 				receiver_phone: delivery.phone,
 				status: delivery.status
 			}
-			if (typeof (delivery.driver) == 'undefined' || delivery.driver == user_id) d.push(dd);
+			if (typeof (delivery.driver) == 'undefined' || delivery.driver == userid) d.push(dd);
 		}
 	});
 	return d;
 }
 
-function getUserCarDeliveries(user_id) {
-	if (car_deliveries) return car_deliveries.filter(obj => obj.uid == user_id);
+function getUserCarDeliveries(userid) {
+	if (car_deliveries) return car_deliveries.filter(obj => obj.uid == userid);
 	return [];
 }
 
@@ -2394,16 +2394,16 @@ function newDriverConnected(driver) {
 	}
 }
 
-function removeDriverTask(driver, task_id) {
-	let index = driver.tasks.indexOf(task_id);
+function removeDriverTask(driver, taskid) {
+	let index = driver.tasks.indexOf(taskid);
 	driver.tasks.splice(index, 1);
 	driver.available_in.splice(index, 1);
 	driver.current_task = "";
 	if (driver.tasks && driver.tasks.length) {
 		driver.tasks.forEach(task => {
-			let delivery = getDelivery('_id', task);
+			let delivery = getDelivery('id', task);
 			if (delivery && delivery.driver) {
-				let driver = getUser('_id', delivery.driver);
+				let driver = getUser('id', delivery.driver);
 				if (driver) {
 					delivery.expected_finish_time = getExpectedFinishTime((getDriverAvailableIn(driver) + settings.driverRestTime), delivery.to, delivery.from);
 					sendNewDeliveryStatus(delivery);
@@ -2418,7 +2418,7 @@ function removeDriverTask(driver, task_id) {
 // Admin stuff
 function addNewPlace(id, name, secret, place, schedule, startTime, endTime) {
 	let newPlace = {
-		_id: id,
+		id: id,
 		name: name,
 		secret: secret,
 		place: parsePosition(place),
@@ -2442,8 +2442,8 @@ function inWorkHours(now) {
 	return false;
 }
 
-function inPartnerWorkHours(partner_id) {
-	let p = partners_schedule[partner_id];
+function inPartnerWorkHours(partnerid) {
+	let p = partners_schedule[partnerid];
 	let now = new Date();
 	if (p) {
 		if (p.schedule == 0 && today.getDay() == 5) return false;
@@ -2456,19 +2456,19 @@ function inPartnerWorkHours(partner_id) {
 function makePlaceSchedules() {
 	if (places) {
 		places.forEach(place => {
-			partners_schedule[place._id] = {
+			partners_schedule[place.id] = {
 				schedule: place.schedule,
 				time: [place.startTime, place.endTime]
 			}
-			createPartnerScheduleTimes(place._id);
+			createPartnerScheduleTimes(place.id);
 		});
 	}
 }
 
-function createPartnerScheduleTimes(partner_id) {
-	partners_schedule[partner_id].time = [
-		new Date(`${todays_date} ${partners_schedule[partner_id].time[0]}`).getTime(),
-		new Date(`${todays_date} ${partners_schedule[partner_id].time[1]}`).getTime()
+function createPartnerScheduleTimes(partnerid) {
+	partners_schedule[partnerid].time = [
+		new Date(`${todays_date} ${partners_schedule[partnerid].time[0]}`).getTime(),
+		new Date(`${todays_date} ${partners_schedule[partnerid].time[1]}`).getTime()
 	];
 }
 
@@ -2488,7 +2488,7 @@ function loadSchedules() {
 // Daily saving
 schedule.scheduleJob("0 30 18,22 * * *", () => { // 18:30 and 22:30 everyday
 	let insertion = {
-		_id: todays_date,
+		id: todays_date,
 		deliveries: daily_deliveries,
 		profit: daily_profit,
 		drivers: []
@@ -2496,16 +2496,16 @@ schedule.scheduleJob("0 30 18,22 * * *", () => { // 18:30 and 22:30 everyday
 	if (drivers) {
 		drivers.forEach(driver => {
 			insertion.drivers.push({
-				driver: driver._id,
+				driver: driver.id,
 				deliveries: driver.daily_deliveries || 0,
 				profit: driver.daily_profit || 0
 			});
 		});
 	}
 
-	db.collection('finance').findOne({ _id: todays_date }, (err, result) => {
+	db.collection('finance').findOne({ id: todays_date }, (err, result) => {
 		if (result) {
-			db.collection('finance').updateOne({ _id: todays_date }, {
+			db.collection('finance').updateOne({ id: todays_date }, {
 				$set: {
 					deliveries: insertion.deliveries,
 					profit: insertion.profit,
@@ -2515,18 +2515,18 @@ schedule.scheduleJob("0 30 18,22 * * *", () => { // 18:30 and 22:30 everyday
 				{ upsert: true }
 			).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 		} else {
-			insertion._id = todays_date;
+			insertion.id = todays_date;
 			db.collection('finance').insertOne(insertion).catch((err) => console.log("Error : " + Date.now() + "  " + err));
 		}
 	});
-	db.collection('finance').updateOne({ _id: "this_week" }, { $set: { deliveries: weekly_deliveries, profit: weekly_profit } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
-	db.collection('finance').updateOne({ _id: "all_time" }, { $set: { deliveries: all_time_deliveries, profit: all_time_profit } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('finance').updateOne({ id: "this_week" }, { $set: { deliveries: weekly_deliveries, profit: weekly_profit } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('finance').updateOne({ id: "all_time" }, { $set: { deliveries: all_time_deliveries, profit: all_time_profit } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 });
 
 // Daily saving right before midnight
 schedule.scheduleJob({ hour: 23, minute: 59, second: 0 }, () => { // 23:59 every day
 	let insertion = {
-		_id: todays_date,
+		id: todays_date,
 		deliveries: daily_deliveries,
 		profit: daily_profit,
 		drivers: []
@@ -2534,7 +2534,7 @@ schedule.scheduleJob({ hour: 23, minute: 59, second: 0 }, () => { // 23:59 every
 	if (drivers) {
 		drivers.forEach(driver => {
 			insertion.drivers.push({
-				driver: driver._id,
+				driver: driver.id,
 				deliveries: driver.daily_deliveries || 0,
 				profit: driver.daily_profit || 0
 			});
@@ -2551,9 +2551,9 @@ schedule.scheduleJob({ hour: 23, minute: 59, second: 0 }, () => { // 23:59 every
 
 	db.collection('deliveries').deleteMany({ status: { $ne: 4 } }); // keeping only finished deliveries in db
 
-	db.collection('finance').findOne({ _id: todays_date }, (err, result) => {
+	db.collection('finance').findOne({ id: todays_date }, (err, result) => {
 		if (result) {
-			db.collection('finance').updateOne({ _id: todays_date }, {
+			db.collection('finance').updateOne({ id: todays_date }, {
 				$set: {
 					deliveries: insertion.deliveries,
 					profit: insertion.profit,
@@ -2563,7 +2563,7 @@ schedule.scheduleJob({ hour: 23, minute: 59, second: 0 }, () => { // 23:59 every
 				{ upsert: true }
 			).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 		} else {
-			insertion._id = todays_date;
+			insertion.id = todays_date;
 			db.collection('finance').insertOne(insertion).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 		}
 	});
@@ -2606,15 +2606,15 @@ schedule.scheduleJob("0 7 0,4 * * 5", () => { // 00:07 and 04:07 every Friday
 		drivers.forEach(driver => {
 			driver.weekly_deliveries = 0;
 			driver.weekly_profit = 0;
-			db.collection('finance').updateOne({ _id: driver._id }, { $set: { weekly_deliveries: 0, weekly_profit: 0 } });
+			db.collection('finance').updateOne({ id: driver.id }, { $set: { weekly_deliveries: 0, weekly_profit: 0 } });
 		});
 	}
 
-	db.collection('finance').findOne({ _id: "this_week" }, (err, result) => {
+	db.collection('finance').findOne({ id: "this_week" }, (err, result) => {
 		if (result) {
-			db.collection('finance').updateOne({ _id: "this_week" }, { $set: { deliveries: 0, profit: 0 } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			db.collection('finance').updateOne({ id: "this_week" }, { $set: { deliveries: 0, profit: 0 } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 		} else {
-			db.collection('finance').insertOne({ _id: "this_week", deliveries: 0, profit: 0 }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			db.collection('finance').insertOne({ id: "this_week", deliveries: 0, profit: 0 }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 		}
 	});
 });
@@ -2636,11 +2636,11 @@ schedule.scheduleJob("0 13 1 * * 5", () => { // 01:13 every Friday
 			partner.client_deliveries_amount = 0;
 		});
 	}
-	db.collection('finance').findOne({ _id: "this_week" }, (err, result) => {
+	db.collection('finance').findOne({ id: "this_week" }, (err, result) => {
 		if (result) {
-			db.collection('finance').updateOne({ _id: "this_week" }, { $set: { partners: partners } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			db.collection('finance').updateOne({ id: "this_week" }, { $set: { partners: partners } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 		} else {
-			db.collection('finance').insertOne({ _id: "this_week", deliveries: 0, profit: 0, partners: partners }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+			db.collection('finance').insertOne({ id: "this_week", deliveries: 0, profit: 0, partners: partners }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 		}
 	});
 });
@@ -2663,7 +2663,7 @@ schedule.scheduleJob("0 42 0 * * 0", () => { // 00:42 every Sunday
 			if (qualifiedUsers) {
 				let userThatSpentTheMost = qualifiedUsers.sort((a, b) => (a.weekly_spending < b.weekly_spending) ? 1 : -1)[0];
 				userThatSpentTheMost.winner = true;
-				weekly_winners.push(userThatSpentTheMost._id);
+				weekly_winners.push(userThatSpentTheMost.id);
 
 				qualifiedUsers = qualifiedUsers.sort((a, b) => (a.weekly_deliveries < b.weekly_deliveries) ? 1 : -1); // Descending
 				let winners = 0;
@@ -2671,14 +2671,14 @@ schedule.scheduleJob("0 42 0 * * 0", () => { // 00:42 every Sunday
 				while (winners < 2 && i < qualifiedUsers.length) {
 					if (qualifiedUsers[i] != userThatSpentTheMost) {
 						qualifiedUsers[i].winner = true;
-						weekly_winners.push(qualifiedUsers[i]._id);
+						weekly_winners.push(qualifiedUsers[i].id);
 						winners++;
 					}
 					i++;
 				}
 			}
 			normal_users.forEach(user => {
-				db.collection('users').updateOne({ _id: user._id }, { $set: { weekly_spending: user.weekly_spending || 0, weekly_deliveries: user.weekly_deliveries || 0 } }, { upsert: true })
+				db.collection('users').updateOne({ id: user.id }, { $set: { weekly_spending: user.weekly_spending || 0, weekly_deliveries: user.weekly_deliveries || 0 } }, { upsert: true })
 					.then(() => {
 						user.weekly_spending = 0;
 						user.weekly_deliveries = 0;
@@ -2694,8 +2694,8 @@ schedule.scheduleJob("0 14 3 * * 0,3", () => { // 03:14 every Sunday and Wednesd
 	let unconfirmed_users = users.filter(obj => obj.confirmed == false);
 	unconfirmed_users.forEach(u => {
 		if (calculateHowManyHoursAgo(u.reg_date) > settings.maxHoursWithoutConfirmation) {
-			users = users.filter(obj => obj._id != u._id);
-			db.collection('users').deleteOne({ _id: u._id });
+			users = users.filter(obj => obj.id != u.id);
+			db.collection('users').deleteOne({ id: u.id });
 		}
 	});
 });
@@ -2703,16 +2703,16 @@ schedule.scheduleJob("0 14 3 * * 0,3", () => { // 03:14 every Sunday and Wednesd
 
 // Saving api use
 schedule.scheduleJob({ hour: 13, minute: 38, second: 0 }, () => {
-	db.collection('admin').updateOne({ _id: "graphopper" }, { $set: { apis: graphhopper_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('admin').updateOne({ id: "graphopper" }, { $set: { apis: graphhopper_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 });
 schedule.scheduleJob({ hour: 23, minute: 38, second: 0 }, () => {
-	db.collection('admin').updateOne({ _id: "mapbox" }, { $set: { apis: mapbox_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('admin').updateOne({ id: "mapbox" }, { $set: { apis: mapbox_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 });
 schedule.scheduleJob("0 15 2 * * *", () => { // 02:15 everyday
 	graphhopper_apis.forEach(api => { api.use = 0; });
-	db.collection('admin').updateOne({ _id: "graphopper" }, { $set: { apis: graphhopper_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('admin').updateOne({ id: "graphopper" }, { $set: { apis: graphhopper_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 });
 schedule.scheduleJob("0 22 2 1 * *", () => { // 02:22 at the first day of the month
 	mapbox_apis.forEach(api => { api.use = 0; });
-	db.collection('admin').updateOne({ _id: "mapbox" }, { $set: { apis: mapbox_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
+	db.collection('admin').updateOne({ id: "mapbox" }, { $set: { apis: mapbox_apis } }, { upsert: true }).catch((err) => console.log("Error : " + Date.now() + "  " + err));;
 });
