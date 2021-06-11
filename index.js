@@ -44,7 +44,6 @@ db.query("SELECT * FROM users", (err, results) => {
 	results.forEach(result => {
 		result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
 		result.confirmed = Boolean(result.confirmed.readIntBE(0, 1));
-		result.agreed_on_terms = Boolean(result.agreed_on_terms.readIntBE(0, 1));
 		users.push(Object.assign({}, result));
 	});
 
