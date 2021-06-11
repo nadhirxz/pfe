@@ -135,7 +135,6 @@ setTimeout(() => http.listen(port, () => console.log('Server started on port ' +
 
 app.get('/', (req, res) => {
 	if (req.session.uid) { // user authenticated
-		let user = getObject(users ,'id', req.session.uid);
 		if (getObject(users ,'id', req.session.uid) || getObject(partners, 'id', req.session.uid)) return res.redirect('/home');
 		if (getObject(drivers, 'id', req.session.uid)) return res.redirect('/driver');
 	}
