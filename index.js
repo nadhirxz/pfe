@@ -228,6 +228,44 @@ app.get('/partners', checkNotAuth, (req, res) => {
 });
 
 
+app.get('/en', (req, res) => {
+	getAndSetPageLanguage(req, res, 'en');
+	return res.redirect('/')
+});
+app.get('/fr', (req, res) => {
+	getAndSetPageLanguage(req, res, 'fr');
+	return res.redirect('/')
+});
+app.get('/ar', (req, res) => {
+	getAndSetPageLanguage(req, res, 'ar');
+	return res.redirect('/')
+});
+
+app.get('/en/:url', (req, res) => {
+	getAndSetPageLanguage(req, res, 'en');
+	return res.redirect('/' + req.params.url);
+});
+app.get('/en/:url/:u', (req, res) => {
+	getAndSetPageLanguage(req, res, 'en');
+	return res.redirect('/' + req.params.url + '/' + req.params.u);
+});
+app.get('/fr/:url', (req, res) => {
+	getAndSetPageLanguage(req, res, 'fr');
+	return res.redirect('/' + req.params.url);
+});
+app.get('/fr/:url/:u', (req, res) => {
+	getAndSetPageLanguage(req, res, 'fr');
+	return res.redirect('/' + req.params.url + '/' + req.params.u);
+});
+app.get('/ar/:url', (req, res) => {
+	getAndSetPageLanguage(req, res, 'ar');
+	return res.redirect('/' + req.params.url);
+});
+app.get('/ar/:url/:u', (req, res) => {
+	getAndSetPageLanguage(req, res, 'ar');
+	return res.redirect('/' + req.params.url + '/' + req.params.u);
+});
+
 
 
 
