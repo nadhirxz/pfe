@@ -128,7 +128,7 @@ app.use('/lang', express.static(path.join(__dirname, 'public/lang')));
 
 // Starting the server
 const port = PORT || 3000;
-setTimeout(() => http.listen(port, () => console.log('Server started on port ' + port)), 5000);
+http.listen(port, () => console.log('Server started on port ' + port));
 
 
 // Routes
