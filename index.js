@@ -3,6 +3,7 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const crypto = require('crypto');
+const path = require('path');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -128,3 +129,55 @@ app.use('/lang', express.static(path.join(__dirname, 'public/lang')));
 // Starting the server
 const port = PORT || 3000;
 setTimeout(() => http.listen(port, () => console.log('Server started on port ' + port)), 5000);
+
+
+// Routes
+
+app.get('/', (req, res) => {
+	if (req.session.uid) { // user authenticated
+		let user = getObject(users ,'id', req.session.uid);
+		if (getObject(users ,'id', req.session.uid) || getObject(partners, 'id', req.session.uid)) return res.redirect('/home');
+		if (getObject(drivers, 'id', req.session.uid)) return res.redirect('/driver');
+	}
+	req.session.uid = '';
+	let lang = getAndSetPageLanguage(req, res);
+	return res.render('pages/index', {
+		title: titles[lang].welcome + settings.titleSuffix[lang],
+		lang: lang
+	});
+});
+
+
+
+// Getting stuff
+
+function getObject(arr ,key, value) {
+	if (arr) return arr.find(obj => obj[key] == value);
+	return false;
+}
+
+function getAndSetPageLanguage(req, res, lang) {
+	let language, user;
+
+	if (req.session.uid) user = getObject(users, 'id', req.session.uid);
+	if (!user) user = getObject(partners, 'id', req.session.uid);
+	if (!user) user = getObject(drivers, 'id', req.session.uid);
+
+	if (lang) {
+		if (user) user.lang = lang;
+		language = lang;
+	} else if (user && user.lang && ['en', 'fr', 'ar'].includes(user.lang)) {
+		language = user.lang;
+	} else if (req.signedCookies.lang && ['en', 'fr', 'ar'].includes(req.signedCookies.lang)) {
+		language = req.signedCookies.lang;
+	} else {
+		let l = req.acceptsLanguages()[0].substr(0, 2);
+		let user_lang;
+		if (l && ['en', 'fr', 'ar'].includes(l)) user_lang = req.acceptsLanguages()[0].substr(0, 2)
+		language = user_lang || settings.defaultWebsiteLanguage;
+		if (user) user.lang = language;
+	}
+
+	res.cookie('lang', language, { signed: true, maxAge: settings.sessionMaxAge });
+	return language;
+}
