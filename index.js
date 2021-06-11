@@ -226,6 +226,69 @@ app.get('/partners', checkNotAuth, (req, res) => {
 	});
 });
 
+app.post('/login', checkNotAuth, (req, res) => {
+	let { phone, password } = req.body;
+	if (phone && password) {
+		if (phoneValid(phone)) {
+			let user = getUser('phone', phone);
+			if (user) {
+				if (user.password == generateHash(password, user.id)) {
+					req.session.uid = user.id;
+					return res.redirect('/home');
+				}
+				return res.redirect('/login?err=' + errors.wrongPasswordErr + '&phone=' + phone);
+			} else {
+				return res.redirect('/login?err=' + errors.phoneDoesntExistErr + '&phone=' + phone);
+			}
+		} else {
+			res.redirect('/login?err=' + errors.invalidPhoneErr + '&phone=' + phone);
+		}
+	} else {
+		res.redirect('/login?err=' + errors.missingInputErr);
+	}
+});
+
+app.post('/register', checkNotAuth, (req, res) => {
+	let { name, phone, password } = req.body;
+	if (phone && password && name) {
+		if (nameValid(name)) {
+			if (phoneValid(phone)) {
+				if (passwordValid(password)) {
+					if (getUser('phone', phone)) {
+						return res.redirect('/register?err=' + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
+					} else {
+						let id = generateUserId(4); // 4 = number of bytes
+						let newUser = {
+							id: id,
+							name: formatName(name),
+							phone: phone,
+							password: generateHash(password, id),
+							pin_retries: 5,
+							confirmed: false,
+							last_delivery: 0,
+							reg_date: new Date()
+						}
+						db.query("INSERT INTO users VALUES (?,?,?,?,?,?)", [newUser.id, newUser.name, newUser.phone, newUser.password, newUser.confirmed ? 1 : 0, newUser.reg_date], (err, results) => {
+							if (err) return res.redirect('/register?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
+							users.push(newUser);
+							sendPin(phone, getAndSetPageLanguage(req, res));
+							req.session.uid = id;
+							res.redirect('/confirm');
+						});
+					}
+				} else {
+					res.redirect('/register?err=' + errors.invalidPasswordErr + '&name=' + name + '&phone=' + phone);
+				}
+			} else {
+				res.redirect('/register?err=' + errors.invalidPhoneErr + '&name=' + name + '&phone=' + phone);
+			}
+		} else {
+			res.redirect('/register?err=' + errors.invalidNameErr + '&name=' + name + '&phone=' + phone);
+		}
+	} else {
+		res.redirect('/register?err=' + errors.missingInputErr);
+	}
+});
 
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
@@ -340,4 +403,44 @@ function inWorkHours() {
 function normalizePrice(price, to, floor) {
 	if (floor) Math.floor(price / to) * to;
 	return Math.ceil(price / to) * to;
+}
+
+
+// Some validations and stuff
+function phoneValid(phone) {
+	if (phone.length == 10 && phone.startsWith("05") || phone.startsWith("06") || phone.startsWith("07")) return true;
+	return false;
+}
+
+function nameValid(name) {
+	return name.length > 2 ? /^[\u0600-\u06FFa-zA-Z\- ]+$/.test(name) : false;
+}
+
+function passwordValid(password) {
+	return password.length > 5 || password.length < 80;
+}
+
+function formatName(name) {
+	return name.slice(0, settings.maxNameLength).replace(/\w+/g, (txt) => { return txt.charAt(0).toUpperCase() + txt.substr(1); }).replace(/\s+/g, ' ').trim();
+}
+
+
+// Generating stuff
+function generateHash(string, salt) {
+	salt = crypto.createHash('sha256').update(HASH_SECRET + salt).digest('hex');
+	return crypto.pbkdf2Sync(string, salt, 200, 32, 'sha512').toString('hex');
+}
+
+function generateUserId(bytes) {
+	let id = crypto.randomBytes(bytes).toString('hex');
+	if (getUser('id', id)) return generateUserId(bytes);
+	return id;
+}
+
+
+
+
+function sendPin(phone, lang) {
+	console.log(phone, lang)
+	// twilio.verify.services(settings.twilioServiceSID).verifications.create({ locale: (lang || settings.defaultWebsiteLanguage), to: `+213${phone.substr(1)}`, channel: 'sms' });
 }
