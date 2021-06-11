@@ -11,10 +11,19 @@ const mysql = require('mysql');
 const MySQLStore = require('express-mysql-session')(session);
 const dotenv = require('dotenv');
 
+
 // Getting some values
 dotenv.config();
-const { HASH_SECRET, COOKIE_SECRET, COOKIE_PARSER_SECRET, SESSION_STORE_SECRET, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, PORT } = process.env;
+const { HASH_SECRET, COOKIE_SECRET, COOKIE_PARSER_SECRET, SESSION_STORE_SECRET, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, PORT, TWILIO_SID, TWILIO_AUTH_TOKEN, TWILIO_SERVICE_SID } = process.env;
 
+
+// Twilio setup
+const twilio = require('twilio')(TWILIO_SID, TWILIO_AUTH_TOKEN);
+// Creating a new service (done only once)
+// twilio.verify.services.create({ friendlyName: 'PFE' }).then(service => console.log(service.sid));
+
+
+// Setting some data
 var dataFromFiles = require('./data');
 var settings = dataFromFiles.settings;
 var titles = dataFromFiles.titles;
@@ -34,6 +43,7 @@ var deliveries = [];
 var places = [];
 var partners = [];
 var drivers = [];
+var we_are_working_now = true;
 
 // Database connection
 const db = mysql.createConnection(dbOptions);
@@ -147,6 +157,24 @@ const checkNotAuth = (req, res, next) => {
 	}
 }
 
+const checkConfirmed = (req, res, next) => {
+	let user = getUser('id', req.session.uid);
+	if (user && user.confirmed) {
+		next();
+	} else {
+		res.redirect('/confirm');
+	}
+}
+
+const checkNotConfirmed = (req, res, next) => {
+	let user = getUser('id', req.session.uid);
+	if (user && !user.confirmed && (user.type == 0 || user.type == 1)) {
+		next();
+	} else {
+		res.redirect('/');
+	}
+}
+
 
 // Routes
 
@@ -170,7 +198,7 @@ app.get('/', (req, res) => {
 	});
 });
 
-app.get('/home', checkAuth, (req, res) => {
+app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
@@ -223,6 +251,17 @@ app.get('/partners', checkNotAuth, (req, res) => {
 	res.render('pages/partners', {
 		title: titles[lang].partners_reg + settings.titleSuffix[lang],
 		lang: lang
+	});
+});
+
+app.get('/confirm', checkAuth, checkNotConfirmed, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/confirm', {
+		title: titles[lang].confirm + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
 	});
 });
 
@@ -347,6 +386,64 @@ app.get('*', (req, res) => {
 
 
 
+// Handling sockets
+io.on('connection', (socket) => {
+	let user = getUser('id', socket.request.session.uid) || {};
+	if (user) user.socket = socket.id;
+
+
+	// User Confirmation
+	socket.on('confirm_page', (data) => {
+		function timeleft() {
+			user.hash = randomHash(12);
+			let time_left = 0;
+			let coef = 1;
+			let date = user.reg_date; // last sent confirmation pin
+			if (user.last_sent_pin) date = user.last_sent_pin;
+			if (user.pin_requested_times) {
+				switch (user.pin_requested_times) { // for the user not to spam RETRY and cost us too much sms fees
+					case 1: coef = 2.5; break;
+					case 2: coef = 5; break;
+					case 3: coef = 30; break;
+				}
+			}
+
+			time_left = user.pin_requested_times ? calculateTimeLeft(settings.intervalBetweenSMS, date, coef) : 0;
+
+			socket.emit('retry_time_left', {
+				time_left: time_left,
+				hash: user.hash,
+			});
+		}
+
+		timeleft();
+		setInterval(timeleft, 1000 * 60); // send how much time left for retry every minute
+
+		socket.emit('confirm_page_data', user.phone);
+	});
+	socket.on('retry', (data) => {
+		if (data.hash == user.hash) {
+			if (user.pin_requested_times) user.pin_requested_times++;
+			else user.pin_requested_times = 1;
+			user.last_sent_pin = Date.now();
+			sendPin(user.phone, user.lang || settings.defaultWebsiteLanguage);
+		}
+	});
+	socket.on('confirm_pin', (data) => {
+		handlePinConfirmation(socket, user, data);
+	});
+
+
+	// Disconnection
+	socket.on('disconnect', function () {
+		if (user && user.socket) {
+			let s = user.socket;
+			setTimeout(() => {
+				if (users.socket == s) delete user.socket;
+			}, settings.usersSocketTimeout);
+		}
+	});
+});
 
 
 // Getting stuff
@@ -362,7 +459,8 @@ function getUser(key, value) {
 		user = drivers.find(obj => obj[key] == value);
 		type++;
 	}
-	return user ? { ...user, type } : false;
+	if (user) user.type = type;
+	return user;
 }
 
 function getDeliveriesOfUser(id) {
@@ -431,6 +529,10 @@ function generateHash(string, salt) {
 	return crypto.pbkdf2Sync(string, salt, 200, 32, 'sha512').toString('hex');
 }
 
+function randomHash(bytes) {
+	return crypto.randomBytes(bytes).toString('hex');
+}
+
 function generateUserId(bytes) {
 	let id = crypto.randomBytes(bytes).toString('hex');
 	if (getUser('id', id)) return generateUserId(bytes);
@@ -438,9 +540,48 @@ function generateUserId(bytes) {
 }
 
 
+// Some calculations
+function calculateTimeLeft(end, startDate, coef = 1) {
+	return Math.max(Math.ceil((end * coef - (Date.now() - startDate) / 1000) / 60), 0);
+}
 
+
+// PIN validation
+function handlePinConfirmation(socket, user, data) {
+	if (typeof(user.pin_retries) == 'undefined' || user.pin_retries > 1) {
+		let status = 'pending';
+		twilio.verify.services(TWILIO_SERVICE_SID).verificationChecks.create({ to: `+213${user.phone.substr(1)}`, code: '' + data }).then((verification_check) => {
+			status = verification_check.status;
+			if (status == 'approved') {
+				user.confirmed = true;
+				delete user.last_sent_pin;
+				delete user.pin_requested_times;
+				delete user.last_pin_submission;
+				delete user.pin_retries;
+				db.query("UPDATE users SET confirmed=? WHERE id=?", [1, user.id], (err, results) => {
+					socket.emit('pin_confirmed');
+				});
+			} else {
+				if (user.pin_retries) user.pin_retries -= 1;
+				else user.pin_retries = settings.maxPinRetries;
+				user.last_pin_submission = Date.now();
+				socket.emit('pin_invalid', user.pin_retries);
+			}
+		}).catch((error) => {
+			socket.emit('err_happened');
+		});
+	} else {
+		let time_left = calculateTimeLeft(settings.intervalWhenTooManyPinSubmissions, user.last_pin_submission);
+		if (time_left) {
+			socket.emit('tried_too_much', time_left);
+		} else {
+			user.pin_retries = settings.maxPinRetries;
+			delete user.last_pin_submission;
+		}
+	}
+}
 
 function sendPin(phone, lang) {
 	console.log(phone, lang)
-	// twilio.verify.services(settings.twilioServiceSID).verifications.create({ locale: (lang || settings.defaultWebsiteLanguage), to: `+213${phone.substr(1)}`, channel: 'sms' });
+	// twilio.verify.services(TWILIO_SERVICE_SID).verifications.create({ locale: (lang || settings.defaultWebsiteLanguage), to: `+213${phone.substr(1)}`, channel: 'sms' });
 }
