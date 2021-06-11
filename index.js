@@ -131,6 +131,24 @@ const port = PORT || 3000;
 http.listen(port, () => console.log('Server started on port ' + port));
 
 
+// Authentication check
+const checkAuth = (req, res, next) => {
+	if (!req.session.uid) { // user not authenticated
+		res.redirect('/login');
+	} else {
+		next();
+	}
+}
+
+const checkNotAuth = (req, res, next) => {
+	if (req.session.uid) { // user authenticated
+		res.redirect('/home');
+	} else {
+		next();
+	}
+}
+
+
 // Routes
 
 app.get('/', (req, res) => {
@@ -153,6 +171,65 @@ app.get('/', (req, res) => {
 	});
 });
 
+app.get('/home', checkAuth, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+
+	if (user && (user.type == 0 || user.type == 1)) {
+		let dataToSend = {
+			title: titles[lang].home + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			total_spent: user.total_spent || 0,
+			total_deliveries: user.total_deliveries || 0,
+			userDeliveries: getDeliveriesOfUser(user.id),
+			working: we_are_working_now,
+			work_hours: inWorkHours()
+		}
+
+		if (!inWorkHours()) dataToSend.schedule = our_schedule;
+
+		let page = 'home';
+		if (user.type == 1) {
+			page = 'home_partner';
+			dataToSend.client_deliveries_amount = user.client_deliveries_amount;
+			dataToSend.percentage = user.percentage;
+			dataToSend.amount_to_pay_us = normalizePrice(((user.percentage / 100) * (user.client_deliveries_amount || 0)), 50);
+		}
+		res.render('pages/' + page, dataToSend);
+	} else {
+		res.redirect('/');
+	}
+});
+
+app.get('/login', checkNotAuth, (req, res) => {
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/login', {
+		title: titles[lang].login + settings.titleSuffix[lang],
+		lang: lang
+	});
+});
+
+app.get('/register', checkNotAuth, (req, res) => {
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/register', {
+		title: titles[lang].register + settings.titleSuffix[lang],
+		lang: lang
+	});
+});
+
+app.get('/partners', checkNotAuth, (req, res) => {
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/partners', {
+		title: titles[lang].partners_reg + settings.titleSuffix[lang],
+		lang: lang
+	});
+});
+
+
+
+
 
 
 // Getting stuff
@@ -169,6 +246,13 @@ function getUser(key, value) {
 		type++;
 	}
 	return user ? false : { ...user, type };
+}
+
+function getDeliveriesOfUser(id) {
+	if (deliveries) {
+		return deliveries.filter(obj => obj.uid == id && isToday(obj.date));
+	}
+	return [false];
 }
 
 function getAndSetPageLanguage(req, res, lang) {
@@ -193,4 +277,13 @@ function getAndSetPageLanguage(req, res, lang) {
 
 	res.cookie('lang', language, { signed: true, maxAge: settings.sessionMaxAge });
 	return language;
+}
+
+function inWorkHours() {
+	return true;
+}
+
+function normalizePrice(price, to, floor) {
+	if (floor) Math.floor(price / to) * to;
+	return Math.ceil(price / to) * to;
 }
