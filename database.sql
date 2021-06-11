@@ -12,16 +12,14 @@ CREATE TABLE drivers (
 	name VARCHAR(40) NOT NULL,
 	phone VARCHAR(10) NOT NULL,
 	password VARCHAR(64) NOT NULL,
-	status BIT NOT NULL,
-	current_task VARCHAR(20),
-	FOREIGN KEY (current_task) REFERENCES deliveries(id)
+	status BIT NOT NULL
 );
 
 CREATE TABLE places (
 	id INT(8) PRIMARY KEY,
 	name VARCHAR(40) NOT NULL,
 	secret VARCHAR(40) NOT NULL,
-	place TEXT,
+	place VARCHAR(50) UNIQUE,
 	schedule INT(2),
 	startTime VARCHAR(5),
 	endTime VARCHAR(5)
@@ -34,7 +32,7 @@ CREATE TABLE partners (
 	password VARCHAR(64) NOT NULL,
 	confirmed BIT NOT NULL,
 	percentage INT(2),
-	pos TEXT,
+	pos VARCHAR(50),
 	reg_date TIMESTAMP,
 	FOREIGN KEY (pos) REFERENCES places(place)
 );
@@ -43,8 +41,8 @@ CREATE TABLE deliveries (
 	id VARCHAR(20) PRIMARY KEY,
 	uid VARCHAR(8) NOT NULL,
 	fromPlace VARCHAR(40),
-	from TEXT,
-	to TEXT,
+	delivery_from VARCHAR(50),
+	delivery_to VARCHAR(50),
 	price INT(8),
 	thing VARCHAR(40),
 	weight BIT,
@@ -53,16 +51,24 @@ CREATE TABLE deliveries (
 	driver VARCHAR(8),
 	expected_finish_time TIMESTAMP,
 	date TIMESTAMP,
-	waypoints TEXT,
+	waypoints VARCHAR(100),
 	partner VARCHAR(8),
 	FOREIGN KEY (uid) REFERENCES users(id),
 	FOREIGN KEY (driver) REFERENCES drivers(id),
 	FOREIGN KEY (partner) REFERENCES partners(id)
 );
 
+CREATE TABLE current_tasks (
+	driver VARCHAR(8),
+	delivery VARCHAR(20),
+	PRIMARY KEY (driver, delivery),
+	FOREIGN KEY (driver) REFERENCES drivers(id),
+	FOREIGN KEY (delivery) REFERENCES deliveries(id)
+);
+
 CREATE TABLE secretkeys (
 	id VARCHAR(8) PRIMARY KEY,
-	key VARCHAR(65) NOT NULL,
+	sercertKey VARCHAR(65) NOT NULL,
 	secretText VARCHAR(40) NOT NULL,
 	percentage INT(2)
 );
