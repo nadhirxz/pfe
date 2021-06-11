@@ -4,14 +4,7 @@ CREATE TABLE users (
 	phone VARCHAR(10) NOT NULL,
 	password VARCHAR(64) NOT NULL,
 	confirmed BIT NOT NULL,
-	agreed_on_terms BIT NOT NULL,
-	last_delivery TIMESTAMP,
-	reg_date TIMESTAMP,
-	total_spent INT(10),
-	weekly_deliveries INT(4),
-	weekly_spending INT(10),
-	all_time_deliveries INT(4),
-	all_time_spending INT(10)
+	reg_date TIMESTAMP
 );
 
 CREATE TABLE drivers (
@@ -21,16 +14,6 @@ CREATE TABLE drivers (
 	password VARCHAR(64) NOT NULL,
 	status BIT NOT NULL,
 	current_task VARCHAR(20),
-	all_deliveries INT(10),
-	all_profit INT(10),
-	todays_deliveries INT(4),
-	todays_profit INT(10),
-	weekly_deliveries INT(10),
-	all_time_deliveries INT(10),
-	all_time_profit INT(10),
-	daily_deliveries INT(10),
-	daily_profit INT(10),
-	weekly_profit INT(10),
 	FOREIGN KEY (current_task) REFERENCES deliveries(id)
 );
 
