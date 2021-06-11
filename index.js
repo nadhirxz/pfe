@@ -266,6 +266,23 @@ app.get('/ar/:url/:u', (req, res) => {
 	return res.redirect('/' + req.params.url + '/' + req.params.u);
 });
 
+// 404 route
+app.get('*', (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let name, type;
+	if (typeof (user) != 'undefined') {
+		name = user.name;
+		type = user.type;
+	}
+	res.render('pages/404', {
+		title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+		name: name,
+		type: type,
+		lang: lang,
+	});
+}); // this should be always at the end
+
 
 
 
