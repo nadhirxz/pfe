@@ -157,14 +157,14 @@ app.get('/', (req, res) => {
 
 // Getting stuff
 function getUser(key, value) {
-	let user = false;
+	let user;
 	let type = 0;
 	if (users) user = users.find(obj => obj[key] == value);
-	if (!user) {
+	if (!user && partners) {
 		user = partners.find(obj => obj[key] == value);
 		type++;
 	}
-	if (!user) {
+	if (!user && drivers) {
 		user = drivers.find(obj => obj[key] == value);
 		type++;
 	}
