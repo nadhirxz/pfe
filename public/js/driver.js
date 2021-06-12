@@ -17,12 +17,12 @@ setInterval(() => {
 socket.on("driver_tasks_info", (data) => {
     requests.removeChild(document.getElementById('loading-img'));
     if (data && data.tasks && data.tasks.length) {
-        let c_task = data.tasks.find(obj => obj['_id'] == data.current_task);
+        let c_task = data.tasks.find(obj => obj['.id'] == data.current_task);
         if (c_task) {
             createNewRequestDiv(c_task, 1);
         }
         data.tasks.forEach(task => {
-            if (!c_task || task._id != c_task._id) createNewRequestDiv(task);
+            if (!c_task || task..id != c_task..id) createNewRequestDiv(task);
         });
         deliveries = data.tasks;
     } else {
@@ -53,7 +53,7 @@ function getPosition() {
 
 async function createNewRequestDiv(delivery, c) {
     let request_div = document.createElement("div");
-    request_div.setAttribute('id', delivery._id);
+    request_div.setAttribute('id', delivery..id);
     request_div.classList.add('d-flex');
     request_div.classList.add('justify-content-center');
     request_div.classList.add('py-2');
@@ -136,7 +136,7 @@ async function createNewRequestDiv(delivery, c) {
         inner_div.appendChild(completed_button);
 
         completed_button.addEventListener('click', () => {
-            current_delivery = delivery._id;
+            current_delivery = delivery..id;
             current_function = completedDelivery;
             modalTitle.innerHTML = texts[2];
             modalButton.innerHTML = buttonTexts[2];
@@ -145,7 +145,7 @@ async function createNewRequestDiv(delivery, c) {
             modalButton.classList.add('btn-success');
         });
         failed_button.addEventListener('click', () => {
-            current_delivery = delivery._id;
+            current_delivery = delivery..id;
             current_function = failedDelivery;
             modalTitle.innerHTML = texts[3];
             modalButton.innerHTML = buttonTexts[3];
@@ -175,7 +175,7 @@ async function createNewRequestDiv(delivery, c) {
         inner_div.appendChild(accept_button);
 
         accept_button.addEventListener('click', () => {
-            current_delivery = delivery._id;
+            current_delivery = delivery..id;
             current_function = acceptDelivery;
             modalTitle.innerHTML = texts[0];
             modalButton.innerHTML = buttonTexts[0];
@@ -184,7 +184,7 @@ async function createNewRequestDiv(delivery, c) {
             modalButton.classList.add('btn-success');
         });
         refuse_button.addEventListener('click', () => {
-            current_delivery = delivery._id;
+            current_delivery = delivery..id;
             current_function = refuseDelivery;
             modalTitle.innerHTML = texts[1];
             modalButton.innerHTML = buttonTexts[1];
@@ -213,7 +213,7 @@ function acceptDelivery() {
     let refuse_button = inner_div.querySelector('#refuse-button');
 
     window.open(delivery.link);
-    socket.emit("accepted_delivery", delivery._id);
+    socket.emit("accepted_delivery", delivery..id);
 
     accept_button.parentElement.removeChild(accept_button);
     refuse_button.parentElement.removeChild(refuse_button);
@@ -249,7 +249,7 @@ function acceptDelivery() {
         window.open(delivery.link);
     });
     completed_button.addEventListener('click', () => {
-        current_delivery = delivery._id;
+        current_delivery = delivery..id;
         current_function = completedDelivery;
         modalTitle.innerHTML = texts[2];
         modalButton.innerHTML = buttonTexts[2];
@@ -258,7 +258,7 @@ function acceptDelivery() {
         modalButton.classList.add('btn-success');
     });
     failed_button.addEventListener('click', () => {
-        current_delivery = delivery._id;
+        current_delivery = delivery..id;
         current_function = failedDelivery;
         modalTitle.innerHTML = texts[3];
         modalButton.innerHTML = buttonTexts[3];
@@ -278,7 +278,7 @@ function refuseDelivery() {
 
 function completedDelivery() {
     let delivery = getDelivery(current_delivery);
-    socket.emit("completed_delivery", delivery._id);
+    socket.emit("completed_delivery", delivery..id);
     let div = document.getElementById(current_delivery);
     div.parentElement.removeChild(div);
     current_delivery = false;
@@ -286,12 +286,12 @@ function completedDelivery() {
 
 function failedDelivery() {
     let delivery = getDelivery(current_delivery);
-    socket.emit("failed_delivery", delivery._id);
+    socket.emit("failed_delivery", delivery..id);
     let div = document.getElementById(current_delivery);
     div.parentElement.removeChild(div);
     current_delivery = false;
 }
 
 function getDelivery(id) {
-    return deliveries.find(obj => obj._id == id);
+    return deliveries.find(obj => obj..id == id);
 }

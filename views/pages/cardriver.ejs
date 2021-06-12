@@ -17,7 +17,7 @@ var deliveryTypes = {
         <p><span class="all_dlvrs_text"></span> <b><%= all_deliveries %></b> - <span class="all_profit_text"></span> <b><%= all_profit %> <span class="dzd_text"></span></b></p>
         <div id="requests">
             <% delivery.forEach(delivery => { %>
-            <div id="<%= delivery._id %>" class="d-flex justify-content-center">
+            <div id="<%= delivery..id %>" class="d-flex justify-content-center">
                 <div class="jumbotron col-lg-6">
                     <h4><a href="tel:<%= delivery.phone %>"><%= delivery.phone %></a> - <%= delivery.name %></h4>
                     <p><span class="thing_text"></span> <b><%= delivery.thing %></b></p>
@@ -25,11 +25,11 @@ var deliveryTypes = {
                     <p><span class="type_text"></span> <b><%= delivery.type %></b></p>
                     <p><span class="rcvr_phone_text"></span> <b><%= deliveryTypes[delivery.type] %></b></p>
                     <% if (delivery.status == 0) { %>
-                    <button class="btn btn-sm btn-danger mx-2 refuse_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery._id %>', 'r')"></button>
-                    <button class="btn btn-sm btn-success mx-2 accept_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery._id %>', 'a')"></button>
+                    <button class="btn btn-sm btn-danger mx-2 refuse_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery..id %>', 'r')"></button>
+                    <button class="btn btn-sm btn-success mx-2 accept_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery..id %>', 'a')"></button>
                     <% } else if (delivery.status == 1) { %>
-                    <button class="btn btn-sm btn-danger mx-2 failed_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery._id %>', 'f')"></button>
-                    <button class="btn btn-sm btn-success mx-2 completed_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery._id %>', 'c')"></button>
+                    <button class="btn btn-sm btn-danger mx-2 failed_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery..id %>', 'f')"></button>
+                    <button class="btn btn-sm btn-success mx-2 completed_text" data-toggle="modal" data-target="#modal" onclick="set('<%= delivery..id %>', 'c')"></button>
                     <% } %>
                 </div>
                 <hr>
