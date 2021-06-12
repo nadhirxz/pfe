@@ -717,6 +717,19 @@ function getLeastBusyDriver(from) {
 	return 'no driver available right now';
 }
 
+function getPlacesInfo() {
+	let p = [];
+	places.forEach(place => {
+		p.push({
+			id: place.id,
+			name: place.name,
+			desc: place.desc || ''
+		});
+	})
+	return p;
+}
+
+
 
 // Some validations and stuff
 function phoneValid(phone) {
@@ -815,6 +828,12 @@ function getDriverAvailableIn(driver) {
 function willDeliveryExceedOurWorkTime(driver, timeToFinish) {
 	let now = Date.now() + (getDriverAvailableIn(driver) + timeToFinish) * 60 * 1000;
 	return !inWorkHours(now);
+}
+
+function isToday(date) {
+	let today = new Date();
+	date = new Date(date);
+	return date.getDate() == today.getDate() && date.getMonth() == today.getMonth() && date.getFullYear() == today.getFullYear();
 }
 
 
