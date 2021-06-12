@@ -18,7 +18,7 @@
                 </div>
                 <div class="form-group">
                     <label for="delivery-thing" class="thing_text"></label>
-                    <input type="text" class="form-control" id="thing" placeholder="Enter something" onkeyup="trackInput()">
+                    <input type="text" class="form-control" id="thing" onkeyup="trackInput()">
                 </div>
                 <div class="form-group">
                     <label class="weight_text"></label>
@@ -30,14 +30,11 @@
                 <% if (partner == 'other') { %>
                 <div class="form-group" id="another-shop">
                     <label for="delivery-thing" class="shop_name_text"></label>
-                    <input type="text" class="form-control" id="name" placeholder="Enter something" onkeyup="trackInput()">
+                    <input type="text" class="form-control" id="name" onkeyup="trackInput()">
                 </div>
                 <div class="form-group">
                     <label class="price_text"></label>
-                    <select class="custom-select" id="delivery-thing-price">
-                        <option value="0" selected class="less_than_500_text"></option>
-                        <option value="1" class="not_less_than_500_text"></option>
-                    </select>
+                    <input type="number" onkeypress="return onlyNumberKey(event)" onkeyup="trackInput()" maxlength="10" min="0" class="form-control" id="delivery-thing-price" onkeyup="trackInput()">
                 </div>
                 <% } %>
             </div>

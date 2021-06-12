@@ -389,6 +389,73 @@ app.get('/deliver', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	}
 });
 
+app.get('/buy', checkAuth, checkUser, checkInWorkHours, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	if (typeof (user.last_delivery) == 'undefined' || (((new Date().getTime() - new Date(user.last_delivery).getTime()) / 1000) / 60 > settings.intervalBetweenDeliveries)) {
+		return res.render('pages/buy', {
+			title: titles[lang].new_buy + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			places: getPlacesInfo()
+		});
+	}
+	return res.render('pages/errors', {
+		title: titles[lang].too_much + settings.titleSuffix[lang],
+		error: titles[lang].too_many_requests,
+		body: titles[lang].plz_wait_at_least,
+		name: user.name,
+		type: user.type,
+		lang: lang
+	});
+});
+
+app.get('/buy/:id', checkAuth, checkUser, checkInWorkHours, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let p, place, pid;
+	if (req.params.id == 'other') {
+		p = 'other';
+	} else {
+		p = getPlace('id', req.params.id);
+		if (p) {
+			place = p.place;
+			p = p.name;
+			pid = req.params.id;
+		} else {
+			return res.render('pages/404', {
+				title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+				name: user.name,
+				type: user.type,
+				lang: lang,
+			});
+		}
+	}
+
+	if (typeof (user.last_delivery) == 'undefined' || (((new Date().getTime() - new Date(user.last_delivery).getTime()) / 1000) / 60 > settings.intervalBetweenDeliveries)) {
+		return res.render('pages/buy_next', {
+			title: titles[lang].new_buy + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			at: MAPBOX_API,
+			gh: GRAPHHOPPER_API,
+			partner: p,
+			place: place,
+			pid: pid
+		});
+	}
+	return res.render('pages/errors', {
+		title: titles[lang].too_much + settings.titleSuffix[lang],
+		error: titles[lang].too_many_requests,
+		body: titles[lang].plz_wait_at_least,
+		name: user.name,
+		type: user.type,
+		lang: lang
+	});
+});
+
 app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	if (!user) res.status(403).send();
@@ -408,8 +475,9 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 		if ((data.partner && !inPartnerWorkHours(data.partner)) && data.partner != 'other') {
 			dataToSend.status = 4;
 		} else {
-			if (data.thingsPrice == 2) user.last_delivery_price = calculatePrice((data.distance * (2 / 3)), data.weight);
-			else user.last_delivery_price = calculatePrice(data.distance, data.weight);
+			console.log(data);
+			user.last_delivery_price = calculatePrice(data.distance, data.weight);
+			if (data.thingsPrice) dataToSend.thingsPrice = parseInt(data.thingsPrice) || 0;
 			let d = getLeastBusyDriver(data.from);
 			if (d == 'no driver available right now') {
 				user.hash = generateHash(('' + data.distance).substring(0, 5), '' + user.last_delivery_price);
@@ -425,7 +493,6 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 					dataToSend.status = 0;
 					dataToSend.time = timeToFinish;
 					dataToSend.price = user.last_delivery_price;
-					if (user.winner) dataToSend.winner = true;
 				}
 			}
 		}
@@ -807,7 +874,7 @@ function stringifyPosition(pos) {
 }
 
 function calculatePrice(distance, weight) {
-	return normalizePrice(((20 * (1 + Math.max((1 / distance), 1)) + distance * 27) * (1 + (weight / 4))), 10);
+	return normalizePrice(((20 + distance * 27) * (1 + (weight / 4))), 10);
 }
 
 function getTravelTime(pos, from) {

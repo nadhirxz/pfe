@@ -13,10 +13,9 @@ var js_lang_text = {
     dstnc_too_far_text: "المسافة بعيدة جدًا لخدمتنا. يرجى اختيار أماكن أخرى",
     we_dont_wrk_now_text: "عذرا ، نحن لا نعمل في هذا الوقت",
     cant_fnsh_in_wrk_time_txt: "عذرًا ، لا يمكننا إنهاء التسليم خلال وقت العمل الخاص بنا",
-    dlvr_info_txt: (distance, price, time, w) => {
+    dlvr_info_txt: (distance, price, time, thingsPrice) => {
         let text = `المسافة: ${distance} كم`;
-        if (w) text += `<s><br>السعر : ${price} دج</s> مجانا!`
-        else text += `<br>السعر : ${price} دج`;
+        text += `<br>سعر التوصيل : ${price} دج<br>سعر الغرض : ${thingsPrice} دج<br>المجموع : ${price + thingsPrice} دج`;
         if (time) text += `<br>وقت الإنتظار : ~${time} د`;
         else text += '<br>لا يوجد أي سائق متاح للتوصيل الآن';
         return text;

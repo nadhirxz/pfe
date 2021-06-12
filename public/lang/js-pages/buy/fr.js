@@ -13,10 +13,10 @@ var js_lang_text = {
     dstnc_too_far_text: "La distance est trop loin pour notre service. Veuillez essayer d'autres endroits",
     we_dont_wrk_now_text: "Désolé, nous ne travaillons pas à cette heure",
     cant_fnsh_in_wrk_time_txt: "Désolé, nous ne pouvons pas terminer votre livraison pendant notre temps de travail",
-    dlvr_info_txt: (distance, price, time, w) => {
+    dlvr_info_txt: (distance, price, time, thingsPrice) => {
         let text = `Distance: ${distance} km`;
         if (w) text += `<s><br>Prix : ${price} DZD</s> GRATUIT!`
-        else text += `<br>Prix : ${price} DZD`;
+        text += `<br>Prix du livraison : ${price} DZD<br>Prix du chose : ${thingsPrice} DZD<br>Total : ${price + thingsPrice} DZD`;
         if (time) text += `<br>Temps d'attente : ~${time} min`;
         else text += '<br>Aucun livreur disponible pour le moment';
         return text;

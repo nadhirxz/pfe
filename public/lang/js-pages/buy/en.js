@@ -13,10 +13,9 @@ var js_lang_text = {
     dstnc_too_far_text: "Distance is too far for our service. Please try other places",
     we_dont_wrk_now_text: "Sorry, we don't work around this time",
     cant_fnsh_in_wrk_time_txt: "Sorry, we cannot finish your delivery within our working time",
-    dlvr_info_txt: (distance, price, time, w) => {
+    dlvr_info_txt: (distance, price, time, thingsPrice) => {
         let text = `Distance: ${distance} km`;
-        if (w) text += `<s><br>Price : ${price} DZD</s> FREE!`
-        else text += `<br>Price : ${price} DZD`;
+		text += `<br>Price : ${price} DZD<br>Thing's Price : ${thingsPrice} DZD<br>Total : ${price + thingsPrice} DZD`;
         if (time) text += `<br>Waiting time : ~${time} min`;
         else text += '<br>No drivers available right now';
         return text;
