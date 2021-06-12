@@ -239,14 +239,15 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 	let lang = getAndSetPageLanguage(req, res);
 
 	if (user && (user.type == 0 || user.type == 1)) {
+		let userDeliveries = getDeliveriesOfUser(user.id);
 		let dataToSend = {
 			title: titles[lang].home + settings.titleSuffix[lang],
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			total_spent: user.total_spent || 0,
-			total_deliveries: user.total_deliveries || 0,
-			userDeliveries: getDeliveriesOfUser(user.id),
+			total_spent: userDeliveries.reduce((acc, obj) => acc += obj.price, 0),
+			total_deliveries: getDeliveriesOfUser(user.id).length,
+			userDeliveries: userDeliveries,
 			working: we_are_working_now,
 			work_hours: inWorkHours()
 		}
