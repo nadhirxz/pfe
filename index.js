@@ -246,7 +246,7 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 			type: user.type,
 			lang: lang,
 			total_spent: userDeliveries.reduce((acc, obj) => acc += obj.price, 0),
-			total_deliveries: getDeliveriesOfUser(user.id).length,
+			total_deliveries: userDeliveries.length,
 			userDeliveries: userDeliveries,
 			working: we_are_working_now,
 			work_hours: inWorkHours()
