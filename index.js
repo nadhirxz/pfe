@@ -475,7 +475,6 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 		if ((data.partner && !inPartnerWorkHours(data.partner)) && data.partner != 'other') {
 			dataToSend.status = 4;
 		} else {
-			console.log(data);
 			user.last_delivery_price = calculatePrice(data.distance, data.weight);
 			if (data.thingsPrice) dataToSend.thingsPrice = parseInt(data.thingsPrice) || 0;
 			let d = getLeastBusyDriver(data.from);
