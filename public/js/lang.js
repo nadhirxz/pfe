@@ -15,7 +15,9 @@ if ($('#navbar')) {
 		});
 	});
 }
-var page = window.location.pathname.split('/')[1] == 'delivery' ? 'delivery' : false;
+var page = false;
+if (window.location.pathname.split('/')[1] == 'delivery') page = 'delivery';
+if (window.location.pathname.split('/')[1] == 'buy') page = 'buy';
 
 $.getScript(`/lang${page ? '/' + page : window.location.pathname.length > 1 ? window.location.pathname : '/index'}/${lng}.js`, () => {
 	if (typeof (lang_text) != 'undefined') {
