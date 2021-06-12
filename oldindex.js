@@ -1978,8 +1978,8 @@ function getDetailsToSendToDriver(delivery) {
 				type: delivery.type,
 				price: delivery.price,
 				distance: delivery.distance,
-				from: delivery.from,
-				to: delivery.to,
+				from: delivery.delivery_from,
+				to: delivery.delivery_to,
 				expected_finish_time: delivery.expected_finish_time
 			}
 			if (delivery.type == 1) {
@@ -1990,8 +1990,8 @@ function getDetailsToSendToDriver(delivery) {
 					if (typeof (p) != 'undefined') data.partner_phone = p.phone;
 				}
 			}
-			if (delivery.type == 2 && delivery.fromPlace) {
-				data.fromPlace = delivery.fromPlace;
+			if (delivery.type == 2 && delivery.delivery_fromPlace) {
+				data.fromPlace = delivery.delivery_fromPlace;
 			}
 			return data;
 		}
@@ -2247,7 +2247,7 @@ function deliveryInfoPage(delivery) {
 		d_type: delivery.type,
 		status: delivery.status,
 		name: getUser('id', delivery.uid).name,
-		fromPlace: delivery.fromPlace,
+		fromPlace: delivery.delivery_fromPlace,
 		thing: delivery.thing,
 		distance: delivery.distance,
 		price: delivery.price,
@@ -2261,8 +2261,8 @@ function carDeliveryInfoPage(delivery) {
 		d_type: delivery.type,
 		status: delivery.status,
 		name: getUser('id', delivery.uid).name,
-		from: delivery.from,
-		to: delivery.to,
+		from: delivery.delivery_from,
+		to: delivery.delivery_to,
 		fromPlace: delivery.shop,
 		thing: delivery.thing,
 		price: delivery.price,
@@ -2272,7 +2272,7 @@ function carDeliveryInfoPage(delivery) {
 
 function handleNewDelivery(delivery, driverConnected) {
 	if (delivery) {
-		let result = getLeastBusyDriver(delivery.from);
+		let result = getLeastBusyDriver(delivery.delivery_from);
 
 		if (result == 'no driver available right now') {
 			delivery.status = 6;
@@ -2284,7 +2284,7 @@ function handleNewDelivery(delivery, driverConnected) {
 
 			delivery.status = 1;
 
-			delivery.expected_finish_time = getExpectedFinishTime(time, delivery.to, delivery.from);
+			delivery.expected_finish_time = getExpectedFinishTime(time, delivery.delivery_to, delivery.delivery_from);
 
 			delivery.driver = driver.id;
 
@@ -2365,8 +2365,8 @@ function getCarDeliveries(userid) {
 				id: delivery.id,
 				user: user.name,
 				phone: user.phone,
-				from: delivery.from,
-				to: delivery.to,
+				from: delivery.delivery_from,
+				to: delivery.delivery_to,
 				type: delivery.type,
 				thing: delivery.thing,
 				receiver_phone: delivery.phone,
@@ -2405,7 +2405,7 @@ function removeDriverTask(driver, taskid) {
 			if (delivery && delivery.driver) {
 				let driver = getUser('id', delivery.driver);
 				if (driver) {
-					delivery.expected_finish_time = getExpectedFinishTime((getDriverAvailableIn(driver) + settings.driverRestTime), delivery.to, delivery.from);
+					delivery.expected_finish_time = getExpectedFinishTime((getDriverAvailableIn(driver) + settings.driverRestTime), delivery.delivery_to, delivery.delivery_from);
 					sendNewDeliveryStatus(delivery);
 				}
 			}

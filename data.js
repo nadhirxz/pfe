@@ -1,39 +1,37 @@
 let settings = {
-	...require('./secret'), ...{
-		sessionName: "sid",
-		sessionMaxAge: 1000 * 60 * 60 * 24 * 30 * 12, // 12 months
-		cookieSecure: false, // TRUE ONLY WITH HTTPS
+	sessionName: "sid",
+	sessionMaxAge: 1000 * 60 * 60 * 24 * 30 * 12, // 12 months
+	cookieSecure: false, // TRUE ONLY WITH HTTPS
 
-		titleSuffix: { en: " | Wesselli", fr: " | Wesselli", ar: " | وصللي" },
-		defaultWebsiteLanguage: 'fr',
+	titleSuffix: { en: " | Wesselli", fr: " | Wesselli", ar: " | وصللي" },
+	defaultWebsiteLanguage: 'fr',
 
-		intervalBetweenSMS: 60 * 2, // two minutes
-		intervalWhenTooManyPinSubmissions: 60 * 45, // 45 minutes
-		maxPinRetries: 5,
+	intervalBetweenSMS: 60 * 2, // two minutes
+	intervalWhenTooManyPinSubmissions: 60 * 45, // 45 minutes
+	maxPinRetries: 5,
 
-		maxNameLength: 40, // 40 characters
-		maxHoursWithoutConfirmation: 50, // hours .. obviously
+	maxNameLength: 40, // 40 characters
+	maxHoursWithoutConfirmation: 50, // hours .. obviously
 
-		partnerPercentage: 10,
+	partnerPercentage: 10,
 
-		maxDeliveryDistance: 20, // km
-		maxDriverDeliveriesAtOnce: 5,
-		percentageAddedToTime: 30,
-		driverSpeed: 25, // km/h
-		driverRestTime: 5, // minutes
-		usersSocketTimeout: 20000, // ms
+	maxDeliveryDistance: 60, // km
+	maxDriverDeliveriesAtOnce: 5,
+	percentageAddedToTime: 30,
+	driverSpeed: 25, // km/h
+	driverRestTime: 5, // minutes
+	usersSocketTimeout: 20000, // ms
 
-		intervalBetweenDeliveries: 5, // minutes
+	intervalBetweenDeliveries: 5, // minutes
 
-		deliveriesToBeQualified: 5,
+	deliveriesToBeQualified: 5,
 
-		ChlefPos: [36.1619007, 1.3294696],
+	AlgiersPos: [36.68686093982163, 3.0768628983554978],
 
-		nearestMinute: 5,
+	nearestMinute: 5,
 
-		allowedImgExt: ['png', 'jpg', 'jpeg', 'gif'],
-		partnerImgSize: 300
-	}
+	allowedImgExt: ['png', 'jpg', 'jpeg', 'gif'],
+	partnerImgSize: 300
 }
 
 let titles = {

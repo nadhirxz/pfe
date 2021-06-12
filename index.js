@@ -14,7 +14,7 @@ const dotenv = require('dotenv');
 
 // Getting some values
 dotenv.config();
-const { HASH_SECRET, COOKIE_SECRET, COOKIE_PARSER_SECRET, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, PORT, TWILIO_SID, TWILIO_AUTH_TOKEN, TWILIO_SERVICE_SID } = process.env;
+const { HASH_SECRET, COOKIE_SECRET, COOKIE_PARSER_SECRET, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, PORT, TWILIO_SID, TWILIO_AUTH_TOKEN, TWILIO_SERVICE_SID, MAPBOX_API, GRAPHHOPPER_API } = process.env;
 
 
 // Twilio setup
@@ -44,6 +44,8 @@ var places = [];
 var partners = [];
 var drivers = [];
 var we_are_working_now = true;
+var partners_schedule = [];
+var deliveriesBuffer = [];
 
 // Database connection
 const db = mysql.createConnection(dbOptions);
@@ -69,6 +71,7 @@ db.query("SELECT * FROM users", (err, results) => {
 				result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
 				places.push(Object.assign({}, result));
 			});
+			makePlaceSchedules();
 
 			db.query("SELECT * FROM partners", (err, results) => {
 				results.forEach(result => {
@@ -80,6 +83,8 @@ db.query("SELECT * FROM users", (err, results) => {
 				db.query("SELECT * FROM deliveries", (err, results) => {
 					results.forEach(result => {
 						result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
+						result.delivery_from = parsePosition(result.delivery_from);
+						result.delivery_to = parsePosition(result.delivery_to);
 						result.weight = Boolean(result.weight.readIntBE(0, 1));
 						deliveries.push(Object.assign({}, result));
 					});
@@ -175,6 +180,36 @@ const checkNotConfirmed = (req, res, next) => {
 	}
 }
 
+let checkUser = (req, res, next) => {
+	if (!req.session.uid) { // user not authenticated
+		res.redirect('/login');
+	} else {
+		let user = getUser('id', req.session.uid);
+		if (user && user.type == 0) {
+			next();
+		} else {
+			res.redirect('/');
+		}
+	}
+}
+
+let checkInWorkHours = (req, res, next) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	if (user) {
+		if (inWorkHours()) next();
+		else return res.render('pages/errors', {
+			title: titles[lang].out_of_srvc + settings.titleSuffix[lang],
+			error: titles[lang].crrntly_out_of_srvc + settings.titleSuffix[lang],
+			body: '',
+			name: user.name,
+			type: user.type,
+			lang: lang
+		});
+	} else {
+		return res.redirect('/');
+	}
+}
 
 // Routes
 
@@ -329,6 +364,102 @@ app.post('/register', checkNotAuth, (req, res) => {
 	}
 });
 
+app.get('/deliver', checkAuth, checkUser, checkInWorkHours, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	if (typeof (user.last_delivery) == 'undefined' || (((Date.now() - user.last_delivery) / 1000) / 60 > settings.intervalBetweenDeliveries)) {
+		res.render('pages/deliver', {
+			title: titles[lang].new_delivery + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			at: MAPBOX_API,
+			gh: GRAPHHOPPER_API
+		});
+	} else {
+		res.render('pages/errors', {
+			title: titles[lang].too_much + settings.titleSuffix[lang],
+			error: titles[lang].too_many_requests,
+			body: titles[lang].plz_wait_at_least,
+			name: user.name,
+			type: user.type,
+			lang: lang
+		});
+	}
+});
+
+app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	if (!user) res.status(403).send();
+
+	let data = req.body;
+	let dataToSend = {};
+
+	// STATUS 
+	// 0 = accepted and found a driver
+	// 1 = accepted and didn't find a driver
+	// 2 = distance too far
+	// 3 = not in work hours range
+
+	if (data.distance > settings.maxDeliveryDistance || getDistance(data.from, settings.AlgiersPos) > settings.maxDeliveryDistance || getDistance(data.to, settings.AlgiersPos) > settings.maxDeliveryDistance) {
+		dataToSend.status = 2;
+	} else if (inWorkHours()) {
+		if ((data.partner && !inPartnerWorkHours(data.partner)) && data.partner != 'other') {
+			dataToSend.status = 4;
+		} else {
+			if (data.thingsPrice == 2) user.last_delivery_price = calculatePrice((data.distance * (2 / 3)), data.weight);
+			else user.last_delivery_price = calculatePrice(data.distance, data.weight);
+			let d = getLeastBusyDriver(data.from);
+			if (d == 'no driver available right now') {
+				user.hash = generateHash(('' + data.distance).substring(0, 5), '' + user.last_delivery_price);
+				dataToSend.status = 1;
+				dataToSend.price = user.last_delivery_price;
+			} else {
+				let timeToFinish = Math.ceil((d.time + ((data.distance / settings.driverSpeed) * 60)) / settings.nearestMinute) * settings.nearestMinute;
+
+				if (willDeliveryExceedOurWorkTime(d.driver, timeToFinish)) {
+					dataToSend.status = 5;
+				} else {
+					user.hash = generateHash('' + data.distance, '' + user.last_delivery_price);
+					dataToSend.status = 0;
+					dataToSend.time = timeToFinish;
+					dataToSend.price = user.last_delivery_price;
+					if (user.winner) dataToSend.winner = true;
+				}
+			}
+		}
+	} else {
+		dataToSend.status = 3;
+	}
+	res.send(dataToSend);
+});
+
+app.post('/delivery-request', checkAuth, checkUser, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	if (user && user.hash) {
+		let { type, fromPlace, from, to, distance, price, phone, thing, weight, partner } = req.body;
+		if (typeof (type) && typeof (from) && typeof (to) && typeof (distance) && typeof (price) && typeof (thing) && typeof (weight) && generateHash(('' + distance).substring(0, 5), '' + price) == user.hash && price == user.last_delivery_price) {
+			let did = randomHash(10);
+			if (submitNewDelivery(req.session.uid, did, type, fromPlace, from, to, distance, price, thing, phone, weight, partner)) return res.redirect('/d/' + did);
+			return res.redirect('/delivery-err');
+		}
+	}
+	return res.redirect('/');
+});
+
+app.get('/delivery-err', checkAuth, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/errors', {
+		title: titles[lang].error + settings.titleSuffix[lang],
+		error: titles[lang].error + settings.titleSuffix[lang],
+		body: titles[lang].a_dlvr_err_hppnd + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang
+	})
+});
+
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
 	return res.redirect('/')
@@ -463,6 +594,23 @@ function getUser(key, value) {
 	return user;
 }
 
+function getDriver(key, value) {
+	if (drivers) {
+		let driver = drivers.find(obj => obj[key] == value);
+		if (driver) return { name: driver.name, phone: driver.phone }
+	}
+	return false;
+}
+
+function getPlace(key, value) {
+	return places.find(obj => obj[key] == value);
+}
+
+function getDelivery(key, value) {
+	if (deliveries) return deliveries.find(obj => obj[key] == value);
+	return false;
+}
+
 function getDeliveriesOfUser(id) {
 	if (deliveries) {
 		return deliveries.filter(obj => obj.uid == id && isToday(obj.date));
@@ -501,6 +649,34 @@ function inWorkHours() {
 function normalizePrice(price, to, floor) {
 	if (floor) Math.floor(price / to) * to;
 	return Math.ceil(price / to) * to;
+}
+
+function todaysDate() {
+	return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+}
+
+function getLeastBusyDriver(from) {
+	if (drivers) {
+		let times = [];
+		let d = [];
+		let onlineDrivers = drivers.filter(obj => obj.status == 1);
+		if (onlineDrivers) {
+			onlineDrivers.forEach(driver => {
+				let travel_time = getTravelTime(driver.pos, from);
+				let t = getDriverAvailableIn(driver);
+				t += travel_time + 1;
+				times.push(t);
+				d.push(driver);
+			});
+			if (times.length) {
+				return {
+					driver: d[times.indexOf(Math.min(...times))],
+					time: Math.min(...times)
+				} // least busy driver
+			}
+		}
+	}
+	return 'no driver available right now';
 }
 
 
@@ -545,6 +721,65 @@ function calculateTimeLeft(end, startDate, coef = 1) {
 	return Math.max(Math.ceil((end * coef - (Date.now() - startDate) / 1000) / 60), 0);
 }
 
+function getDistance(pos1, pos2) {
+	let R = 6371; // Radius of the earth in km
+	let dLat = deg2rad(pos2[0] - pos1[0]);  // deg2rad below
+	let dLon = deg2rad(pos2[1] - pos1[1]);
+	let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(pos1[0])) * Math.cos(deg2rad(pos2[0])) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+	let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+	let d = R * c; // Distance in km
+	return d;
+}
+
+function deg2rad(deg) {
+	return deg * (Math.PI / 180)
+}
+
+function parsePosition(string) {
+	let position;
+	try {
+		position = string.split(',');
+		position[0] = parseFloat(position[0]);
+		position[1] = parseFloat(position[1]);
+	} catch {
+		position = null;
+	}
+	return position;
+}
+
+function stringifyPosition(pos) {
+	try {
+		return `${pos[0]},${pos[1]}`
+	} catch {
+		return '';
+	}
+}
+
+function calculatePrice(distance, weight) {
+	return normalizePrice(((20 * (1 + Math.max((1 / distance), 1)) + distance * 27) * (1 + (weight / 4))), 10);
+}
+
+function getTravelTime(pos, from) {
+	return Math.ceil(((getDistance(pos, from) / settings.driverSpeed) * 60) * (1 + settings.percentageAddedToTime / 100));
+}
+
+function getDriverAvailableIn(driver) {
+	if (driver.available_in) {
+		let time = 0;
+		driver.available_in.forEach(t => {
+			time += t;
+		});
+		return time;
+	}
+	return 0;
+}
+
+function willDeliveryExceedOurWorkTime(driver, timeToFinish) {
+	let now = Date.now() + (getDriverAvailableIn(driver) + timeToFinish) * 60 * 1000;
+	return !inWorkHours(now);
+}
+
+
 
 // PIN validation
 function handlePinConfirmation(socket, user, data) {
@@ -584,4 +819,138 @@ function handlePinConfirmation(socket, user, data) {
 function sendPin(phone, lang) {
 	console.log(phone, lang)
 	// twilio.verify.services(TWILIO_SERVICE_SID).verifications.create({ locale: (lang || settings.defaultWebsiteLanguage), to: `+213${phone.substr(1)}`, channel: 'sms' });
+}
+
+
+// Some scheduling
+function inPartnerWorkHours(partnerid) {
+	let p = partners_schedule[partnerid];
+	let now = new Date();
+	if (p) {
+		if (p.schedule == 0 && today.getDay() == 5) return false;
+		if (p.schedule == 1 && (today.getDay() == 5 || today.getDay() == 6)) return false;
+		if (now >= (new Date(p.time[0])) && now <= (new Date(p.time[1]))) return true;
+	}
+	return false;
+}
+
+function makePlaceSchedules() {
+	if (places) {
+		places.forEach(place => {
+			partners_schedule[place.id] = {
+				schedule: place.schedule,
+				time: [place.startTime, place.endTime]
+			}
+			createPartnerScheduleTimes(place.id);
+		});
+	}
+}
+
+function createPartnerScheduleTimes(partnerid) {
+	partners_schedule[partnerid].time = [
+		new Date(`${todaysDate()} ${partners_schedule[partnerid].time[0]}`).getTime(),
+		new Date(`${todaysDate()} ${partners_schedule[partnerid].time[1]}`).getTime()
+	];
+}
+
+
+
+// Delivery stuff
+function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price, thing, phone, weight, partner) {
+	if (type == 1) {
+		fromPlace = getPlace('id', fromPlace);
+		if (fromPlace) fromPlace = fromPlace.name;
+		else fromPlace = null;
+	}
+
+	let delivery = {
+		id: did,
+		uid: uid,
+		type: parseInt(type),
+		fromPlace: fromPlace,
+		delivery_from: parsePosition(from),
+		delivery_to: parsePosition(to),
+		price: parseInt(price),
+		thing: thing,
+		weight: parseInt(weight),
+		distance: parseFloat(distance),
+		status: 0,
+		driver: null,
+		expected_finish_time: null,
+		date: new Date(),
+		waypoints: null,
+		partner: null
+	}
+
+	if (type == 1) delivery.partner = partner;
+
+	deliveries.push(delivery);
+
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.expected_finish_time, delivery.date, delivery.waypoints, delivery.partner], (err, results) => {
+		if (err) {
+			deliveries = deliveries.filter(obj => obj.id != delivery.id);
+		} else {
+			let user = getUser('id', uid)
+			user.last_delivery = delivery.date;
+			user.hash = '';
+			handleNewDelivery(delivery);
+		}
+	});
+
+	return true;
+}
+
+function handleNewDelivery(delivery, driverConnected) {
+	if (delivery) {
+		let result = getLeastBusyDriver(delivery.delivery_from);
+
+		if (result == 'no driver available right now') {
+			delivery.status = 6;
+			deliveriesBuffer.push(delivery);
+			db.query("UPDATE deliveries SET status=?", [delivery.status]);
+		} else {
+			let driver = result.driver;
+			let time = result.time + settings.driverRestTime; // result.time = leastbusyrdriver.available_in
+
+			delivery.status = 1;
+
+			delivery.expected_finish_time = getExpectedFinishTime(time, delivery.delivery_to, delivery.delivery_from);
+
+			delivery.driver = driver.id;
+
+			if (driver.tasks) driver.tasks.push(delivery.id);
+			else driver.tasks = [delivery.id];
+
+			if (driver.available_in) driver.available_in.push(Math.ceil((time + delivery.takes_time) / settings.nearestMinute) * settings.nearestMinute);
+			else driver.available_in = [Math.ceil((time + delivery.takes_time) / settings.nearestMinute) * settings.nearestMinute];
+
+			db.query("INSERT INTO current_tasks VALUES (?,?)", [driver.id, delivery.id]);
+			db.query("UPDATE deliveries SET driver=?, status=?, expected_finish_time=?", [delivery.driver, delivery.status, delivery.expected_finish_time]);
+
+			if (deliveriesBuffer.includes(delivery)) {
+				deliveriesBuffer = deliveriesBuffer.filter(obj => obj.id != delivery.id);
+			}
+
+			if (driver.socket && !driverConnected) {
+				io.to(driver.socket).emit('got_a_new_delivery', getDetailsToSendToDriver(delivery));
+			}
+		}
+		sendNewDeliveryStatus(delivery.id);
+	}
+}
+
+function getExpectedFinishTime(time, delivery_to, delivery_from) {
+	let coeff = 1000 * 60 * settings.nearestMinute;
+	return new Date(Math.ceil((new Date().getTime() + ((time + getTravelTime(delivery_to, delivery_from)) * 1000 * 60)) / coeff) * coeff);
+}
+
+function sendNewDeliveryStatus(delivery) {
+	delivery = getDelivery('id', delivery);
+	if (delivery) {
+		io.to(delivery.id).emit('new_delivery_status', {
+			status: delivery.status,
+			driver: getDriver('id', delivery.driver),
+			expected_finish_time: delivery.expected_finish_time
+		});
+	}
 }
