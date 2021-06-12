@@ -88,6 +88,7 @@ db.query("SELECT * FROM users", (err, results) => {
 						result.weight = Boolean(result.weight.readIntBE(0, 1));
 						deliveries.push(Object.assign({}, result));
 					});
+					fillDeliveriesBuffer();
 				});
 			});
 		});
@@ -440,14 +441,14 @@ app.post('/delivery-request', checkAuth, checkUser, (req, res) => {
 		let { type, fromPlace, from, to, distance, price, phone, thing, weight, partner } = req.body;
 		if (typeof (type) && typeof (from) && typeof (to) && typeof (distance) && typeof (price) && typeof (thing) && typeof (weight) && generateHash(('' + distance).substring(0, 5), '' + price) == user.hash && price == user.last_delivery_price) {
 			let did = randomHash(10);
-			if (submitNewDelivery(req.session.uid, did, type, fromPlace, from, to, distance, price, thing, phone, weight, partner)) return res.redirect('/d/' + did);
+			if (submitNewDelivery(req.session.uid, did, type, fromPlace, from, to, distance, price, thing, phone, weight, partner)) return res.redirect('/delivery/' + did);
 			return res.redirect('/delivery-err');
 		}
 	}
 	return res.redirect('/');
 });
 
-app.get('/delivery-err', checkAuth, (req, res) => {
+app.get('/delivery-err', checkAuth, checkUser, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/errors', {
@@ -459,6 +460,38 @@ app.get('/delivery-err', checkAuth, (req, res) => {
 		lang: lang
 	})
 });
+
+app.get('/delivery/:did', checkAuth, checkUser, (req, res) => {
+	let delivery = getDelivery('id', req.params.did);
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	var the_return = {
+		title: titles[lang].delivery + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang
+	}
+	if (delivery) {
+		return res.render('pages/delivery', {
+			...the_return, ...deliveryInfoPage(delivery)
+		});
+	} else {
+		db.query("SELECT * FROM deliveries WHERE id=?", [req.params.did], (err, results) => {
+			if (results && results[0]) {
+				delivery = results[0];
+				delivery.delivery_from = parsePosition(delivery.delivery_from);
+				delivery.delivery_to = parsePosition(delivery.delivery_to);
+				delivery.weight = Boolean(delivery.weight.readIntBE(0, 1));
+				return res.render('pages/delivery', {
+					...the_return, ...deliveryInfoPage(delivery)
+				});
+			}
+		});
+	}
+	the_return.title = titles[lang].pg_dsnt_xst + settings.titleSuffix[lang];
+	return res.render('pages/404', the_return);
+});
+
 
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
@@ -562,6 +595,11 @@ io.on('connection', (socket) => {
 	});
 	socket.on('confirm_pin', (data) => {
 		handlePinConfirmation(socket, user, data);
+	});
+
+	// A user is viewing delivery info page
+	socket.on('viewing_delivery', (data) => {
+		socket.join(data);
 	});
 
 
@@ -952,5 +990,24 @@ function sendNewDeliveryStatus(delivery) {
 			driver: getDriver('id', delivery.driver),
 			expected_finish_time: delivery.expected_finish_time
 		});
+	}
+}
+
+function fillDeliveriesBuffer() {
+	if (deliveries) deliveriesBuffer = deliveries.filter(obj => obj.status == 6);
+}
+
+function deliveryInfoPage(delivery) {
+	return {
+		d_type: delivery.type,
+		status: delivery.status,
+		name: getUser('id', delivery.uid).name,
+		fromPlace: delivery.delivery_fromPlace,
+		thing: delivery.thing,
+		distance: delivery.distance,
+		price: delivery.price,
+		date: new Date(delivery.date),
+		driver: getDriver('id', delivery.driver),
+		expected_finish_time: delivery.expected_finish_time
 	}
 }
