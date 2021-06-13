@@ -15,7 +15,6 @@ var js_lang_text = {
     cant_fnsh_in_wrk_time_txt: "Désolé, nous ne pouvons pas terminer votre livraison pendant notre temps de travail",
     dlvr_info_txt: (distance, price, time, thingsPrice) => {
         let text = `Distance: ${distance} km`;
-        if (w) text += `<s><br>Prix : ${price} DZD</s> GRATUIT!`
         text += `<br>Prix du livraison : ${price} DZD<br>Prix du chose : ${thingsPrice} DZD<br>Total : ${price + thingsPrice} DZD`;
         if (time) text += `<br>Temps d'attente : ~${time} min`;
         else text += '<br>Aucun livreur disponible pour le moment';
