@@ -1084,11 +1084,12 @@ function fillDeliveriesBuffer() {
 }
 
 function deliveryInfoPage(delivery) {
+	console.log(delivery)
 	return {
 		d_type: delivery.type,
 		status: delivery.status,
 		name: getUser('id', delivery.uid).name,
-		fromPlace: delivery.delivery_fromPlace,
+		fromPlace: delivery.fromPlace,
 		thing: delivery.thing,
 		distance: delivery.distance,
 		price: delivery.price,
