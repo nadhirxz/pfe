@@ -157,7 +157,6 @@ let errors = {
 	invalidPhoneErr: "invalid_phone",
 	invalidNameErr: "invalid_name",
 	invalidPasswordErr: "invalid_pass",
-	phoneBlacklistedErr: "blacklisted",
 	invalidEmail: "invalid_email",
 	invalidSecret: "invalid_secret"
 }
