@@ -349,7 +349,7 @@ let mustBeCarDriver = (req, res, next) => {
 		}
 	}
 }
-let mustBeAdmin = (req, res, next) => {
+let checkAdmin = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/');
 	} else {
@@ -668,7 +668,7 @@ app.get('/staff', goHomeIfStaffAuth, (req, res) => {
 	});
 });
 
-app.get('/admin', mustBeAdmin, (req, res) => {
+app.get('/admin', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/admin', {
@@ -682,7 +682,7 @@ app.get('/admin', mustBeAdmin, (req, res) => {
 	});
 });
 
-app.get('/new/place', mustBeAdmin, (req, res) => {
+app.get('/new/place', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let at = getLeastUsedMapBoxAPI();
@@ -699,7 +699,7 @@ app.get('/new/place', mustBeAdmin, (req, res) => {
 	});
 });
 
-app.get('/new/key', mustBeAdmin, (req, res) => {
+app.get('/new/key', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/admin_add_key', {
@@ -710,7 +710,7 @@ app.get('/new/key', mustBeAdmin, (req, res) => {
 	});
 });
 
-app.get('/schedule', mustBeAdmin, (req, res) => {
+app.get('/schedule', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/admin_schedule', {
@@ -723,7 +723,7 @@ app.get('/schedule', mustBeAdmin, (req, res) => {
 	});
 });
 
-app.get('/details', mustBeAdmin, (req, res) => {
+app.get('/details', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/details', {
@@ -740,7 +740,7 @@ app.get('/details', mustBeAdmin, (req, res) => {
 	});
 });
 
-app.get('/blacklist', mustBeAdmin, (req, res) => {
+app.get('/blacklist', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/blacklist', {
@@ -751,7 +751,7 @@ app.get('/blacklist', mustBeAdmin, (req, res) => {
 	});
 });
 
-app.get('/partnersinfo', mustBeAdmin, (req, res) => {
+app.get('/partnersinfo', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let p = getPlacesInfo();
@@ -763,7 +763,7 @@ app.get('/partnersinfo', mustBeAdmin, (req, res) => {
 		partners: p
 	});
 });
-app.get('/partner/:id', mustBeAdmin, (req, res) => {
+app.get('/partner/:id', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let place = getPlace('id', req.params.id);
@@ -795,7 +795,7 @@ app.get('/partner/:id', mustBeAdmin, (req, res) => {
 	});
 });
 
-app.post('/partner_img/:id', mustBeAdmin, upload.single('img'), (req, res) => {
+app.post('/partner_img/:id', checkAdmin, upload.single('img'), (req, res) => {
 	let tempPath = req.file.path;
 	let ext = path.extname(req.file.originalname).toLowerCase()
 	let targetPath = path.join(__dirname, `./public/img/partners/${req.params.id}.png`);
@@ -817,7 +817,7 @@ app.post('/partner_img/:id', mustBeAdmin, upload.single('img'), (req, res) => {
 	return res.redirect('/partner/' + req.params.id); // TODO HANDLE ERRORS
 });
 
-app.post('/partner_desc/:id', mustBeAdmin, (req, res) => {
+app.post('/partner_desc/:id', checkAdmin, (req, res) => {
 	let { desc } = req.body;
 	let p = getPlace('id', req.params.id);
 	if (typeof (desc) && p) {
@@ -827,7 +827,7 @@ app.post('/partner_desc/:id', mustBeAdmin, (req, res) => {
 });
 
 
-app.get('/details/:something', mustBeAdmin, (req, res) => {
+app.get('/details/:something', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	if (req.params.something == 'drivers') {
@@ -977,14 +977,14 @@ app.get('/ldd/:did', checkAuth, mustBeAgreedOnTerms, (req, res) => {
 	return res.render('pages/404', the_return);
 });
 
-app.post('/addnewkey', mustBeAdmin, (req, res) => {
+app.post('/addnewkey', checkAdmin, (req, res) => {
 	let { secret, phone, type, percentage } = req.body;
 	percentage = percentage || 0;
 	saveStaffKey(secret, phone, parseInt(type), parseInt(percentage));
 	res.redirect('/admin');
 });
 
-app.post('/addnewplace', mustBeAdmin, (req, res) => {
+app.post('/addnewplace', checkAdmin, (req, res) => {
 	let { name, secret, place, schedule, startTime, endTime } = req.body;
 	let id = randomHash(8);
 	addNewPlace(id, name, secret, place, schedule, startTime, endTime);
@@ -1306,13 +1306,13 @@ app.post('/agree_on_terms', checkAuth, mustBeConfirmed, (req, res) => {
 	return res.redirect('/');
 });
 
-app.post('/toggle_working_status', mustBeAdmin, (req, res) => {
+app.post('/toggle_working_status', checkAdmin, (req, res) => {
 	we_are_working_now = !we_are_working_now;
 	db.collection('schedule').updateOne({ id: 'schedule' }, { $set: { working: we_are_working_now } })
 	return res.redirect('/schedule');
 });
 
-app.post('/new_schedule', mustBeAdmin, (req, res) => {
+app.post('/new_schedule', checkAdmin, (req, res) => {
 	let { from, to, ffo, fto, fft, ftt } = req.body;
 	our_schedule = [
 		[from, to], // other days
@@ -1322,7 +1322,7 @@ app.post('/new_schedule', mustBeAdmin, (req, res) => {
 	return res.redirect('/schedule');
 });
 
-app.post('/add_to_blacklist', mustBeAdmin, (req, res) => {
+app.post('/add_to_blacklist', checkAdmin, (req, res) => {
 	let { phone } = req.body;
 	if (phone && phoneValid(phone) && !blacklist.includes(phone)) {
 		blacklist.push(phone);
@@ -1331,7 +1331,7 @@ app.post('/add_to_blacklist', mustBeAdmin, (req, res) => {
 	return res.redirect('/blacklist' + msg);
 });
 
-app.post('/add_to_blacklist', mustBeAdmin, (req, res) => {
+app.post('/add_to_blacklist', checkAdmin, (req, res) => {
 	let { phone } = req.body;
 	if (phone && phoneValid(phone) && blacklist.includes(phone)) {
 		blacklist = blacklist.filter(e => e != phone);

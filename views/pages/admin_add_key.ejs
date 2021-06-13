@@ -5,42 +5,40 @@
 </head>
 
 <body>
-    <%- include ('../partials/navbar') %>
-    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
-        <form action="/addnewkey" method="post">
-            <p id="err-msg" class="text-danger"></p>
-            <div class="form-group">
-                <label for="secret-field">Secret Key</label>
-                <input type="text" class="form-control" id="secret-field" name="secret" placeholder="Secret Key"
-                    required>
-                <div class="invalid-feedback" id="secret-feed"></div>
-            </div>
-            <div class="form-group">
-                <label for="phone-field">Phone</label>
-                <input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="10" class="form-control"
-                    id="phone-field" name="phone" placeholder="Phone Number" required>
-                <div class="invalid-feedback" id="phone-feed"></div>
-            </div>
-            <div class="form-group">
-                <label for="type-field">Type</label>
-                <select name="type" class="form-control" id="type-field">
-                    <option value="1" selected>Partner</option>
-                    <option value="2">Driver</option>
-                    <option value="3">Car Driver</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="p-field">%</label>
-                <input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="2" class="form-control"
-                    id="p-field" name="percentage" placeholder="Percentage (only with partners)">
-                <div class="invalid-feedback" id="p-feed"></div>
-            </div>
-            <br>
-            <div id="buttons">
-                <button type="submit" class="btn btn-success col-md-5">Submit</button>
-            </div>
-        </form>
-    </div>
+	<%- include ('../partials/navbar') %>
+	<div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+		<form action="/admin/new-key" method="post">
+			<p id="err-msg" class="text-danger"></p>
+			<div class="form-group">
+				<label for="secret-field" class="sec_key_text"></label>
+				<input type="text" class="form-control" id="secret-field" name="secret" placeholder="Secret Key"
+					required>
+				<div class="invalid-feedback" id="secret-feed"></div>
+			</div>
+			<div class="form-group">
+				<label for="phone-field" class="phone_text"></label>
+				<input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="10" class="form-control"
+					id="phone-field" name="phone" required>
+				<div class="invalid-feedback" id="phone-feed"></div>
+			</div>
+			<div class="form-group">
+				<label for="type-field" class="user_type_text"></label>
+				<select name="type" class="form-control" id="type-field">
+					<option value="1" class="partner_text" selected></option>
+					<option value="2" class="driver_text"></option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="p-field" class="percentage_text"></label>
+				<input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="2" class="form-control" id="p-field" name="percentage">
+				<div class="invalid-feedback" id="p-feed"></div>
+			</div>
+			<br>
+			<div id="buttons">
+				<button type="submit" class="btn btn-success col-md-5 save_text"></button>
+			</div>
+		</form>
+	</div>
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>

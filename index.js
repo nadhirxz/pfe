@@ -593,6 +593,24 @@ app.get('/admin', checkAdmin, (req, res) => {
 	});
 });
 
+app.get('/admin/new-key', checkAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/admin_add_key', {
+		title: titles[lang].add_key + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang
+	});
+});
+
+app.post('/admin/new-key', checkAdmin, (req, res) => {
+	let { secret, phone, type, percentage } = req.body;
+	db.query("INSERT INTO secretkeys VALUES (?,?,?,?)", [randomHash(8), generateKey(secret, phone, parseInt(type)), secret, parseInt(percentage) || null]);
+	res.redirect('/admin');
+});
+
+
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
 	return res.redirect('/')
@@ -887,6 +905,10 @@ function generateUserId(bytes) {
 	let id = crypto.randomBytes(bytes).toString('hex');
 	if (getUser('id', id)) return generateUserId(bytes);
 	return id;
+}
+
+function generateKey(secretText, phone, type) {
+	return `${type}${generateHash(secretText, phone)}`;
 }
 
 
