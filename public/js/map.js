@@ -52,6 +52,7 @@ function createMap(at) {
 				if (marker) marker.setLatLng(your_position);
 				else marker = L.marker(your_position, { draggable: 'true' }).addTo(map);
 				map.setView(marker.getLatLng(), 16);
+				position = [marker.getLatLng().lat, marker.getLatLng().lng];
 			}).addTo(map);
 		}
 	})();

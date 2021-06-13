@@ -1,6 +1,7 @@
 var delivery = {};
 var deliverFromPartner = true;
 var position;
+var fromPos;
 var toPos;
 var distance = 0;
 var weight;
