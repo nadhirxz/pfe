@@ -40,6 +40,7 @@ CREATE TABLE partners (
 CREATE TABLE deliveries (
 	id VARCHAR(20) PRIMARY KEY,
 	uid VARCHAR(8) NOT NULL,
+	type INT(2) NOT NULL,
 	fromPlace VARCHAR(40),
 	delivery_from VARCHAR(50),
 	delivery_to VARCHAR(50),

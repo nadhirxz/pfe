@@ -1010,7 +1010,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.expected_finish_time, delivery.date, delivery.waypoints, delivery.partner], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.expected_finish_time, delivery.date, delivery.waypoints, delivery.partner], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {
@@ -1084,7 +1084,6 @@ function fillDeliveriesBuffer() {
 }
 
 function deliveryInfoPage(delivery) {
-	console.log(delivery)
 	return {
 		d_type: delivery.type,
 		status: delivery.status,
