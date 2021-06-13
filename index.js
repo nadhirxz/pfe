@@ -75,6 +75,7 @@ db.query("SELECT * FROM users", (err, results) => {
 			db.query("SELECT * FROM places", (err, results) => {
 				results.forEach(result => {
 					result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
+					result.place = parsePosition(result.place);
 					places.push(Object.assign({}, result));
 				});
 				makePlaceSchedules();
@@ -610,6 +611,35 @@ app.post('/admin/new-key', checkAdmin, (req, res) => {
 	res.redirect('/admin');
 });
 
+app.get('/admin/new-place', checkAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/admin_add_place', {
+		title: titles[lang].add_place + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
+		at: MAPBOX_API,
+		gh: GRAPHHOPPER_API
+	});
+});
+
+app.post('/admin/new-place', checkAdmin, (req, res) => {
+	let { name, secret, place, schedule, startTime, endTime } = req.body;
+	let id = randomHash(8);
+	let newPlace = {
+		id,
+		name,
+		secret,
+		place: parsePosition(place),
+		schedule,
+		startTime,
+		endTime
+	}
+	places.push(newPlace);
+	db.query("INSERT INTO places VALUES (?,?,?,?,?,?,?)", [newPlace.id, name, secret, stringifyPosition(newPlace.place), schedule, startTime, endTime]);
+	res.redirect('/partner/' + id);
+});
 
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');

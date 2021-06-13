@@ -7,60 +7,97 @@ var schedule;
 var startTime;
 var endTime;
 
+const l = {
+	en: {
+		working_days: "Working Days",
+		from: "From",
+		to: "To",
+		evrdy_excpt_fri: "Everyday except Friday",
+		evrdy_excpt_fri_sat: "Everyday except Friday and Saturday",
+		evrdy: "Everyday",
+		eg9: "eg. 09:00",
+		eg5: "eg. 17:00",
+		save: "Save"
+	},
+	fr: {
+		working_days: "Jours de travail",
+		from: "De",
+		to: "À",
+		evrdy_excpt_fri: "Tous les jours sauf vendredi",
+		evrdy_excpt_fri_sat: "Tous les jours sauf vendredi et samedi",
+		evrdy: "Tous les jours",
+		eg9: "ex. 09h00",
+		eg5: "ex. 17:00",
+		save: "Sauvegarder"
+	},
+	ar: {
+		working_days: "أيام العمل",
+		from: "من عند",
+		to: "ل",
+		evrdy_excpt_fri: "كل يوم ما عدا الجمعة",
+		evrdy_excpt_fri_sat: "كل يوم ما عدا الجمعة والسبت",
+		evrdy: "كل يوم",
+		eg9: "مثال: 09:00",
+		eg5: "مثال: 17:00",
+		save: "حفظ"
+	}
+}
+
+
 var map = createMap(at);
 
 var container = document.getElementById('container');
 
 let nextButton = document.getElementById('next-btn');
 nextButton.addEventListener('click', () => {
-    placeName = document.getElementById('place-name').value;
-    secretKey = document.getElementById('secret-key').value;
-    if (placeName && secretKey && position) {
-        container.innerHTML = `<div class="form-group"> <label>Working days</label> <select class="custom-select" id="select"> <option value="0" selected="">Everyday except Friday</option> <option value="1">Everyday except Friday and Saturday</option> <option value="2">Everyday</option> </select> </div> <div class="row"> <div class="form-group col-sm"> <label for="from">From</label> <input type="text" maxlength="5" class="form-control" id="from" placeholder="eg. 09:00" required> </div> <div class="form-group col-sm"> <label for="to">To</label> <input type="text" maxlength="5" class="form-control" id="to" placeholder="eg. 17:00" required> </div> </div> <button class="btn btn-success col-lg-4 mt-4" id="save-btn">Save</button>`;
-        let saveButton = document.getElementById('save-btn');
-        saveButton.addEventListener('click', () => {
-            schedule = parseInt(document.getElementById('select').value) || 0;
-            startTime = document.getElementById('from').value;
-            endTime = document.getElementById('to').value;
-            if (position && placeName && secretKey && schedule && startTime && endTime) {
-                post("/addnewplace", {
-                    name: placeName,
-                    place: position,
-                    secret: secretKey,
-                    schedule: schedule,
-                    startTime: startTime,
-                    endTime: endTime
-                });
-            }
-        });
-    }
+	placeName = document.getElementById('place-name').value;
+	secretKey = document.getElementById('secret-key').value;
+	if (placeName && secretKey && position) {
+		container.innerHTML = `<div class="form-group"> <label>${l[lng].working_days}</label> <select class="custom-select" id="select"> <option value="0" selected="">${l[lng].evrdy_excpt_fri}</option> <option value="1">${l[lng].evrdy_excpt_fri_sat}</option> <option value="2">${l[lng].evrdy}</option> </select> </div> <div class="row"> <div class="form-group col-sm"> <label for="from">${l[lng].from}</label> <input type="text" maxlength="5" class="form-control" id="from" placeholder="${l[lng].eg9}" required> </div> <div class="form-group col-sm"> <label for="to">${l[lng].to}</label> <input type="text" maxlength="5" class="form-control" id="to" placeholder="${l[lng].eg5}" required> </div> </div> <button class="btn btn-success col-lg-4 mt-4" id="save-btn">${l[lng].save}</button>`;
+		let saveButton = document.getElementById('save-btn');
+		saveButton.addEventListener('click', () => {
+			schedule = parseInt(document.getElementById('select').value) || 0;
+			startTime = document.getElementById('from').value;
+			endTime = document.getElementById('to').value;
+			if (position && placeName && secretKey && schedule && startTime && endTime) {
+				post("/admin/new-place", {
+					name: placeName,
+					place: position,
+					secret: secretKey,
+					schedule: schedule,
+					startTime: startTime,
+					endTime: endTime
+				});
+			}
+		});
+	}
 });
 
 
 function post(path, params, method = 'post') {
 
-    // The rest of this code assumes you are not using a library.
-    // It can be made less wordy if you use one.
-    const form = document.createElement('form');
-    form.method = method;
-    form.action = path;
+	// The rest of this code assumes you are not using a library.
+	// It can be made less wordy if you use one.
+	const form = document.createElement('form');
+	form.method = method;
+	form.action = path;
 
-    for (const key in params) {
-        if (params.hasOwnProperty(key)) {
-            const hiddenField = document.createElement('input');
-            hiddenField.type = 'hidden';
-            hiddenField.name = key;
-            hiddenField.value = params[key];
+	for (const key in params) {
+		if (params.hasOwnProperty(key)) {
+			const hiddenField = document.createElement('input');
+			hiddenField.type = 'hidden';
+			hiddenField.name = key;
+			hiddenField.value = params[key];
 
-            form.appendChild(hiddenField);
-        }
-    }
+			form.appendChild(hiddenField);
+		}
+	}
 
-    document.body.appendChild(form);
-    form.submit();
+	document.body.appendChild(form);
+	form.submit();
 }
 function getPosition() {
-    return new Promise((res, rej) => {
-        navigator.geolocation.getCurrentPosition(res);
-    });
+	return new Promise((res, rej) => {
+		navigator.geolocation.getCurrentPosition(res);
+	});
 }
