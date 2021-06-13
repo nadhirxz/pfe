@@ -598,6 +598,18 @@ app.get('/ar/:url/:u', (req, res) => {
 	return res.redirect('/' + req.params.url + '/' + req.params.u);
 });
 
+app.get('/logout', checkAuth, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	if (user) {
+		req.session.destroy(err => {
+			if (err) return res.redirect('/login');
+			if (user.type == 2) user.status = 0;
+			res.clearCookie(settings.sessionName);
+			return res.redirect('/');
+		});
+	}
+});
+
 // 404 route
 app.get('*', (req, res) => {
 	let user = getUser('id', req.session.uid);
