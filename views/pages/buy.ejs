@@ -14,39 +14,38 @@
     <div class="col m-auto text-center pt-2" id="delivery-from">
 		<div class="container">
 			<div class="row justify-content-center">
-        <% if (places.length) { %>
-            <% places.forEach(place => { %>
-                <div class="col-lg-3 col-md-5 col-10 mx-3 my-3">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5 class="card-title my-auto"><%= place.name %></h5>
-                        </div>
-                        <img class="card-img my-auto" src="/img/partners/<%= place.id %>.png">
-                        <% if (place.desc) { %>
-                        <hr>
-                        <div class="card-body">
-                            <p class="card-text"><%= place.desc %></p>
-                        </div>
-                        <% } %>
-                        <div class="card-footer">
-                            <a href="/buy/<%= place.id %>" class="btn btn-success sticky-bottom text-center"><%= choose[lang] %></a>
-                        </div>
-                    </div>
-                </div>
-            <% }); %>
-			<% } else { %>
+			<% if (places.length) { %>
+				<% places.forEach(place => { %>
 					<div class="col-lg-3 col-md-5 col-10 mx-3 my-3">
 						<div class="card h-100">
 							<div class="card-header">
-								<h5 class="card-title my-auto"><%= other[lang] %></h5>
+								<h5 class="card-title my-auto"><%= place.name %></h5>
 							</div>
-							<img class="card-img my-auto" src="/img/partners/default.png">
+							<img class="card-img my-auto" src="/img/partners/<%= place.id %>.png">
+							<% if (place.desc) { %>
+							<hr>
+							<div class="card-body">
+								<p class="card-text"><%= place.desc %></p>
+							</div>
+							<% } %>
 							<div class="card-footer">
-								<a href="/buy/other" class="btn btn-success sticky-bottom text-center"><%= choose[lang] %></a>
+								<a href="/buy/<%= place.id %>" class="btn btn-success sticky-bottom text-center"><%= choose[lang] %></a>
 							</div>
 						</div>
 					</div>
+				<% }); %>
 			<% } %>
+			<div class="col-lg-3 col-md-5 col-10 mx-3 my-3">
+				<div class="card h-100">
+					<div class="card-header">
+						<h5 class="card-title my-auto"><%= other[lang] %></h5>
+					</div>
+					<img class="card-img my-auto" src="/img/partners/default.png">
+					<div class="card-footer">
+						<a href="/buy/other" class="btn btn-success sticky-bottom text-center"><%= choose[lang] %></a>
+					</div>
+				</div>
+			</div>
 			</div>
 		</div>
     </div>
