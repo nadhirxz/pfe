@@ -15,7 +15,7 @@
 
         <hr class="my-5">
 
-        <form method="post" enctype="multipart/form-data" action="/partner_img/<%= partner.id %>">
+        <form method="post" enctype="multipart/form-data" action="/partners/img/<%= partner.id %>">
             <div class="custom-file w-100">
                 <label class="custom-file-label" for="partner-image">Choose file...</label>
                 <input type="file" class="custom-file-input" name="img" id="partner-image" accept="image/*" required>
@@ -25,7 +25,7 @@
 
         <hr class="my-5">
 
-        <form method="post" action="/partner_desc/<%= partner.id %>">
+        <form method="post" action="/partners/desc/<%= partner.id %>">
             <div class="custom-file w-100">
                 <div class="form-group">
                     <label for="exampleTextarea">Description</label>

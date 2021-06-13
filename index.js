@@ -4,11 +4,14 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const crypto = require('crypto');
 const path = require('path');
+const fs = require('fs');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const mysql = require('mysql');
 const MySQLStore = require('express-mysql-session')(session);
+const multer = require('multer');
+const jimp = require('jimp')
 const dotenv = require('dotenv');
 
 
@@ -36,6 +39,8 @@ const dbOptions = {
 	password: DB_PASSWORD,
 	database: DB_NAME,
 }
+
+const upload = multer({ dest: './public/img' });
 
 // Variables
 var users = [];
@@ -641,6 +646,84 @@ app.post('/admin/new-place', checkAdmin, (req, res) => {
 	res.redirect('/partner/' + id);
 });
 
+app.get('/partners/info', checkAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let p = getPlacesInfo();
+	res.render('pages/partners_info', {
+		title: titles[lang].partners + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
+		partners: p
+	});
+});
+
+app.get('/partners/:id', checkAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let place = getPlace('id', req.params.id);
+	if (place) {
+		return res.render('pages/partner_settings', {
+			title: titles[lang].partners + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			partner: {
+				name: place.name,
+				id: place.id,
+				place: place.place,
+				desc: place.description,
+				img: fs.existsSync(`./public/img/partners/${place.id}.png`) ? `/img/partners/${place.id}.png` : '/img/partners/default.png'
+			}
+		});
+	}
+	let name, type;
+	if (user) {
+		name = user.name;
+		type = user.type;
+	}
+	return res.render('pages/404', {
+		title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+		name: name,
+		type: type,
+		lang: lang,
+	});
+});
+
+app.post('/partners/img/:id', checkAdmin, upload.single('img'), (req, res) => {
+	let tempPath = req.file.path;
+	let ext = path.extname(req.file.originalname).toLowerCase()
+	let targetPath = path.join(__dirname, `./public/img/partners/${req.params.id}.png`);
+
+	if (settings.allowedImgExt.includes(ext.substr(1))) {
+		fs.rename(tempPath, targetPath, err => {
+			if (err) return false;
+
+			jimp.read(targetPath, (err, img) => {
+				if (err) throw err;
+				img.resize(settings.partnerImgSize, jimp.AUTO).write(targetPath);
+			});
+		});
+		return res.redirect('/partners/' + req.params.id);
+	}
+	fs.unlink(tempPath, err => {
+		if (err) return false;
+	});
+	return res.redirect('/partner/' + req.params.id);
+});
+
+app.post('/partners/desc/:id', checkAdmin, (req, res) => {
+	let { desc } = req.body;
+	let p = getPlace('id', req.params.id);
+	if (typeof (desc) && p) {
+		p.description = desc;
+		db.query("UPDATE places SET description=?", [desc]);
+	}
+	return res.redirect('/partners/' + req.params.id);
+});
+
+
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
 	return res.redirect('/')
@@ -895,7 +978,7 @@ function getPlacesInfo() {
 		p.push({
 			id: place.id,
 			name: place.name,
-			desc: place.desc || ''
+			desc: place.description || ''
 		});
 	})
 	return p;
