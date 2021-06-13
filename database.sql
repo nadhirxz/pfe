@@ -7,6 +7,13 @@ CREATE TABLE users (
 	reg_date TIMESTAMP
 );
 
+CREATE TABLE admins (
+	id VARCHAR(8) PRIMARY KEY,
+	name VARCHAR(40) NOT NULL,
+	phone VARCHAR(10) NOT NULL,
+	password VARCHAR(64) NOT NULL
+);
+
 CREATE TABLE drivers (
 	id VARCHAR(8) PRIMARY KEY,
 	name VARCHAR(40) NOT NULL,

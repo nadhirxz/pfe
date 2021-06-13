@@ -43,6 +43,7 @@ var deliveries = [];
 var places = [];
 var partners = [];
 var drivers = [];
+var admins = [];
 var we_are_working_now = true;
 var partners_schedule = [];
 var deliveriesBuffer = [];
@@ -58,37 +59,43 @@ db.query("SELECT * FROM users", (err, results) => {
 		result.confirmed = Boolean(result.confirmed.readIntBE(0, 1));
 		users.push(Object.assign({}, result));
 	});
-
-	db.query("SELECT * FROM drivers", (err, results) => {
+	db.query("SELECT * FROM admins", (err, results) => {
 		results.forEach(result => {
 			result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-			result.status = Boolean(result.status.readIntBE(0, 1));
-			drivers.push(Object.assign({}, result));
+			admins.push(Object.assign({}, result));
 		});
 
-		db.query("SELECT * FROM places", (err, results) => {
+		db.query("SELECT * FROM drivers", (err, results) => {
 			results.forEach(result => {
 				result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-				places.push(Object.assign({}, result));
+				result.status = Boolean(result.status.readIntBE(0, 1));
+				drivers.push(Object.assign({}, result));
 			});
-			makePlaceSchedules();
 
-			db.query("SELECT * FROM partners", (err, results) => {
+			db.query("SELECT * FROM places", (err, results) => {
 				results.forEach(result => {
 					result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-					result.confirmed = Boolean(result.confirmed.readIntBE(0, 1));
-					partners.push(Object.assign({}, result));
+					places.push(Object.assign({}, result));
 				});
+				makePlaceSchedules();
 
-				db.query("SELECT * FROM deliveries", (err, results) => {
+				db.query("SELECT * FROM partners", (err, results) => {
 					results.forEach(result => {
 						result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-						result.delivery_from = parsePosition(result.delivery_from);
-						result.delivery_to = parsePosition(result.delivery_to);
-						result.weight = Boolean(result.weight.readIntBE(0, 1));
-						deliveries.push(Object.assign({}, result));
+						result.confirmed = Boolean(result.confirmed.readIntBE(0, 1));
+						partners.push(Object.assign({}, result));
 					});
-					fillDeliveriesBuffer();
+
+					db.query("SELECT * FROM deliveries", (err, results) => {
+						results.forEach(result => {
+							result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
+							result.delivery_from = parsePosition(result.delivery_from);
+							result.delivery_to = parsePosition(result.delivery_to);
+							result.weight = Boolean(result.weight.readIntBE(0, 1));
+							deliveries.push(Object.assign({}, result));
+						});
+						fillDeliveriesBuffer();
+					});
 				});
 			});
 		});
@@ -187,6 +194,19 @@ let checkUser = (req, res, next) => {
 	} else {
 		let user = getUser('id', req.session.uid);
 		if (user && user.type == 0) {
+			next();
+		} else {
+			res.redirect('/');
+		}
+	}
+}
+
+let checkAdmin = (req, res, next) => {
+	if (!req.session.uid) { // user not authenticated
+		res.redirect('/login');
+	} else {
+		let user = getUser('id', req.session.uid);
+		if (user && user.type == 3) {
 			next();
 		} else {
 			res.redirect('/');
@@ -559,6 +579,19 @@ app.get('/delivery/:did', checkAuth, checkUser, (req, res) => {
 	return res.render('pages/404', the_return);
 });
 
+app.get('/admin', checkAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let todaysDeliveries = getDeliveriesOfToday();
+	res.render('pages/admin', {
+		title: titles[lang].admin + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
+		deliveries_today: todaysDeliveries.length,
+		profit_today: todaysDeliveries.reduce((acc, b) => acc += b.price, 0)
+	});
+});
 
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
@@ -707,6 +740,10 @@ function getUser(key, value) {
 		user = drivers.find(obj => obj[key] == value);
 		type++;
 	}
+	if (!user && admins) {
+		user = admins.find(obj => obj[key] == value);
+		type++;
+	}
 	if (user) user.type = type;
 	return user;
 }
@@ -731,6 +768,13 @@ function getDelivery(key, value) {
 function getDeliveriesOfUser(id) {
 	if (deliveries) {
 		return deliveries.filter(obj => obj.uid == id && isToday(obj.date));
+	}
+	return [false];
+}
+
+function getDeliveriesOfToday() {
+	if (deliveries) {
+		return deliveries.filter(obj => isToday(obj.date));
 	}
 	return [false];
 }
