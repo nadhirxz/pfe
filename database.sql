@@ -27,6 +27,7 @@ CREATE TABLE places (
 	name VARCHAR(40) NOT NULL,
 	secret VARCHAR(40) NOT NULL,
 	place VARCHAR(50) UNIQUE,
+	description VARCHAR(100),
 	schedule INT(2),
 	startTime VARCHAR(5),
 	endTime VARCHAR(5)
