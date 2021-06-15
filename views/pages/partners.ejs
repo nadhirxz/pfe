@@ -8,7 +8,7 @@
     <%- include ('../partials/navbar') %>
     <div class="col-md-8 col-lg-5 px-5 m-auto text-center py-2">
         <h1 class="prtnr_registration_text"></h1>
-        <form action="/partnerregister" method="post">
+        <form action="/partners/register" method="post">
             <p id="err-msg" class="text-danger"></p>
             <div class="form-group">
                 <label for="name-field" class="name_text"></label>
@@ -19,11 +19,6 @@
                 <label for="phone-field" class="phone_text"></label>
                 <input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="10" class="form-control" id="phone-field" name="phone" required>
                 <div class="invalid-feedback" id="phone-feed"></div>
-            </div>
-            <div class="form-group">
-                <label for="email-field" class="email_text"></label>
-                <input type="email" class="form-control" id="email-field" name="email" required>
-                <div class="invalid-feedback" id="email-feed"></div>
             </div>
             <div class="form-group">
                 <label for="password-field" class="password_text"></label>

@@ -391,6 +391,48 @@ app.post('/register', checkNotAuth, (req, res) => {
 	}
 });
 
+app.post('/partners/register', checkNotAuth, async (req, res) => {
+	let { phone, name, password, secret } = req.body;
+	if (phone && name && password && secret) {
+		if (phoneValid(phone)) {
+			let user = getUser('phone', phone);
+			if (user) {
+				return res.redirect('/partners?err=' + errors.phoneExistsErr);
+			} else {
+				let secretkey = getSecretKey('secretKey', generateKey(secret, phone, 1));
+				if (secretkey) {
+					let partner = getPartner('secret', secretkey.id);
+					if (partner) {
+						partner.phone = phone;
+						partner.name = name;
+						partner.password = generateHash(password, partner.id);
+						partner.percentage = secretkey.percentage || settings.partnerPercentage;
+						partner.confirmed = true;
+
+						db.query("UPDATE partners SET name=?, phone=?, password=?, percentage=?, secret=?, confirmed=?", [partner.name, partner.phone, partner.password, partner.percentage, null, 1], (err, results) => {
+							if (err) {
+								res.redirect('/partners?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone + '&email=' + email);
+							} else {
+								req.session.uid = partner.id;
+								destroySecretKey(secretkey.id);
+								return res.redirect('/home');
+							}
+						});
+					} else {
+						return res.redirect('/partners?err=' + errors.generalErr);
+					}
+				} else {
+					return res.redirect('/partners?err=' + errors.invalidSecret + '&name=' + name + '&phone=' + phone);
+				}
+			}
+		} else {
+			return res.redirect('/partners?err=' + errors.invalidPhoneErr + '&name=' + name + '&phone=' + phone);
+		}
+	} else {
+		return res.redirect('/partners?err=' + errors.generalErr);
+	}
+});
+
 app.get('/deliver', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
@@ -899,6 +941,10 @@ function getPartner(key, value) {
 	return partners.find(obj => obj[key] == value);
 }
 
+function getSecretKey(key, value) {
+	return secretkeys.find(obj => obj[key] == value);
+}
+
 function getDelivery(key, value) {
 	if (deliveries) return deliveries.find(obj => obj[key] == value);
 	return false;
@@ -1010,6 +1056,11 @@ function formatName(name) {
 	return name.slice(0, settings.maxNameLength).replace(/\w+/g, (txt) => { return txt.charAt(0).toUpperCase() + txt.substr(1); }).replace(/\s+/g, ' ').trim();
 }
 
+function destroySecretKey(id) {
+	db.query("DELETE FROM secretkeys WHERE id=?", [id], (err, results) => {
+		secretkeys = secretkeys.filter(e => e.id != id)
+	});
+}
 
 // Generating stuff
 function generateHash(string, salt) {
