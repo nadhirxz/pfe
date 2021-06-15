@@ -633,7 +633,7 @@ app.post('/admin/new-partner', checkAdmin, (req, res) => {
 	let secretKey = secretkeys.find(e => e.secretText == secret);
 	console.log(place)
 	if (secretKey) {
-		let id = randomHash(8);
+		let id = randomHash(4);
 		let newPartner = {
 			id,
 			name,
