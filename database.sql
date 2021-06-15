@@ -41,6 +41,7 @@ CREATE TABLE partners (
 	schedule INT(2),
 	startTime VARCHAR(5),
 	endTime VARCHAR(5),
+	percentage INT(2),
 	FOREIGN KEY (secret) REFERENCES secretkeys(id)
 );
 
