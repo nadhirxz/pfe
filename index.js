@@ -651,13 +651,13 @@ app.post('/admin/new-partner', checkAdmin, (req, res) => {
 		db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?)", [newPartner.id, name, newPartner.phone, newPartner.password, stringifyPosition(newPartner.pos), newPartner.confirmed, newPartner.secret, newPartner.description, schedule, startTime, endTime]);
 		return res.redirect('/partners/' + id);
 	}
-	return res.redirect('/admin/new-partner/?sec='+ secret +'&err=' + errors.invalidSecret);
+	return res.redirect('/admin/new-partner/?sec=' + secret + '&err=' + errors.invalidSecret);
 });
 
 app.get('/partners/info', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let p = getPartnersInfo();
+	let p = getPartnersInfo(true);
 	res.render('pages/partners_info', {
 		title: titles[lang].partners + settings.titleSuffix[lang],
 		name: user.name,
@@ -980,12 +980,12 @@ function getLeastBusyDriver(from) {
 	return 'no driver available right now';
 }
 
-function getPartnersInfo() {
-	return partners.filter(e => e.confirmed).map(e => {
+function getPartnersInfo(forAdmin) {
+	return partners.filter(e => e.confirmed || forAdmin).map(e => {
 		return {
-			id: place.id,
-			name: place.name,
-			desc: place.description || ''
+			id: e.id,
+			name: e.name,
+			desc: e.description || ''
 		}
 	});
 }
