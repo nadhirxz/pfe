@@ -673,7 +673,6 @@ app.get('/admin/new-partner', checkAdmin, (req, res) => {
 app.post('/admin/new-partner', checkAdmin, (req, res) => {
 	let { name, secret, place, schedule, startTime, endTime } = req.body;
 	let secretKey = secretkeys.find(e => e.secretText == secret);
-	console.log(place)
 	if (secretKey) {
 		let id = randomHash(4);
 		let newPartner = {
