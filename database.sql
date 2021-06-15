@@ -24,7 +24,7 @@ CREATE TABLE drivers (
 
 CREATE TABLE secretkeys (
 	id VARCHAR(8) PRIMARY KEY,
-	sercertKey VARCHAR(65) NOT NULL,
+	secretKey VARCHAR(65) NOT NULL,
 	secretText VARCHAR(40) NOT NULL,
 	percentage INT(2)
 );
