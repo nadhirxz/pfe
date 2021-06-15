@@ -3,37 +3,57 @@
 
 <head>
     <%- include ('../partials/head') %>
+	<% l = {
+		en: {
+			choose_file: "Choose file...",
+			save: "Save",
+			desc: "Description"
+		},
+		fr: {
+			choose_file: "Choisir un fichier...",
+			save: "Sauvegarder",
+			desc: "Description"
+		},
+		ar: {
+			choose_file: "اختر ملفًا...",
+			save: "حفظ",
+			desc: "وصف"
+		},
+	}
+	%>
 </head>
 
 <body>
     <%- include ('../partials/navbar') %>
-    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
+    <div class="px-5 m-auto text-center pt-2">
         <% if (partner) { %>
         <h4 class="mt-4"><%= partner.name %></h4>
-        <img src="<%= partner.img %>" class="rounded m-auto border">
+		<hr class="mb-4 col-10 col-md-4">
+		<div class="row w-100">
+			<div class="col-12 col-md-6">
+				<img src="<%= partner.img %>" class="rounded m-auto border">
+				<form method="post" enctype="multipart/form-data" action="/partners/img/<%= partner.id %>" class="mt-3">
+					<div class="custom-file col-md-9 col-lg-6">
+						<label class="custom-file-label" for="partner-image"><%= l[lang].choose_file %></label>
+						<input type="file" class="custom-file-input" name="img" id="partner-image" accept="image/*" required>
+						<button type="submit" class="btn btn-success my-2 col-8"><%= l[lang].save %></button>
+					</div>
+				</form>
 
+			</div>
 
-        <hr class="my-5">
-
-        <form method="post" enctype="multipart/form-data" action="/partners/img/<%= partner.id %>">
-            <div class="custom-file w-100">
-                <label class="custom-file-label" for="partner-image">Choose file...</label>
-                <input type="file" class="custom-file-input" name="img" id="partner-image" accept="image/*" required>
-                <button type="submit" class="btn btn-success my-2">Save</button>
-            </div>
-        </form>
-
-        <hr class="my-5">
-
-        <form method="post" action="/partners/desc/<%= partner.id %>">
-            <div class="custom-file w-100">
-                <div class="form-group">
-                    <label for="exampleTextarea">Description</label>
-                    <textarea class="form-control" name="desc" id="exampleTextarea" rows="3"><%= partner.desc %></textarea>
-                </div>
-                <button type="submit" class="btn btn-success my-2">Save</button>
-            </div>
-        </form>
+			<div class="col-12 col-md-6 pl-md-5 pt-5">
+				<form method="post" action="/partners/desc/<%= partner.id %>">
+					<div class="custom-file w-100">
+						<div class="form-group">
+							<label for="exampleTextarea"><%= l[lang].desc %></label>
+							<textarea class="form-control" name="desc" id="exampleTextarea" rows="5"><%= partner.desc %></textarea>
+						</div>
+						<button type="submit" class="btn btn-success my-2 col-5"><%= l[lang].save %></button>
+					</div>
+				</form>
+			</div>
+		</div>
         <% } %>
     </div>
     <%- include ('../partials/footer') %>
