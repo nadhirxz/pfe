@@ -2,7 +2,6 @@ lang_text = {
     new_delivery_text: "New Delivery",
     buy_sth_from_shop_text: "Buy from a shop",
     drliver_from_place_text: "Deliver from a place to another",
-    long_d_d_text: "Long distance delivery (20-50km)",
     out_of_srvc_text: "We are currently out of service",
     ttl_delvrs_text: "Total deliveries :",
     ttl_spnt_text: "Total spent :",
@@ -18,7 +17,6 @@ lang_text = {
     dlvrs_to_clients_text: "Deliveries to clients from you :",
     amount_to_pay_text: "Amount to pay :",
     at_text: "at",
-    free_dlvr_text: "<strong>Congratulations!</strong> You have won a free delivery order from Wesselli Service Team, thanking you for your loyalty.",
     not_wrkn_now_text: "Our service is available only from",
     to_text: "to"
 }

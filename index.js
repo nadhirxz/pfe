@@ -282,9 +282,9 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 		let page = 'home';
 		if (user.type == 1) {
 			page = 'home_partner';
-			dataToSend.client_deliveries_amount = user.client_deliveries_amount;
+			dataToSend.client_deliveries_amount = deliveries.filter(e => e.partner == user.id).reduce((acc, b) => acc += b, 0);
 			dataToSend.percentage = user.percentage;
-			dataToSend.amount_to_pay_us = normalizePrice(((user.percentage / 100) * (user.client_deliveries_amount || 0)), 50);
+			dataToSend.amount_to_pay_us = normalizePrice(((user.percentage / 100) * (dataToSend.client_deliveries_amount || 0)), 50);
 		}
 		res.render('pages/' + page, dataToSend);
 	} else {

@@ -2,7 +2,6 @@ lang_text = {
     new_delivery_text: "Nouvelle Livraison",
     buy_sth_from_shop_text: "Achetez à partir de d'un magasin",
     drliver_from_place_text: "Livrer d'un endroit à un autre",
-    long_d_d_text: "Livraison longue distance (20-50 km)",
     out_of_srvc_text: "Nous sommes actuellement hors service",
     ttl_delvrs_text: "Total des livraisons :",
     ttl_spnt_text: "Total des dépenses: :",
@@ -18,7 +17,6 @@ lang_text = {
     dlvrs_to_clients_text: "Livraisons aux clients de votre part :",
     amount_to_pay_text: "Montant à payer :",
     at_text: "à",
-    free_dlvr_text: "<strong>Oyé ! Félicitations.</strong> Vous Avec Gagnez une commande gratuit de la part de l'équipe Wesselli Service, remerciant de votre fidélité.",
     not_wrkn_now_text: "Notre service est disponible uniquement de",
     to_text: "à"
 }
