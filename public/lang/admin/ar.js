@@ -4,8 +4,7 @@ lang_text = {
     details: "تفاصيل",
     shcedule: "جدول الأوقات",
     new_key: "مفتاح سري جديد",
-    new_place: "مكان جديد",
+    new_partner: "شريك جديد",
     dzd: "دينار",
-    blacklist: "القائمة السوداء",
     partners: "الشركاء"
 }

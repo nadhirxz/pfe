@@ -1,9 +1,19 @@
+let url = location.search.substring(1); // url parameters
+if (url) {
+	let params = JSON.parse('{"' + decodeURI(url).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}'); // url params parser
+	if ('err' in params) {
+		document.getElementById('secret-key').classList.add('is-invalid');
+		document.getElementById('secret-key').value = params.sec;
+	}
+}
+
+
 var position;
 var marker;
 
 var placeName;
 var secretKey;
-var schedule;
+var schedule = 0;
 var startTime;
 var endTime;
 
@@ -59,8 +69,8 @@ nextButton.addEventListener('click', () => {
 			schedule = parseInt(document.getElementById('select').value) || 0;
 			startTime = document.getElementById('from').value;
 			endTime = document.getElementById('to').value;
-			if (position && placeName && secretKey && schedule && startTime && endTime) {
-				post("/admin/new-place", {
+			if (position && placeName && secretKey && startTime && endTime) {
+				post("/admin/new-partner", {
 					name: placeName,
 					place: position,
 					secret: secretKey,

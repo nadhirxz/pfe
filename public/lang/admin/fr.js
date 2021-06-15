@@ -4,7 +4,6 @@ lang_text = {
     details: "Détails",
     shcedule: "Programme",
     new_key: "Nouvelle clé",
-    new_place: "Nouvelle place",
-    blacklist: "Liste Noire",
+    new_partner: "Nouveau Partenaire",
     partners: "Partenaires"
 }

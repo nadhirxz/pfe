@@ -55,7 +55,7 @@ let titles = {
 		car_driver: "Car Driver",
 		staff: "Staff",
 		admin: "Admin",
-		add_place: "Add Place",
+		add_partner: "Add Partner",
 		add_key: "Add Key",
 		schedule: "Schedule",
 		details: "Details",
@@ -92,7 +92,7 @@ let titles = {
 		car_driver: "Livreur avec voiture",
 		staff: "Personnel",
 		admin: "Administrateur",
-		add_place: "Ajouter un lieu",
+		add_partner: "Ajouter un partenaire",
 		add_key: "Ajouter une clé",
 		schedule: "Programme",
 		details: "Détails",
@@ -129,7 +129,7 @@ let titles = {
 		car_driver: "سائق سيارة",
 		staff: "العمّال",
 		admin: "مشرف",
-		add_place: "إضافة مكان",
+		add_partner: "إضافة شريك",
 		add_key: "إضافة مفتاح",
 		schedule: "الجدول",
 		details: "تفاصيل",
@@ -157,8 +157,7 @@ let errors = {
 	invalidPhoneErr: "invalid_phone",
 	invalidNameErr: "invalid_name",
 	invalidPasswordErr: "invalid_pass",
-	invalidEmail: "invalid_email",
-	invalidSecret: "invalid_secret"
+	invalidSecret: "invalid_secret",
 }
 
 module.exports = { settings, titles, errors };
