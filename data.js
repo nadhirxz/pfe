@@ -70,7 +70,8 @@ let titles = {
 		blacklist: "Blacklist",
 		edit_phone: "Edit Phone Number",
 		edit_password: "Edit Password",
-		partners: "Partners"
+		partners: "Partners",
+		your_items: "Your Items"
 	},
 	fr: {
 		out_of_srvc: "Hors service",
@@ -107,7 +108,8 @@ let titles = {
 		blacklist: "Liste Noire",
 		edit_phone: "Modifier le Numéro de Téléphone",
 		edit_password: "Modifier le Mot de Passe",
-		partners: "Partenaires"
+		partners: "Partenaires",
+		your_items: "Votre Objets"
 	},
 	ar: {
 		out_of_srvc: "خارج الخدمة",
@@ -144,7 +146,8 @@ let titles = {
 		blacklist: "القائمة السوداء",
 		edit_phone: "تغيير رقم الهاتف",
 		edit_password: "تغيير كلمة السر",
-		partners: "الشركاء"
+		partners: "الشركاء",
+		your_items: "السلعة الخاصة بك"
 	}
 }
 

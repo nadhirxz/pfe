@@ -46,6 +46,7 @@ const upload = multer({ dest: './public/img' });
 var users = [];
 var deliveries = [];
 var partners = [];
+var items = [];
 var drivers = [];
 var admins = [];
 var we_are_working_now = true;
@@ -86,20 +87,30 @@ db.query("SELECT * FROM users", (err, results) => {
 				});
 				makePartnersSchedules();
 
-				db.query("SELECT * FROM deliveries", (err, results) => {
+				db.query("SELECT * FROM items", (err, results) => {
 					results.forEach(result => {
 						result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-						result.delivery_from = parsePosition(result.delivery_from);
-						result.delivery_to = parsePosition(result.delivery_to);
-						result.weight = Boolean(result.weight.readIntBE(0, 1));
-						deliveries.push(Object.assign({}, result));
+						result.outOfStock = Boolean(result.outOfStock.readIntBE(0, 1));
+						items.push(Object.assign({}, result));
 					});
-					fillDeliveriesBuffer();
 
-					db.query("SELECT * FROM secretkeys", (err, results) => {
+
+					db.query("SELECT * FROM deliveries", (err, results) => {
 						results.forEach(result => {
-							secretkeys.push(Object.assign({}, result));
+							result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
+							result.delivery_from = parsePosition(result.delivery_from);
+							result.delivery_to = parsePosition(result.delivery_to);
+							result.weight = Boolean(result.weight.readIntBE(0, 1));
+							deliveries.push(Object.assign({}, result));
 						});
+						fillDeliveriesBuffer();
+
+						db.query("SELECT * FROM secretkeys", (err, results) => {
+							results.forEach(result => {
+								secretkeys.push(Object.assign({}, result));
+							});
+						});
+
 					});
 				});
 			});
@@ -199,6 +210,19 @@ let checkUser = (req, res, next) => {
 	} else {
 		let user = getUser('id', req.session.uid);
 		if (user && user.type == 0) {
+			next();
+		} else {
+			res.redirect('/');
+		}
+	}
+}
+
+let checkPartner = (req, res, next) => {
+	if (!req.session.uid) { // user not authenticated
+		res.redirect('/login');
+	} else {
+		let user = getUser('id', req.session.uid);
+		if (user && user.type == 1) {
 			next();
 		} else {
 			res.redirect('/');
@@ -431,6 +455,31 @@ app.post('/partners/register', checkNotAuth, async (req, res) => {
 	} else {
 		return res.redirect('/partners?err=' + errors.generalErr);
 	}
+});
+
+app.get('/partner/items', checkPartner, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+
+	res.render('pages/items', {
+		title: titles[lang].your_items + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
+		items: getItems('owner', user.id)
+	});
+});
+
+app.get('/partner/add-items', checkPartner, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+
+	res.render('pages/items', {
+		title: titles[lang].your_items + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang
+	});
 });
 
 app.get('/deliver', checkAuth, checkUser, checkInWorkHours, (req, res) => {
@@ -938,6 +987,10 @@ function getDriver(key, value) {
 
 function getPartner(key, value) {
 	return partners.find(obj => obj[key] == value);
+}
+
+function getItems(key, value) {
+	return items.filter(obj => obj[key] == value);
 }
 
 function getSecretKey(key, value) {
