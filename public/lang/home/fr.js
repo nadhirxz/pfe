@@ -18,5 +18,6 @@ lang_text = {
     amount_to_pay_text: "Montant à payer :",
     at_text: "à",
     not_wrkn_now_text: "Notre service est disponible uniquement de",
-    to_text: "à"
+    to_text: "à",
+	your_items: "Votre Objets"
 }

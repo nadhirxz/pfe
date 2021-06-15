@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 px-5 m-auto text-center pt-5">
+		<% if (locals.items) { %>
+			<% if (items.length) { %>
+			<h4 class="items_text"></h4>
+			<table class="table table-bordered">
+				<thead>
+					<tr>
+						<th scope="col">Name</th>
+						<th scope="col">Price</th>
+						<th scope="col">Out of stock</th>
+						<th scope="col">Modify</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% items.forEach(item => { %>
+					<tr>
+						<td><%= item.name %></td>
+						<td><%= item.price %></td>
+						<td><%= item.outOfStock %></td>
+						<td>btn - <%= item.id %></td>
+					</tr>
+					<% }); %>
+				</tbody>
+			</table>
+			<% } else { %>
+			<h4 class="no_items_text"></h4>
+			<% } %>
+		<% } %>
+		<a type="button" class="btn col-6 col-md-4 btn-success mx-2 my-4 add_items" href="/partner/add-items"></a>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+
+</html>

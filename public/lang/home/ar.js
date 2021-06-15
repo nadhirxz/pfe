@@ -18,5 +18,6 @@ lang_text = {
     amount_to_pay_text: "مبلغ الدفع :",
     at_text: "على",
     not_wrkn_now_text: "خدمتنا متوفرة فقط من",
-    to_text: "إلى"
+    to_text: "إلى",
+	your_items: "السلعة الخاصة بك"
 }
