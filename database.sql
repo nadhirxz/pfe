@@ -45,6 +45,15 @@ CREATE TABLE partners (
 	FOREIGN KEY (secret) REFERENCES secretkeys(id)
 );
 
+CREATE TABLE items (
+	id VARCHAR(8) PRIMARY KEY,
+	name VARCHAR(40) NOT NULL,
+	price INT(10) NOT NULL,
+	owner VARCHAR(8) NOT NULL,
+	outOfStock BIT NOT NULL,
+	FOREIGN KEY (owner) REFERENCES partners(id)
+);
+
 CREATE TABLE deliveries (
 	id VARCHAR(20) PRIMARY KEY,
 	uid VARCHAR(8) NOT NULL,
