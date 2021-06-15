@@ -22,27 +22,26 @@ CREATE TABLE drivers (
 	status BIT NOT NULL
 );
 
-CREATE TABLE places (
-	id INT(8) PRIMARY KEY,
-	name VARCHAR(40) NOT NULL,
-	secret VARCHAR(40) NOT NULL,
-	place VARCHAR(50) UNIQUE,
-	description VARCHAR(100),
-	schedule INT(2),
-	startTime VARCHAR(5),
-	endTime VARCHAR(5)
+CREATE TABLE secretkeys (
+	id VARCHAR(8) PRIMARY KEY,
+	sercertKey VARCHAR(65) NOT NULL,
+	secretText VARCHAR(40) NOT NULL,
+	percentage INT(2)
 );
 
 CREATE TABLE partners (
 	id VARCHAR(8) PRIMARY KEY,
 	name VARCHAR(40) NOT NULL,
-	phone VARCHAR(10) NOT NULL,
-	password VARCHAR(64) NOT NULL,
-	confirmed BIT NOT NULL,
-	percentage INT(2),
+	phone VARCHAR(10),
+	password VARCHAR(64),
 	pos VARCHAR(50),
-	reg_date TIMESTAMP,
-	FOREIGN KEY (pos) REFERENCES places(place)
+	confirmed BIT NOT NULL,
+	secret VARCHAR(8),
+	description VARCHAR(100),
+	schedule INT(2),
+	startTime VARCHAR(5),
+	endTime VARCHAR(5),
+	FOREIGN KEY (secret) REFERENCES secretkeys(id)
 );
 
 CREATE TABLE deliveries (
@@ -75,12 +74,6 @@ CREATE TABLE current_tasks (
 	FOREIGN KEY (delivery) REFERENCES deliveries(id)
 );
 
-CREATE TABLE secretkeys (
-	id VARCHAR(8) PRIMARY KEY,
-	sercertKey VARCHAR(65) NOT NULL,
-	secretText VARCHAR(40) NOT NULL,
-	percentage INT(2)
-);
 
 CREATE TABLE finance (
 	id VARCHAR(10) NOT NULL,

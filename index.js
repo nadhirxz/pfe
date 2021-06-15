@@ -45,13 +45,13 @@ const upload = multer({ dest: './public/img' });
 // Variables
 var users = [];
 var deliveries = [];
-var places = [];
 var partners = [];
 var drivers = [];
 var admins = [];
 var we_are_working_now = true;
 var partners_schedule = [];
 var deliveriesBuffer = [];
+var secretkeys = [];
 
 // Database connection
 const db = mysql.createConnection(dbOptions);
@@ -77,30 +77,29 @@ db.query("SELECT * FROM users", (err, results) => {
 				drivers.push(Object.assign({}, result));
 			});
 
-			db.query("SELECT * FROM places", (err, results) => {
+			db.query("SELECT * FROM partners", (err, results) => {
 				results.forEach(result => {
 					result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-					result.place = parsePosition(result.place);
-					places.push(Object.assign({}, result));
+					result.pos = parsePosition(result.pos);
+					result.confirmed = Boolean(result.confirmed.readIntBE(0, 1));
+					partners.push(Object.assign({}, result));
 				});
-				makePlaceSchedules();
+				makePartnersSchedules();
 
-				db.query("SELECT * FROM partners", (err, results) => {
+				db.query("SELECT * FROM deliveries", (err, results) => {
 					results.forEach(result => {
 						result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-						result.confirmed = Boolean(result.confirmed.readIntBE(0, 1));
-						partners.push(Object.assign({}, result));
+						result.delivery_from = parsePosition(result.delivery_from);
+						result.delivery_to = parsePosition(result.delivery_to);
+						result.weight = Boolean(result.weight.readIntBE(0, 1));
+						deliveries.push(Object.assign({}, result));
 					});
+					fillDeliveriesBuffer();
 
-					db.query("SELECT * FROM deliveries", (err, results) => {
+					db.query("SELECT * FROM secretkeys", (err, results) => {
 						results.forEach(result => {
-							result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-							result.delivery_from = parsePosition(result.delivery_from);
-							result.delivery_to = parsePosition(result.delivery_to);
-							result.weight = Boolean(result.weight.readIntBE(0, 1));
-							deliveries.push(Object.assign({}, result));
+							secretkeys.push(Object.assign({}, result));
 						});
-						fillDeliveriesBuffer();
 					});
 				});
 			});
@@ -425,7 +424,7 @@ app.get('/buy', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			places: getPlacesInfo()
+			places: getPartnersInfo()
 		});
 	}
 	return res.render('pages/errors', {
@@ -445,7 +444,7 @@ app.get('/buy/:id', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	if (req.params.id == 'other') {
 		p = 'other';
 	} else {
-		p = getPlace('id', req.params.id);
+		p = getPartner('id', req.params.id);
 		if (p) {
 			place = p.place;
 			p = p.name;
@@ -616,11 +615,11 @@ app.post('/admin/new-key', checkAdmin, (req, res) => {
 	res.redirect('/admin');
 });
 
-app.get('/admin/new-place', checkAdmin, (req, res) => {
+app.get('/admin/new-partner', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/admin_add_place', {
-		title: titles[lang].add_place + settings.titleSuffix[lang],
+		title: titles[lang].add_partner + settings.titleSuffix[lang],
 		name: user.name,
 		type: user.type,
 		lang: lang,
@@ -629,27 +628,36 @@ app.get('/admin/new-place', checkAdmin, (req, res) => {
 	});
 });
 
-app.post('/admin/new-place', checkAdmin, (req, res) => {
+app.post('/admin/new-partner', checkAdmin, (req, res) => {
 	let { name, secret, place, schedule, startTime, endTime } = req.body;
-	let id = randomHash(8);
-	let newPlace = {
-		id,
-		name,
-		secret,
-		place: parsePosition(place),
-		schedule,
-		startTime,
-		endTime
+	let secretKey = secretkeys.find(e => e.secretText == secret);
+	console.log(place)
+	if (secretKey) {
+		let id = randomHash(8);
+		let newPartner = {
+			id,
+			name,
+			phone: null,
+			password: null,
+			pos: parsePosition(place),
+			confirmed: false,
+			secret: secretKey.id,
+			description: null,
+			schedule,
+			startTime,
+			endTime
+		}
+		partners.push(newPartner);
+		db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?)", [newPartner.id, name, newPartner.phone, newPartner.password, stringifyPosition(newPartner.pos), newPartner.confirmed, newPartner.secret, newPartner.description, schedule, startTime, endTime]);
+		return res.redirect('/partners/' + id);
 	}
-	places.push(newPlace);
-	db.query("INSERT INTO places VALUES (?,?,?,?,?,?,?)", [newPlace.id, name, secret, stringifyPosition(newPlace.place), schedule, startTime, endTime]);
-	res.redirect('/partner/' + id);
+	return res.redirect('/admin/new-partner/?sec='+ secret +'&err=' + errors.invalidSecret);
 });
 
 app.get('/partners/info', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let p = getPlacesInfo();
+	let p = getPartnersInfo();
 	res.render('pages/partners_info', {
 		title: titles[lang].partners + settings.titleSuffix[lang],
 		name: user.name,
@@ -662,7 +670,7 @@ app.get('/partners/info', checkAdmin, (req, res) => {
 app.get('/partners/:id', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let place = getPlace('id', req.params.id);
+	let place = getPartner('id', req.params.id);
 	if (place) {
 		return res.render('pages/partner_settings', {
 			title: titles[lang].partners + settings.titleSuffix[lang],
@@ -715,10 +723,10 @@ app.post('/partners/img/:id', checkAdmin, upload.single('img'), (req, res) => {
 
 app.post('/partners/desc/:id', checkAdmin, (req, res) => {
 	let { desc } = req.body;
-	let p = getPlace('id', req.params.id);
+	let p = getPartner('id', req.params.id);
 	if (typeof (desc) && p) {
 		p.description = desc;
-		db.query("UPDATE places SET description=?", [desc]);
+		db.query("UPDATE partners SET description=?", [desc]);
 	}
 	return res.redirect('/partners/' + req.params.id);
 });
@@ -887,8 +895,8 @@ function getDriver(key, value) {
 	return false;
 }
 
-function getPlace(key, value) {
-	return places.find(obj => obj[key] == value);
+function getPartner(key, value) {
+	return partners.find(obj => obj[key] == value);
 }
 
 function getDelivery(key, value) {
@@ -972,16 +980,14 @@ function getLeastBusyDriver(from) {
 	return 'no driver available right now';
 }
 
-function getPlacesInfo() {
-	let p = [];
-	places.forEach(place => {
-		p.push({
+function getPartnersInfo() {
+	return partners.filter(e => e.confirmed).map(e => {
+		return {
 			id: place.id,
 			name: place.name,
 			desc: place.description || ''
-		});
-	})
-	return p;
+		}
+	});
 }
 
 
@@ -1150,14 +1156,14 @@ function inPartnerWorkHours(partnerid) {
 	return false;
 }
 
-function makePlaceSchedules() {
-	if (places) {
-		places.forEach(place => {
-			partners_schedule[place.id] = {
-				schedule: place.schedule,
-				time: [place.startTime, place.endTime]
+function makePartnersSchedules() {
+	if (partners) {
+		partners.forEach(partner => {
+			partners_schedule[partner.id] = {
+				schedule: partner.schedule,
+				time: [partner.startTime, partner.endTime]
 			}
-			createPartnerScheduleTimes(place.id);
+			createPartnerScheduleTimes(partner.id);
 		});
 	}
 }
@@ -1174,7 +1180,7 @@ function createPartnerScheduleTimes(partnerid) {
 // Delivery stuff
 function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price, thing, phone, weight, partner) {
 	if (type == 1) {
-		fromPlace = getPlace('id', fromPlace);
+		fromPlace = getPartner('id', fromPlace);
 		if (fromPlace) fromPlace = fromPlace.name;
 		else fromPlace = null;
 	}
