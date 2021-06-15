@@ -2,12 +2,17 @@
 <%- include ('../partials/html') %>
 <head>
 	<%- include ('../partials/head') %>
+	<% l = {
+		en: "Partners",
+		fr: "Partenaires",
+		ar: "الشركاء"
+	} %>
 </head>
 
 <body>
     <%- include ('../partials/navbar') %>
     <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
-        <h4 class="mt-4">Partners</h4>
+        <h4 class="mt-4"><%= l[lang] %></h4>
         <% if (partners.length) { %>
         <% partners.forEach(partner => { %>
         <a class="btn btn-success col-md-5 my-2" href='/partners/<%= partner.id %>'><%= partner.name %></a>
