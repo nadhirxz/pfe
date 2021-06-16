@@ -39,8 +39,16 @@
 			<% } %>
 
 			<p class="delivery-info-text"><b class="user_text"></b> <%= name %></p>
+			<% if (d_type && thingsPrice) { %>
+			<p class="delivery-info-text"><b class="thing_text"></b> <%= thing %> (<%= thingsPrice %> <span class="dzd_text"></span>)</p>
+			<% } else { %>
 			<p class="delivery-info-text"><b class="thing_text"></b> <%= thing %></p>
+			<% } %>
 			<p class="delivery-info-text"><b class="price_text"></b> <%= price %> <span class="dzd_text"></span></p>
+
+			<% if(d_type && thingsPrice) {%>
+			<p class="delivery-info-text"><b class="total_price_text"></b> <%= thingsPrice + price %> <span class="dzd_text"></span></p>
+			<% } %>
 
 			<p class="delivery-info-text"><b class="distance_text"></b> <%= distance %> <span class="km_text"></span></p>
 			<p class="delivery-info-text"><b class="date_submitted_text"></b>
