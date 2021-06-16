@@ -39,7 +39,10 @@
 						<td><%= item.name %></td>
 						<td class="col-3"><%= item.price %></td>
 						<td class="col-2"><span class="badge badge-<%= item.inStock ? 'success' : 'danger' %>"><%- item.inStock ? y : x %></span></td>
-						<td class="col-1"><a id="<%= item.id %>" class="btn badge badge-light border-secondary mx-1" data-toggle="modal" data-target="#modal"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg></a></td>
+						<td class="col-3 col-md-4 col-lg-2">
+							<a id="edit-<%= item.id %>" class="btn badge badge-light border-secondary mx-1" data-toggle="modal" data-target="#modal"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg></a>
+							<a id="delete-<%= item.id %>" class="btn badge badge-light border-secondary mx-1" data-toggle="modal" data-target="#modal-delete"><%- x %></a>
+						</td>
 					</tr>
 					<% }); %>
 				</tbody>
@@ -65,9 +68,27 @@
 							</div>								
 							<button id="stock-btn" class="btn btn-block btn-success mt-4"></button>
 						</div>
-						<div class="modal-footer">
-							<button id="save-btn" type="button" class="btn btn-info text_save"></button>
-							<button type="button" class="btn btn-secondary mx-2 text_close" data-dismiss="modal"></button>
+						<div class="modal-footer mx-auto col">
+							<button type="button" class="btn col btn-info text_save" id="save-btn"></button>
+							<button type="button" class="btn col btn-secondary mx-2 text_close" data-dismiss="modal"></button>
+						</div>
+				  	</div>
+				</div>
+			</div>
+
+			<div class="modal fade" id="modal-delete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title confirm_deletion" id="modal-label"></h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body" id="modal-body"></div>
+						<div class="modal-footer mx-auto col">
+							<button type="button" class="btn col btn-danger text_delete" id="delete-btn"></button>
+							<button type="button" class="btn col btn-secondary mx-2 text_close" data-dismiss="modal"></button>
 						</div>
 				  	</div>
 				</div>

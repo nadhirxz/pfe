@@ -3,6 +3,7 @@ const l = {
 		in_stock: "In Stock",
 		items_saved: "Items saved successfully",
 		item_added: "Item added successfully",
+		item_deleted: "Item deleted successfully",
 		err: "An error happened. Please try again",
 		add_item: "Add New Item"
 	},
@@ -10,6 +11,7 @@ const l = {
 		in_stock: "En Stock",
 		items_saved: "Éléments enregistrés avec succès",
 		item_added: "Élément ajouté avec succès",
+		item_deleted: "Élément supprimé avec succès",
 		err: "Une erreur s'est produite. Veuillez réessayer",
 		add_item: "Ajouter un nouvel objet"
 	},
@@ -17,6 +19,7 @@ const l = {
 		in_stock: "يوجد سلعة",
 		items_saved: "تم حفظ العناصر بنجاح",
 		item_added: "تمت إضافة العنصر بنجاح",
+		item_deleted: "تم حذف العنصر بنجاح",
 		err: "حدث خطأ. حاول مرة اخرى",
 		add_item: "إضافة سلعة جديدة"
 	}
@@ -26,7 +29,10 @@ $('#add-items').on('click', () => {
 	click(null, true);
 });
 
-items.forEach(item => $('#' + item.id).on('click', () => click(item.id)));
+items.forEach(item => {
+	$('#edit-' + item.id).on('click', () => click(item.id));
+	$('#delete-' + item.id).on('click', () => deleteClick(item.id));
+});
 
 const x = ' <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">		<path d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"/></svg>';
 const y = ' <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16"><path d="M13.485 1.431a1.473 1.473 0 0 1 2.104 2.062l-7.84 9.801a1.473 1.473 0 0 1-2.12.04L.431 8.138a1.473 1.473 0 0 1 2.084-2.083l4.111 4.112 6.82-8.69a.486.486 0 0 1 .04-.045z"/></svg>'
@@ -63,14 +69,39 @@ function click(id, add = false) {
 	});
 }
 
+function deleteClick(id) {
+	let item = items.find(e => e.id == id);
+	if (item) {
+		$('#modal-body').html(`Are you sure you want to delete <span class="font-weight-bold">${item.name}</span> ?`);
+		$('#delete-btn').off();
+		$('#delete-btn').on('click', () => {
+			post('/partner/delete-item/' + item.id);
+		});
+	}
+}
+
+
 let url = location.search.substring(1); // url parameters
 if (url) {
 	let params = JSON.parse('{"' + decodeURI(url).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}'); // url params parser
 	if ('success' in params) {
+		switch (params.success) {
+			case 'add':
+				$('#alert').removeClass('d-none alert-info alert-warning').addClass('alert-info').html(l[lng].item_added);
+				break;
+			case 'edit':
+				$('#alert').removeClass('d-none alert-info alert-warning').addClass('alert-info').html(l[lng].items_saved);
+				break;
+			case 'delete':
+				$('#alert').removeClass('d-none alert-info alert-warning').addClass('alert-info').html(l[lng].item_deleted);
+				break;
+			default:
+				$('#alert').removeClass('d-none alert-info alert-warning').addClass('alert-warning').html(l[lng].err);
+				break;
+		}
 		if (params.success == 'add' || params.success == 'edit') {
-			$('#alert').removeClass('d-none alert-info alert-warning').addClass('alert-info').html(params.success == 'add' ? l[lng].item_added : l[lng].items_saved);
 		} else {
-			$('#alert').removeClass('d-none alert-info alert-warning').addClass('alert-warning').html(l[lng].err);
+
 		}
 	}
 	if ('err' in params) $('#alert').removeClass('d-none alert-info alert-warning').addClass('alert-warning').html(l[lng].err);

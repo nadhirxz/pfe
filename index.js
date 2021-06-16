@@ -512,6 +512,21 @@ app.post('/partner/add-item', checkPartner, (req, res) => {
 	}
 });
 
+app.post('/partner/delete-item/:id', checkPartner, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let item = getItem('id', req.params.id);
+	if (item) {
+		db.query("DELETE FROM items WHERE id=?", [item.id], (err, results) => {
+			if (err) return res.redirect('/partner/items/?success=false');
+			items = items.filter(e => e.id != item.id);
+			return res.redirect('/partner/items/?success=delete');
+		});
+	} else {
+		return res.redirect('/partner/items/?err=error');
+	}
+});
+
+
 app.get('/deliver', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);

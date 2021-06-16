@@ -8,6 +8,8 @@ lang_text = {
 	modify_text: "Modifier",
 	text_save: "Sauvegarder",
 	text_close: "Fermer",
+	text_delete: "Supprimer",
+	confirm_deletion: "Confirmer la suppression",
 	placeholders: {
 		"item-name": "Nom",
 		"item-price": "Prix"

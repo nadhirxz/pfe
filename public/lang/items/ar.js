@@ -8,6 +8,8 @@ lang_text = {
 	modify_text: "تعديل",
 	text_save: "حفظ",
 	text_close: "إغلاق",
+	text_delete: "حذف",
+	confirm_deletion: "تأكيد الحذف",
 	placeholders: {
 		"item-name": "الإسم",
 		"item-price": "السعر"
