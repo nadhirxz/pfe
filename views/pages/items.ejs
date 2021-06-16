@@ -2,9 +2,24 @@
 <%- include ('../partials/html') %>
 <head>
 	<%- include ('../partials/head') %>
+	<script>
+	let items = [
+	<% if (items.length) { %><% items.sort((a, b) => a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)).forEach(item => { %>	{
+			id: '<%= item.id %>',
+			name: '<%= item.name %>',
+			price: <%= item.price %>,
+			inStock: <%= item.inStock %>,
+		},<% }); %><% } %>
+	];
+	<%
+	var x = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"/></svg>';
+	var y = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16"><path d="M13.485 1.431a1.473 1.473 0 0 1 2.104 2.062l-7.84 9.801a1.473 1.473 0 0 1-2.12.04L.431 8.138a1.473 1.473 0 0 1 2.084-2.083l4.111 4.112 6.82-8.69a.486.486 0 0 1 .04-.045z"/></svg>'
+	%>
+	</script>
 </head>
 <body>
     <%- include ('../partials/navbar') %>
+	<div id="alert" class="alert rounded col-10 col-lg-5 mx-auto text-center d-none" role="alert"></div>
     <div class="col-md-8 px-5 m-auto text-center pt-5">
 		<% if (locals.items) { %>
 			<% if (items.length) { %>
@@ -12,31 +27,62 @@
 			<table class="table table-bordered">
 				<thead>
 					<tr>
-						<th scope="col">Name</th>
-						<th scope="col">Price</th>
-						<th scope="col">Out of stock</th>
-						<th scope="col">Modify</th>
+						<th scope="col" class="name_text"></th>
+						<th scope="col" class="price_text"></th>
+						<th scope="col" class="instock_text"></th>
+						<th scope="col" class="modify_text"></th>
 					</tr>
 				</thead>
 				<tbody>
 					<% items.forEach(item => { %>
 					<tr>
 						<td><%= item.name %></td>
-						<td><%= item.price %></td>
-						<td><%= item.outOfStock %></td>
-						<td>btn - <%= item.id %></td>
+						<td class="col-3"><%= item.price %></td>
+						<td class="col-2"><span class="badge badge-<%= item.inStock ? 'success' : 'danger' %>"><%- item.inStock ? y : x %></span></td>
+						<td class="col-1"><a id="<%= item.id %>" class="btn badge badge-light border-secondary mx-1" data-toggle="modal" data-target="#modal"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/></svg></a></td>
 					</tr>
 					<% }); %>
 				</tbody>
 			</table>
+
+			<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered w-100" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="modal-label"></h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="form-group">
+								<label for="item-name" class="name_text"></label>
+								<input id="item-name" type="text" class="form-control" placeholder="Name">
+							</div>
+							<div class="form-group">
+								<label for="item-name" class="price_text"></label>
+								<input id="item-price" type="text" min="0" maxlength="10" class="form-control" onkeypress="return onlyNumberKey(event)" placeholder="Price">
+							</div>								
+							<button id="stock-btn" class="btn btn-block btn-success mt-4"></button>
+						</div>
+						<div class="modal-footer">
+							<button id="save-btn" type="button" class="btn btn-info text_save"></button>
+							<button type="button" class="btn btn-secondary mx-2 text_close" data-dismiss="modal"></button>
+						</div>
+				  	</div>
+				</div>
+			</div>
+			  
+
 			<% } else { %>
 			<h4 class="no_items_text"></h4>
 			<% } %>
 		<% } %>
-		<a type="button" class="btn col-6 col-md-4 btn-success mx-2 my-4 add_items" href="/partner/add-items"></a>
+		<button id="add-items" type="button" class="btn col-6 col-md-4 btn-success mx-2 my-4 add_items" data-toggle="modal" data-target="#modal"></button>
     </div>
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
+<script src="/js/items.js"></script>
 
 </html>

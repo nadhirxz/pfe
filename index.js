@@ -470,16 +470,46 @@ app.get('/partner/items', checkPartner, (req, res) => {
 	});
 });
 
-app.get('/partner/add-items', checkPartner, (req, res) => {
+app.post('/partner/edit-item/:id', checkPartner, (req, res) => {
 	let user = getUser('id', req.session.uid);
-	let lang = getAndSetPageLanguage(req, res);
+	let { name, price, inStock } = req.body;
+	let item = getItem('id', req.params.id);
 
-	res.render('pages/items', {
-		title: titles[lang].your_items + settings.titleSuffix[lang],
-		name: user.name,
-		type: user.type,
-		lang: lang
-	});
+	if (item && item.owner == user.id) {
+		item.name = name || item.name;
+		item.price = (price || price == 0) && price > -1 ? price : item.price;
+		item.inStock = inStock == 'true' ? true : false;
+
+		db.query("UPDATE items SET name=?, price=?, inStock=? WHERE id=?", [item.name, item.price, item.inStock, item.id], (err, results) => {
+			if (err) return res.redirect('/partner/items/?success=false');
+			else return res.redirect('/partner/items/?success=edit');
+		});
+	} else {
+		return res.redirect('/partner/items/?err=error');
+	}
+});
+
+app.post('/partner/add-item', checkPartner, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let { name, price, inStock } = req.body;
+
+	if (name && !isNaN(parseInt(price))) {
+		let item = {
+			id: randomHash(4),
+			name: name,
+			price: (price || price == 0) && price > -1 ? price : item.price,
+			owner: user.id,
+			inStock: inStock == 'true' ? true : false
+		}
+
+		db.query("INSERT INTO items VALUES (?,?,?,?,?)", [item.id, item.name, item.price, item.owner, item.inStock], (err, results) => {
+			if (err) return res.redirect('/partner/items/?success=false');
+			items.push(item);
+			return res.redirect('/partner/items/?success=add');
+		});
+	} else {
+		return res.redirect('/partner/items/?err=error');
+	}
 });
 
 app.get('/deliver', checkAuth, checkUser, checkInWorkHours, (req, res) => {
@@ -987,6 +1017,10 @@ function getDriver(key, value) {
 
 function getPartner(key, value) {
 	return partners.find(obj => obj[key] == value);
+}
+
+function getItem(key, value) {
+	return items.find(obj => obj[key] == value);
 }
 
 function getItems(key, value) {
