@@ -17,8 +17,8 @@ if ($('#navbar')) {
 }
 var page = false;
 if (window.location.pathname.split('/')[1] == 'delivery') page = 'delivery';
-if (window.location.pathname.split('/')[1] == 'buy') page = 'buy';
-if (window.location.pathname.split('/')[2]) page = window.location.pathname.split('/')[2]
+else if (window.location.pathname.split('/')[1] == 'buy') page = 'buy';
+else if (window.location.pathname.split('/')[2]) page = window.location.pathname.split('/')[2]
 
 $.getScript(`/lang${page ? '/' + page : window.location.pathname.length > 1 ? window.location.pathname : '/index'}/${lng}.js`, () => {
 	if (typeof (lang_text) != 'undefined') {

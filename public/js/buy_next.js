@@ -7,6 +7,12 @@ var distance = 0;
 var weight;
 var thingsPrice;
 
+$('#object-select').on('change', (e) => {
+	if (e.target.value == 'other') $('#delivery-thing-div').removeClass('d-none');
+	else $('#delivery-thing-div').addClass('d-none');
+	trackInput();
+});
+
 var formGroupDiv = document.getElementById('delivery');
 
 var anotherShopDiv = document.getElementById('another-shop');
@@ -27,9 +33,11 @@ nextButton.addEventListener('click', () => {
 	if (!nextButton.classList.contains('disabled')) {
 		weight = parseInt(document.getElementById('delivery-weight').value) || 0;
 		delivery.fromPartner = deliverFromPartner;
-		delivery.thing = thingInput.value;
+		if ($('#object-select').val() == 'other') delivery.thing = thingInput.value;
+		else delivery.thing = $('#object-select').val();
 		if (deliverFromPartner) {
 			delivery.fromPlace = selectedPlace;
+			thingsPrice = parseInt($('#object-select').html().split('">')[2].split('(')[1].split(' DZD'));
 		} else {
 			delivery.fromPlace = nameInput.value;
 			thingsPrice = parseInt(document.getElementById('delivery-thing-price').value) || 0;
@@ -43,13 +51,13 @@ nextButton.addEventListener('click', () => {
 
 function trackInput() {
 	if (deliverFromPartner) {
-		if (thingInput.value) {
+		if ((thingInput.value || $('#object-select').val() != 'other')) {
 			toggleButton(true);
 		} else {
 			toggleButton(false);
 		}
 	} else {
-		if (nameInput.value && thingInput.value && thingsPriceInput.value) {
+		if (nameInput.value && (thingInput.value || $('#object-select').val() != 'other') && thingsPriceInput.value) {
 			toggleButton(true);
 		} else {
 			toggleButton(false);
@@ -184,7 +192,7 @@ function submitButtonClick(map, invalidInput, deliveryDiv, title, buttons, submi
 				let summary = routes[0].summary;
 				distance = Math.round(((summary.totalDistance / 1000) + Number.EPSILON) * 1000) / 1000;
 				document.getElementById("result").innerHTML = `</img src="img/loading.gif"></img><br><h4>${js_lang_text.clc_price_text}</h4>`;
-				$.post('/price-request', { distance: distance, weight: weight, from: toPos, to: fromPos, partner: selectedPlace, thingsPrice: thingsPrice }, (data) => {
+				$.post('/price-request', { distance: distance, weight: weight, from: toPos, to: fromPos, partner: selectedPlace, thing: delivery.thing, thingsPrice: thingsPrice }, (data) => {
 					setTimeout(() => {
 						let resultText = "";
 						switch (data.status) {

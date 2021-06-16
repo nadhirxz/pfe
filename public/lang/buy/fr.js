@@ -8,6 +8,8 @@ lang_text = {
     price_text: "Prix",
     cancel_text: "Annuler",
     next_text: "Suivant",
+	other_text: "Autre",
+	object_name: "Nom d'objet",
     placeholders: {
         "thing": "Entrez quelque chose",
         "name": "Entrez quelque chose",

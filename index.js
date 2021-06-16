@@ -576,15 +576,16 @@ app.get('/buy', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 app.get('/buy/:id', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let p, place, pid;
+	let p, place, pid, it;
 	if (req.params.id == 'other') {
 		p = 'other';
 	} else {
 		p = getPartner('id', req.params.id);
 		if (p) {
-			place = p.place;
+			place = p.pos;
 			p = p.name;
 			pid = req.params.id;
+			it = getItems('owner', req.params.id);
 		} else {
 			return res.render('pages/404', {
 				title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
@@ -605,7 +606,8 @@ app.get('/buy/:id', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 			gh: GRAPHHOPPER_API,
 			partner: p,
 			place: place,
-			pid: pid
+			pid: pid,
+			items: it
 		});
 	}
 	return res.render('pages/errors', {
@@ -630,7 +632,7 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 	// 1 = accepted and didn't find a driver
 	// 2 = distance too far
 	// 3 = not in work hours range
-
+	console.log(data)
 	if (data.distance > settings.maxDeliveryDistance || getDistance(data.from, settings.AlgiersPos) > settings.maxDeliveryDistance || getDistance(data.to, settings.AlgiersPos) > settings.maxDeliveryDistance) {
 		dataToSend.status = 2;
 	} else if (inWorkHours()) {
@@ -638,7 +640,11 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 			dataToSend.status = 4;
 		} else {
 			user.last_delivery_price = calculatePrice(data.distance, data.weight);
-			if (data.thingsPrice) dataToSend.thingsPrice = parseInt(data.thingsPrice) || 0;
+			if (data.thing && getItem('id', data.thing)) {
+				dataToSend.thingsPrice = getItem('id', data.thing).price;
+			} else if (data.thingsPrice) {
+				dataToSend.thingsPrice = parseInt(data.thingsPrice) || 0;
+			}
 			let d = getLeastBusyDriver(data.from);
 			if (d == 'no driver available right now') {
 				user.hash = generateHash(('' + data.distance).substring(0, 5), '' + user.last_delivery_price);
@@ -1132,7 +1138,8 @@ function getPartnersInfo(forAdmin) {
 		return {
 			id: e.id,
 			name: e.name,
-			desc: e.description || ''
+			desc: e.description || '',
+			img: fs.existsSync(`./public/img/partners/${e.id}.png`) ? `/img/partners/${e.id}.png` : '/img/partners/default.png'
 		}
 	});
 }
@@ -1301,8 +1308,8 @@ function inPartnerWorkHours(partnerid) {
 	let p = partners_schedule[partnerid];
 	let now = new Date();
 	if (p) {
-		if (p.schedule == 0 && today.getDay() == 5) return false;
-		if (p.schedule == 1 && (today.getDay() == 5 || today.getDay() == 6)) return false;
+		if (p.schedule == 0 && new Date(todaysDate()).getDay() == 5) return false;
+		if (p.schedule == 1 && (new Date(todaysDate()).getDay() == 5 || new Date(todaysDate()).getDay() == 6)) return false;
 		if (now >= (new Date(p.time[0])) && now <= (new Date(p.time[1]))) return true;
 	}
 	return false;
@@ -1353,14 +1360,22 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		expected_finish_time: null,
 		date: new Date(),
 		waypoints: null,
-		partner: null
+		partner: null,
+		item: null
 	}
 
-	if (type == 1) delivery.partner = partner;
+	if (type == 1) {
+		delivery.partner = partner;
+		let item = getItem('id', thing);
+		if (item) {
+			delivery.item = thing;
+			delivery.thing = null;
+		}
+	}
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.expected_finish_time, delivery.date, delivery.waypoints, delivery.partner], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.expected_finish_time, delivery.date, delivery.waypoints, delivery.partner, delivery.item], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {
@@ -1434,7 +1449,8 @@ function fillDeliveriesBuffer() {
 }
 
 function deliveryInfoPage(delivery) {
-	return {
+	let item = getItem('id', delivery.item);
+	let obj = {
 		d_type: delivery.type,
 		status: delivery.status,
 		name: getUser('id', delivery.uid).name,
@@ -1442,8 +1458,14 @@ function deliveryInfoPage(delivery) {
 		thing: delivery.thing,
 		distance: delivery.distance,
 		price: delivery.price,
+		thingsPrice: 0,
 		date: new Date(delivery.date),
 		driver: getDriver('id', delivery.driver),
 		expected_finish_time: delivery.expected_finish_time
 	}
+	if (item) {
+		if (item.name) obj.thing = item.name;
+		obj.thingsPrice = item.price || null;
+	}
+	return obj
 }

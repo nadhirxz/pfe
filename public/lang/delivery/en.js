@@ -7,6 +7,7 @@ var lang_text = {
     user_text: "User :",
     thing_text: "Object :",
     price_text: "Delivery Price :",
+	total_price_text: "Total Price:",
     dzd_text: "DZD",
     from_text: "From :",
     to_text: "To :",

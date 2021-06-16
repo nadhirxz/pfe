@@ -7,6 +7,7 @@ lang_text = {
     user_text: "المستخدم :",
     thing_text: "الغرض :",
     price_text: "سعر التوصيل :",
+	total_price_text: "السعر الإجمالي :",
     dzd_text: "دج",
     from_text: "من :",
     to_text: "إلى :",
