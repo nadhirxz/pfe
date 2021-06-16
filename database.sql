@@ -71,9 +71,11 @@ CREATE TABLE deliveries (
 	date TIMESTAMP,
 	waypoints VARCHAR(100),
 	partner VARCHAR(8),
+	item VARCHAR(8),
 	FOREIGN KEY (uid) REFERENCES users(id),
 	FOREIGN KEY (driver) REFERENCES drivers(id),
-	FOREIGN KEY (partner) REFERENCES partners(id)
+	FOREIGN KEY (partner) REFERENCES partners(id),
+	FOREIGN KEY (item) REFERENCES items(id)
 );
 
 CREATE TABLE current_tasks (
