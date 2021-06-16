@@ -90,7 +90,7 @@ db.query("SELECT * FROM users", (err, results) => {
 				db.query("SELECT * FROM items", (err, results) => {
 					results.forEach(result => {
 						result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-						result.outOfStock = Boolean(result.outOfStock.readIntBE(0, 1));
+						result.inStock = Boolean(result.inStock.readIntBE(0, 1));
 						items.push(Object.assign({}, result));
 					});
 

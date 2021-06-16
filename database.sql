@@ -50,7 +50,7 @@ CREATE TABLE items (
 	name VARCHAR(40) NOT NULL,
 	price INT(10) NOT NULL,
 	owner VARCHAR(8) NOT NULL,
-	outOfStock BIT NOT NULL,
+	inStock BIT NOT NULL,
 	FOREIGN KEY (owner) REFERENCES partners(id)
 );
 
