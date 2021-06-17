@@ -435,7 +435,7 @@ app.post('/partners/register', checkNotAuth, async (req, res) => {
 
 						db.query("UPDATE partners SET name=?, phone=?, password=?, percentage=?, secret=?, confirmed=?", [partner.name, partner.phone, partner.password, partner.percentage, null, 1], (err, results) => {
 							if (err) {
-								res.redirect('/partners?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone + '&email=' + email);
+								res.redirect('/partners?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 							} else {
 								req.session.uid = partner.id;
 								destroySecretKey(secretkey.id);
