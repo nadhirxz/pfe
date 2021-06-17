@@ -28,7 +28,7 @@
 					<option value="2" class="driver_text"></option>
 				</select>
 			</div>
-			<div class="form-group">
+			<div class="form-group" id="percentage-div">
 				<label for="p-field" class="percentage_text"></label>
 				<input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="2" class="form-control" id="p-field" name="percentage">
 				<div class="invalid-feedback" id="p-feed"></div>
@@ -42,4 +42,5 @@
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
+<script src="/js/admin_add_key.js"></script>
 </html>
