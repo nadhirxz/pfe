@@ -230,6 +230,19 @@ let checkPartner = (req, res, next) => {
 	}
 }
 
+let checkDriver = (req, res, next) => {
+	if (!req.session.uid) { // user not authenticated
+		res.redirect('/login');
+	} else {
+		let user = getUser('id', req.session.uid);
+		if (user && user.type == 2) {
+			next();
+		} else {
+			res.redirect('/');
+		}
+	}
+}
+
 let checkAdmin = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/login');
@@ -314,6 +327,25 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 	} else {
 		res.redirect('/');
 	}
+});
+
+app.get('/drivers', checkNotAuth, (req, res) => {
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/drivers', {
+		title: titles[lang].drivers + settings.titleSuffix[lang],
+		lang: lang,
+	});
+});
+
+app.get('/driver', checkDriver, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/driver', {
+		title: titles[lang].driver + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang
+	});
 });
 
 app.get('/login', checkNotAuth, (req, res) => {
@@ -454,6 +486,47 @@ app.post('/partners/register', checkNotAuth, async (req, res) => {
 		}
 	} else {
 		return res.redirect('/partners?err=' + errors.generalErr);
+	}
+});
+
+app.post('/drivers/register', checkNotAuth, async (req, res) => {
+	let { phone, name, password, secret } = req.body;
+	if (phone && name && password && secret) {
+		if (phoneValid(phone)) {
+			let user = getUser('phone', phone);
+			if (user) {
+				return res.redirect('/drivers?err=' + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
+			} else {
+				let secretkey = getSecretKey('secretKey', generateKey(secret, phone, 2));
+				if (secretkey) {
+					let id = randomHash(4);
+					let driver = {
+						id: id,
+						name: formatName(name),
+						phone: phone,
+						password: generateHash(password, id),
+						status: false
+					}
+
+					db.query("INSERT INTO drivers VALUES (?,?,?,?,?)", [driver.id, driver.name, driver.phone, driver.password, driver.status], (err, results) => {
+						if (err) {
+							res.redirect('/drivers?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
+						} else {
+							req.session.uid = driver.id;
+							destroySecretKey(secretkey.id);
+							drivers.push(driver);
+							return res.redirect('/driver');
+						}
+					});
+				} else {
+					return res.redirect('/drivers?err=' + errors.invalidSecret + '&name=' + name + '&phone=' + phone);
+				}
+			}
+		} else {
+			return res.redirect('/drivers?err=' + errors.invalidPhoneErr + '&name=' + name + '&phone=' + phone);
+		}
+	} else {
+		return res.redirect('/drivers?err=' + errors.generalErr);
 	}
 });
 

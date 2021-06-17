@@ -8,7 +8,7 @@
     <%- include ('../partials/navbar') %>
     <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
         <h1 class="register_text"></h1>
-        <form action="/staffregister" method="post">
+        <form action="/drivers/register" method="post">
             <p id="err-msg" class="text-danger"></p>
             <div class="form-group">
                 <label for="name-field" class="name_text"></label>
@@ -32,13 +32,6 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="type-field" class="type_text"></label>
-                <select name="type" class="form-control" id="type-field">
-                    <option value="2" selected="" class="driver_text"></option>
-                    <option value="3" class="car_driver_text"></option>
-                </select>
-              </div>
-            <div class="form-group">
                 <label for="secret-field" class="sec_key_text"></label>
                 <input type="text" class="form-control" id="secret-field" name="secret" required>
                 <div class="invalid-feedback" id="secret-feed"></div>
@@ -52,7 +45,7 @@
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
-<script src="/js/staff.js"></script>
+<script src="/js/errors.js"></script>
 <script src="/js/toggle_password.js"></script>
 
 </html>

@@ -7,9 +7,6 @@
 <body>
     <%- include ('../partials/navbar') %>
     <div class="col-md-8 col-lg-5 px-5 m-auto text-<% if (lang == 'ar') { %>right<% } else { %>left<% } %> pt-2">
-        <p class="mb-1"><span class="todays_deliveries_text"></span> <b><%= daily_deliveries %></b> / <span class="tdys_profit_text"></span> <b><%= daily_profit %> <span class="dzd_text"></span></b></p>
-        <p class="my-1"><span class="dis_weeks_dlvrs_text"></span> <b><%= weekly_deliveries %></b> / <span class="dis_weeks_profit_text"></span> <b><%= weekly_profit %> <span class="dzd_text"></span></b></p>
-        <p class="my-1"><span class="ttl_delvrs_text"></span> <b><%= all_time_deliveries %></b> / <span class="all_profit_text"></span> <b><%= all_time_profit %> <span class="dzd_text"></span></b></p>
         <div id="requests" class="text-center">
             <img src="/img/loading-blue.gif" id="loading-img">
         </div>
