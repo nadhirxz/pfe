@@ -1058,9 +1058,7 @@ function getDelivery(key, value) {
 }
 
 function getDeliveriesOfUser(id) {
-	if (deliveries) {
-		return deliveries.filter(obj => obj.uid == id && isToday(obj.date));
-	}
+	if (deliveries) return deliveries.filter(e => e.uid == id && isToday(e.date)).map(e => deliveryInfoPage(e));
 	return [false];
 }
 
