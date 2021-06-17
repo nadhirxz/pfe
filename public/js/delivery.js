@@ -3,6 +3,7 @@ var loadingImg = document.getElementById('loading-img')
 
 var statusText = document.getElementById('delivery-status-info-text');
 var statusBtn = document.getElementById('delivery-status-info-btn');
+var statusDiv = document.getElementById('delivery-status');
 var driverInfo = document.getElementById('driver-info');
 let delivery_cancel_button = document.getElementById('did');
 if (delivery_cancel_button) {
@@ -21,7 +22,7 @@ var classes = [
     "btn-danger"
 ];
 
-statusBtn.parentElement.replaceChild(createTheButton(buttonTexts[status], classes[status]), statusBtn)
+$('#delivery-status-info-btn').replaceWith(createTheButton(buttonTexts[status], classes[status]))
 statusBtn.style.display = "block";
 
 statusText.innerHTML = texts[status];
@@ -37,15 +38,14 @@ socket.on('new_delivery_status', (data) => {
     $('#delivery-info').css('display', 'none');
     loadingImg.classList.remove('d-none');
     let i = data.status;
-    statusBtn.parentElement.replaceChild(createTheButton(buttonTexts[i], classes[i]), statusBtn)
-    statusBtn.innerHTML = button;
+    $('#delivery-status-info-btn').replaceWith(createTheButton(buttonTexts[i], classes[i]))
     statusText.innerHTML = texts[i];
     driverInfo = `${data.driver.name} - ${data.driver.phone}`;
 
     finish_time = data.expected_finish_time;
     if (typeof (finish_time) != 'undefined' && status < 3) {
         finish_time = new Date(data.expected_finish_time);
-        finishTime.innerHTML = `${pad(finishDate.getHours())}:${pad(finishDate.getMinutes())}`;
+        finishTime.innerHTML = `${pad(finish_time.getHours())}:${pad(finish_time.getMinutes())}`;
     }
 
     setTimeout(() => {
@@ -56,9 +56,9 @@ socket.on('new_delivery_status', (data) => {
 
 function createTheButton(text, theClass) {
     let button = document.createElement("button");
-    c_classes = ['ml-sm-6', 'col-11', 'btn', 'btn-pill'];
+    c_classes = ['ml-sm-6', 'col-11', 'col-sm-6', 'btn', 'btn-pill'];
     button.innerHTML = text;
-    button.setAttribute('id', 'delivery-status-info-text');
+    button.setAttribute('id', 'delivery-status-info-btn');
     c_classes.forEach(c => {
         button.classList.add(c);
     });
