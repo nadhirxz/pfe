@@ -102,6 +102,7 @@ db.query("SELECT * FROM users", (err, results) => {
 							result.delivery_from = parsePosition(result.delivery_from);
 							result.delivery_to = parsePosition(result.delivery_to);
 							result.weight = Boolean(result.weight.readIntBE(0, 1));
+							result.accepted = Boolean(result.accepted.readIntBE(0, 1));
 							deliveries.push(Object.assign({}, result));
 						});
 						fillDeliveriesBuffer();
@@ -1476,9 +1477,9 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		distance: parseFloat(distance),
 		status: 0,
 		driver: null,
+		accepted: false,
 		expected_finish_time: null,
 		date: new Date(),
-		waypoints: null,
 		partner: null,
 		item: null
 	}
@@ -1494,7 +1495,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.expected_finish_time, delivery.date, delivery.waypoints, delivery.partner, delivery.item], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.accepted, delivery.expected_finish_time, delivery.date, delivery.partner, delivery.item], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {

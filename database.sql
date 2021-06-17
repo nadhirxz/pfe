@@ -70,7 +70,7 @@ CREATE TABLE deliveries (
 	driver VARCHAR(8),
 	expected_finish_time TIMESTAMP,
 	date TIMESTAMP,
-	waypoints VARCHAR(100),
+	accepted BIT,
 	partner VARCHAR(8),
 	item VARCHAR(8),
 	FOREIGN KEY (uid) REFERENCES users(id),
