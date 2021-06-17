@@ -63,6 +63,7 @@ CREATE TABLE deliveries (
 	delivery_to VARCHAR(50),
 	price INT(8),
 	thing VARCHAR(40),
+	recipients_phone VARCHAR(10),
 	weight BIT,
 	distance FLOAT,
 	status INT(1),
