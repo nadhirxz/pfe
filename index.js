@@ -753,7 +753,7 @@ app.get('/admin/new-key', checkAdmin, (req, res) => {
 
 app.post('/admin/new-key', checkAdmin, (req, res) => {
 	let { secret, phone, type, percentage } = req.body;
-	db.query("INSERT INTO secretkeys VALUES (?,?,?,?)", [randomHash(8), generateKey(secret, phone, parseInt(type)), secret, parseInt(percentage) || null]);
+	db.query("INSERT INTO secretkeys VALUES (?,?,?,?)", [randomHash(4), generateKey(secret, phone, parseInt(type)), secret, parseInt(percentage) || null]);
 	res.redirect('/admin');
 });
 
