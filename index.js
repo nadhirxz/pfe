@@ -705,7 +705,7 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 	// 1 = accepted and didn't find a driver
 	// 2 = distance too far
 	// 3 = not in work hours range
-	console.log(data)
+
 	if (data.distance > settings.maxDeliveryDistance || getDistance(data.from, settings.AlgiersPos) > settings.maxDeliveryDistance || getDistance(data.to, settings.AlgiersPos) > settings.maxDeliveryDistance) {
 		dataToSend.status = 2;
 	} else if (inWorkHours()) {
