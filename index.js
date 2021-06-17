@@ -48,6 +48,7 @@ var deliveries = [];
 var partners = [];
 var items = [];
 var drivers = [];
+var tasks = [];
 var admins = [];
 var we_are_working_now = true;
 var partners_schedule = [];
@@ -105,12 +106,29 @@ db.query("SELECT * FROM users", (err, results) => {
 						});
 						fillDeliveriesBuffer();
 
-						db.query("SELECT * FROM secretkeys", (err, results) => {
+						db.query("SELECT * FROM tasks", (err, results) => {
 							results.forEach(result => {
-								secretkeys.push(Object.assign({}, result));
+								tasks.push(Object.assign({}, result));
 							});
-						});
+							db.query("SELECT * FROM current_tasks", (err, results) => {
+								let current_tasks = [];
+								results.forEach(result => {
+									current_tasks.push(Object.assign({}, result));
+								});
 
+								current_tasks.forEach(task => {
+									let driver = getUser('id', task.driver);
+									if (driver) driver.current_task = task.delivery;
+								});
+
+								db.query("SELECT * FROM secretkeys", (err, results) => {
+									results.forEach(result => {
+										secretkeys.push(Object.assign({}, result));
+									});
+								});
+							});
+
+						});
 					});
 				});
 			});
@@ -1076,6 +1094,24 @@ io.on('connection', (socket) => {
 	});
 
 
+	// Driver stuff
+	socket.on('driver_connected', (data) => {
+		user.pos = data;
+		user.socket = socket.id;
+		user.status = 1;
+		newDriverConnected(user.id);
+		socket.emit('driver_tasks_info', {
+			tasks: getTasksOfDriver(user.id),
+			current_task: user.current_task,
+		});
+	});
+	socket.on('driver_position', (data) => {
+		user.pos = data;
+		user.socket = socket.id;
+		user.status = 1;
+	});
+
+
 	// Disconnection
 	socket.on('disconnect', function () {
 		if (user && user.socket) {
@@ -1223,6 +1259,9 @@ function getPartnersInfo(forAdmin) {
 	});
 }
 
+function getDriverTasks(driverID) {
+	return tasks.filter(e => e.driver == driverID);
+}
 
 
 // Some validations and stuff
@@ -1487,13 +1526,13 @@ function handleNewDelivery(delivery, driverConnected) {
 
 			delivery.driver = driver.id;
 
-			if (driver.tasks) driver.tasks.push(delivery.id);
-			else driver.tasks = [delivery.id];
+			db.query("INSERT INTO tasks VALUES (?,?)", [delivery.id, driver.id], (err, results) => {
+				if (!err) tasks.push({ delivery: delivery.id, driver: driver.id });
+			});
 
-			if (driver.available_in) driver.available_in.push(Math.ceil((time + delivery.takes_time) / settings.nearestMinute) * settings.nearestMinute);
-			else driver.available_in = [Math.ceil((time + delivery.takes_time) / settings.nearestMinute) * settings.nearestMinute];
+			if (driver.available_in) driver.available_in.push(Math.ceil((time + (delivery.distance / settings.driverSpeed) * 60) / settings.nearestMinute) * settings.nearestMinute);
+			else driver.available_in = [Math.ceil((time + (delivery.distance / settings.driverSpeed) * 60) / settings.nearestMinute) * settings.nearestMinute];
 
-			db.query("INSERT INTO current_tasks VALUES (?,?)", [driver.id, delivery.id]);
 			db.query("UPDATE deliveries SET driver=?, status=?, expected_finish_time=?", [delivery.driver, delivery.status, delivery.expected_finish_time]);
 
 			if (deliveriesBuffer.includes(delivery)) {
@@ -1549,4 +1588,56 @@ function deliveryInfoPage(delivery) {
 		obj.thingsPrice = item.price || null;
 	}
 	return obj
+}
+
+// Driver stuff
+function newDriverConnected(driverID) {
+	while (deliveriesBuffer && deliveriesBuffer.length) {
+		let driverTasks = getDriverTasks(driverID);
+		if (driverTasks && driverTasks.length > settings.maxDriverDeliveriesAtOnce) break;
+		handleNewDelivery(deliveriesBuffer[0], true);
+	}
+}
+
+function getTasksOfDriver(driverID) {
+	let t = [];
+	if (tasks) {
+		getDriverTasks(driverID).forEach(task => {
+			t.push(getDetailsToSendToDriver(getDelivery('id', task.delivery)))
+		});
+		return t;
+	}
+	return [];
+}
+
+function getDetailsToSendToDriver(delivery) {
+	if (delivery) {
+		let user = getUser('id', delivery.uid);
+		if (user) {
+			let data = {
+				id: delivery.id,
+				phone: user.phone,
+				name: user.name,
+				thing: delivery.thing,
+				recipients_phone: delivery.recipients_phone,
+				type: delivery.type,
+				price: delivery.price,
+				distance: delivery.distance,
+				from: delivery.delivery_from,
+				to: delivery.delivery_to,
+				expected_finish_time: delivery.expected_finish_time
+			}
+			if (delivery.type == 1) {
+				let partner = getPartner('id', delivery.partner);
+				if (typeof (partner) != 'undefined') {
+					data.partner = partner.name;
+					data.partner_phone = p.phone;
+				}
+			}
+			if (delivery.type == 2 && delivery.delivery_fromPlace) {
+				data.fromPlace = delivery.delivery_fromPlace;
+			}
+			return data;
+		}
+	}
 }
