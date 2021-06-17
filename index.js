@@ -1450,6 +1450,7 @@ function fillDeliveriesBuffer() {
 function deliveryInfoPage(delivery) {
 	let item = getItem('id', delivery.item);
 	let obj = {
+		id: delivery.id,
 		d_type: delivery.type,
 		status: delivery.status,
 		name: getUser('id', delivery.uid).name,
