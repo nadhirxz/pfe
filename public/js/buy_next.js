@@ -33,7 +33,7 @@ nextButton.addEventListener('click', () => {
 	if (!nextButton.classList.contains('disabled')) {
 		weight = parseInt(document.getElementById('delivery-weight').value) || 0;
 		delivery.fromPartner = deliverFromPartner;
-		if ($('#object-select').val() == 'other') delivery.thing = thingInput.value;
+		if (!$('#object-select').val() || $('#object-select').val() == 'other') delivery.thing = thingInput.value;
 		else delivery.thing = $('#object-select').val();
 		if (deliverFromPartner) {
 			delivery.fromPlace = selectedPlace;

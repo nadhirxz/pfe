@@ -16,6 +16,7 @@
                     <label class="deliver_from_text"></label>
                     <input type="text" class="form-control" value="<% if(partner == 'other') { %><%= other[lang] %><%} else { %><%= partner %><% } %>" disabled>
                 </div>
+				<% if (partner != 'other') { %>
 				<div class="form-group">
 					<label class="thing_text"></label>
 					<select id="object-select" class="custom-select" id="delivery-weight">
@@ -27,6 +28,7 @@
 						<option value="other" class="other_text" selected></option>
 					</select>
 				</div>
+				<% } %>
                 <div class="form-group" id="delivery-thing-div">
                     <label for="delivery-thing" class="object_name"></label>
                     <input type="text" class="form-control" id="thing" onkeyup="trackInput()">
