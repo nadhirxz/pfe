@@ -421,7 +421,7 @@ app.post('/partners/register', checkNotAuth, async (req, res) => {
 		if (phoneValid(phone)) {
 			let user = getUser('phone', phone);
 			if (user) {
-				return res.redirect('/partners?err=' + errors.phoneExistsErr);
+				return res.redirect('/partners?err=' + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
 			} else {
 				let secretkey = getSecretKey('secretKey', generateKey(secret, phone, 1));
 				if (secretkey) {
