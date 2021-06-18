@@ -1381,7 +1381,7 @@ function getLeastBusyDriver(from) {
 		if (onlineDrivers) {
 			onlineDrivers.forEach(driver => {
 				let travel_time = getTravelTime(driver.pos, from);
-				let t = getDriverAvailableIn(driver);
+				let t = driver.available_in;
 				t += travel_time + 1;
 				times.push(t);
 				d.push(driver);
@@ -1505,19 +1505,12 @@ function getTravelTime(pos, from) {
 	return Math.ceil(((getDistance(pos, from) / settings.driverSpeed) * 60) * (1 + settings.percentageAddedToTime / 100));
 }
 
-function getDriverAvailableIn(driver) {
-	if (driver.available_in) {
-		let time = 0;
-		driver.available_in.forEach(t => {
-			time += t;
-		});
-		return time;
-	}
-	return 0;
+function calculateTime(distance, speed) {
+	return Math.ceil((distance / (speed || settings.driverSpeed) / settings.nearestMinute) * settings.nearestMinute);
 }
 
 function willDeliveryExceedOurWorkTime(driver, timeToFinish) {
-	let now = Date.now() + (getDriverAvailableIn(driver) + timeToFinish) * 60 * 1000;
+	let now = Date.now() + (driver.available_in + timeToFinish) * 60 * 1000;
 	return !inWorkHours(now);
 }
 
@@ -1679,9 +1672,6 @@ function handleNewDelivery(delivery, driverConnected) {
 				if (!err) tasks.push({ delivery: delivery.id, driver: driver.id });
 			});
 
-			if (driver.available_in) driver.available_in.push(Math.ceil((time + (delivery.distance / settings.driverSpeed) * 60) / settings.nearestMinute) * settings.nearestMinute);
-			else driver.available_in = [Math.ceil((time + (delivery.distance / settings.driverSpeed) * 60) / settings.nearestMinute) * settings.nearestMinute];
-
 			db.query("UPDATE deliveries SET driver=?, status=?, expected_finish_time=?", [delivery.driver, delivery.status, delivery.expected_finish_time]);
 
 			if (deliveriesBuffer.includes(delivery)) {
@@ -1691,6 +1681,8 @@ function handleNewDelivery(delivery, driverConnected) {
 			if (driver.socket && !driverConnected) {
 				io.to(driver.socket).emit('got_a_new_delivery', getDetailsToSendToDriver(delivery));
 			}
+
+			setDriverAvailableIn(driver);
 		}
 		sendNewDeliveryStatus(delivery.id);
 	}
@@ -1795,11 +1787,14 @@ function getDetailsToSendToDriver(delivery) {
 function setDriverAvailableIn(driver) {
 	let t = getDriverTasks(driver.id);
 	driver.available_in = [];
-	if (t) {
-		t.forEach(task => {
+	if (t && t.length) {
+		let lastDelivery = getDelivery('id', t[0].delivery);
+		driver.available_in = calculateTime(getDistance(driver.pos || lastDelivery.delivery_from, lastDelivery.delivery_from) + lastDelivery.distance);
+		t.slice(1).forEach(task => {
 			let delivery = getDelivery('id', task.delivery);
 			if (delivery) {
-				driver.available_in.push(Math.ceil((settings.driverRestTime + (delivery.distance / settings.driverSpeed) * 60) / settings.nearestMinute) * settings.nearestMinute);
+				driver.available_in += calculateTime(getDistance(lastDelivery.delivery_to, delivery.delivery_from) + delivery.distance) + settings.driverRestTime;
+				lastDelivery = delivery;
 			}
 		});
 	}
@@ -1815,7 +1810,7 @@ function removeDriverTask(driver, deliveryID) {
 					if (delivery && delivery.driver) {
 						driver = getDriver('id', driver);
 						if (driver) {
-							delivery.expected_finish_time = getExpectedFinishTime((getDriverAvailableIn(driver) + settings.driverRestTime), delivery.delivery_to, delivery.delivery_from);
+							delivery.expected_finish_time = getExpectedFinishTime((driver.available_in + settings.driverRestTime), delivery.delivery_to, delivery.delivery_from);
 							sendNewDeliveryStatus(delivery);
 						}
 					}
