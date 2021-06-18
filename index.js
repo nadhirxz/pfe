@@ -1091,7 +1091,7 @@ io.on('connection', (socket) => {
 	socket.on('accepted_delivery', (data) => {
 		var delivery = getDelivery('id', data);
 		if (delivery) {
-			if (!delivery.accepted) {
+			if (!delivery.accepted && deliveries.filter(e => e.driver == user.id && e.status == 2).length == 0) {
 				delivery.driver = user.id;
 				delivery.status = 2;
 				delivery.accepted = true;
