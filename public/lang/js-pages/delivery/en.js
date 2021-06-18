@@ -12,7 +12,7 @@ texts = [
     "Waiting driver to contact you.",
     "Driver accepted your delivery.",
     "Driver refused your delivery.",
-    "Your delivery has completed successfully.",
+    "Your delivery has been completed successfully.",
     "Your delivery failed in the process.",
     "No drivers available right now. Please wait .."
 ];
