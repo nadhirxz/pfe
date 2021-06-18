@@ -10,6 +10,7 @@ js_lang_text = {
     new_delivery_request_text: "طلب تسليم جديد",
     rcvr_phone_text: "رقم المستقبل :",
     route_text: "الطريق",
+	cancel_text: "إلغاء",
     failed_text: "فشل",
     completed_text: "اكتمال",
     refuse_text: "رفض",

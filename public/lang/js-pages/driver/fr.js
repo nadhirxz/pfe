@@ -10,6 +10,7 @@ js_lang_text = {
     new_delivery_request_text: "Nouvelle demande de livraison",
     rcvr_phone_text: "Tél du destinataire :",
     route_text: "Route",
+	cancel_text: "Annuler",
     failed_text: "Échoué",
     completed_text: "Terminé",
     refuse_text: "Refuser",

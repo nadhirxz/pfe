@@ -10,6 +10,7 @@ js_lang_text = {
     new_delivery_request_text: "New Delivery Request",
     rcvr_phone_text: "Receiver's phone :",
     route_text: "Route",
+    cancel_text: "Cancel",
     failed_text: "Failed",
     completed_text: "Completed",
     refuse_text: "Refuse",
@@ -25,13 +26,15 @@ texts = [
     "Are you sure you want to accept ?",
     "Are you sure you want to refuse ?",
     "Complete delivery ?",
-    "Failed delivery ?"
+    "Failed delivery ?",
+	"Remove delivery ?"
 ];
 buttonTexts = [
     "Accept",
     "Refuse",
     "Complete",
-    "Fail"
+    "Fail",
+	"Remove"
 ];
 
 function pad(n, z) {
