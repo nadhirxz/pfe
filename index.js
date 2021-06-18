@@ -1144,122 +1144,14 @@ io.on('connection', (socket) => {
 			newDriverConnected(user);
 		}
 	});
-	// socket.on('completed_delivery', (data) => {
-	// 	var delivery = getDelivery('id', data);
-	// 	if (delivery) {
-	// 		user = getUser('id', delivery.driver);
-	// 		delivery.status = 4;
-	// 		delete delivery.expected_finish_time;
-	// 		sendNewDeliveryStatus(data);
-	// 		removeDriverTask(user, data);
-
-	// 		if (user.winner_delivery == delivery.id) delete user.winner_delivery;
-
-	// 		if (user.daily_deliveries) user.daily_deliveries += 1;
-	// 		else user.daily_deliveries = 1;
-
-	// 		if (user.weekly_deliveries) user.weekly_deliveries += 1;
-	// 		else user.weekly_deliveries = 1;
-
-	// 		if (user.all_time_deliveries) user.all_time_deliveries += 1;
-	// 		else user.all_time_deliveries = 1;
-
-	// 		if (user.daily_profit) user.daily_profit += delivery.price;
-	// 		else user.daily_profit = delivery.price;
-
-	// 		if (user.weekly_profit) user.weekly_profit += delivery.price;
-	// 		else user.weekly_profit = delivery.price;
-
-	// 		if (user.all_time_profit) user.all_time_profit += delivery.price;
-	// 		else user.all_time_profit = delivery.price;
-
-	// 		let u = getUser('id', delivery.uid);
-
-	// 		if (u) {
-	// 			if (u.weekly_deliveries) u.weekly_deliveries += 1;
-	// 			else u.weekly_deliveries = 1;
-
-	// 			if (u.weekly_spending) u.weekly_spending += delivery.price;
-	// 			else u.weekly_spending = delivery.price;
-
-	// 			if (u.all_time_deliveries) u.all_time_deliveries += 1;
-	// 			else u.all_time_deliveries = 1;
-
-	// 			if (u.all_time_spending) u.all_time_spending += delivery.price;
-	// 			else u.all_time_spending = delivery.price;
-
-	// 			db.collection('users').updateOne({ id: u.id }, {
-	// 				$set: {
-	// 					weekly_deliveries: u.weekly_deliveries,
-	// 					weekly_spending: u.weekly_spending,
-	// 					all_time_deliveries: u.all_time_deliveries,
-	// 					all_time_spending: u.all_time_spending
-	// 				}
-	// 			});
-	// 		}
-
-	// 		if (typeof (delivery.partner) != 'undefined') {
-	// 			let p = getUser('id', getPlace('id', delivery.partner).uid);
-	// 			if (p) {
-	// 				if (p.client_deliveries_amount) p.client_deliveries_amount += delivery.price;
-	// 				else p.client_deliveries_amount = delivery.price;
-	// 				db.collection('users').updateOne({ id: p.id }, { $set: { client_deliveries_amount: p.client_deliveries_amount } });
-	// 			}
-	// 		}
-
-	// 		db.collection('users').updateOne({ id: user.id }, {
-	// 			$set: {
-	// 				available_in: user.available_in,
-	// 				daily_deliveries: user.daily_deliveries,
-	// 				weekly_deliveries: user.weekly_deliveries,
-	// 				all_time_deliveries: user.all_time_deliveries,
-	// 				daily_profit: user.daily_profit,
-	// 				weekly_profit: user.weekly_profit,
-	// 				all_time_profit: user.all_time_profit,
-	// 				current_task: user.current_task,
-	// 				tasks: user.tasks
-	// 			}
-	// 		});
-
-	// 		daily_deliveries += 1;
-	// 		weekly_deliveries += 1;
-	// 		all_time_deliveries += 1;
-
-	// 		daily_profit += delivery.price;
-	// 		weekly_profit += delivery.price;
-	// 		all_time_profit += delivery.price;
-
-	// 		db.collection('finance').updateOne({ id: 'today' }, { $set: { deliveries: daily_deliveries, profit: daily_profit } });
-	// 		db.collection('finance').updateOne({ id: 'this_week' }, { $set: { deliveries: weekly_deliveries, profit: weekly_profit } });
-	// 		db.collection('finance').updateOne({ id: 'all_time' }, { $set: { deliveries: all_time_profit, profit: all_time_deliveries } });
-
-	// 		db.collection('deliveries').updateOne({ id: data }, { $set: { status: delivery.status } });
-
-	// 		newDriverConnected(user);
-	// 	}
-	// });
-	// socket.on('failed_delivery', (data) => {
-	// 	var delivery = getDelivery('id', data);
-	// 	if (delivery) {
-	// 		delivery.status = 5;
-	// 		delete delivery.expected_finish_time;
-	// 		sendNewDeliveryStatus(data);
-	// 		removeDriverTask(user, data);
-
-	// 		if (user.winner_delivery == delivery.id) user.winner = true;
-
-	// 		db.collection('users').updateOne({ id: user.id }, {
-	// 			$set: {
-	// 				available_in: user.available_in,
-	// 				current_task: user.current_task,
-	// 				tasks: user.tasks
-	// 			}
-	// 		});
-	// 		db.collection('deliveries').updateOne({ id: data }, { $set: { status: delivery.status } });
-
-	// 		newDriverConnected(user);
-	// 	}
-	// });
+	socket.on('completed_delivery', (data) => {
+		let delivery = getDelivery('id', data);
+		if (delivery) finishedDelivery(delivery, getUser(delivery.driver), 4);
+	});
+	socket.on('failed_delivery', (data) => {
+		let delivery = getDelivery('id', data);
+		if (delivery) finishedDelivery(delivery, getUser(delivery.driver), 5);
+	});
 
 	// Disconnection
 	socket.on('disconnect', function () {
@@ -1819,4 +1711,20 @@ function removeDriverTask(driver, deliveryID) {
 			}
 		});
 	}
+}
+
+function finishedDelivery(delivery, driver, status) {
+	delivery.status = status;
+	delivery.finish_time = new Date();
+	delete delivery.expected_finish_time;
+
+	sendNewDeliveryStatus(delivery.id);
+	removeDriverTask(driver, delivery.id);
+
+	db.query("DELETE FROM tasks WHERE driver=? AND delivery=?", [delivery.driver, delivery.id]);
+	db.query("DELETE FROM current_tasks WHERE driver=? AND delivery=?", [delivery.driver, delivery.id]);
+
+	db.query("UPDATE deliveries SET status=?, finish_time=? WHERE id=?", [delivery.status, delivery.finish_time, delivery.id]);
+
+	newDriverConnected(driver);
 }
