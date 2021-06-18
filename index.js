@@ -48,11 +48,9 @@ var deliveries = [];
 var partners = [];
 var items = [];
 var drivers = [];
-var tasks = [];
 var admins = [];
 var we_are_working_now = true;
 var partners_schedule = [];
-var deliveriesBuffer = [];
 var secretkeys = [];
 
 // Database connection
@@ -105,32 +103,11 @@ db.query("SELECT * FROM users", (err, results) => {
 							result.accepted = Boolean(result.accepted.readIntBE(0, 1));
 							deliveries.push(Object.assign({}, result));
 						});
-						fillDeliveriesBuffer();
 
-						db.query("SELECT * FROM tasks", (err, results) => {
+						db.query("SELECT * FROM secretkeys", (err, results) => {
 							results.forEach(result => {
-								tasks.push(Object.assign({}, result));
+								secretkeys.push(Object.assign({}, result));
 							});
-							db.query("SELECT * FROM current_tasks", (err, results) => {
-								let current_tasks = [];
-								results.forEach(result => {
-									current_tasks.push(Object.assign({}, result));
-								});
-
-								current_tasks.forEach(task => {
-									let driver = getUser('id', task.driver);
-									if (driver) driver.current_task = task.delivery;
-								});
-
-								drivers.forEach(driver => setDriverAvailableIn(driver));
-
-								db.query("SELECT * FROM secretkeys", (err, results) => {
-									results.forEach(result => {
-										secretkeys.push(Object.assign({}, result));
-									});
-								});
-							});
-
 						});
 					});
 				});
@@ -739,15 +716,15 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 			} else if (data.thingsPrice) {
 				dataToSend.thingsPrice = parseInt(data.thingsPrice) || 0;
 			}
-			let d = getLeastBusyDriver(data.from);
-			if (d == 'no driver available right now') {
+			let d = getOnlineDrivers();
+			if (!(d && d.length)) {
 				user.hash = generateHash(('' + data.distance).substring(0, 5), '' + user.last_delivery_price);
 				dataToSend.status = 1;
 				dataToSend.price = user.last_delivery_price;
 			} else {
 				let timeToFinish = Math.ceil((d.time + ((data.distance / settings.driverSpeed) * 60)) / settings.nearestMinute) * settings.nearestMinute;
 
-				if (willDeliveryExceedOurWorkTime(d.driver, timeToFinish)) {
+				if (willDeliveryExceedOurWorkTime(timeToFinish)) {
 					dataToSend.status = 5;
 				} else {
 					user.hash = generateHash('' + data.distance, '' + user.last_delivery_price);
@@ -1102,11 +1079,7 @@ io.on('connection', (socket) => {
 		user.pos = data;
 		user.socket = socket.id;
 		user.status = 1;
-		newDriverConnected(user.id);
-		socket.emit('driver_tasks_info', {
-			tasks: getTasksOfDriver(user.id),
-			current_task: user.current_task,
-		});
+		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d)));
 	});
 	socket.on('driver_position', (data) => {
 		user.pos = data;
@@ -1117,16 +1090,21 @@ io.on('connection', (socket) => {
 	// Delivery handling by driver
 	socket.on('accepted_delivery', (data) => {
 		var delivery = getDelivery('id', data);
-		if (delivery && user.current_task == null) {
-			delivery.status = 2;
-			delivery.accepted = true;
-			user.current_task = data;
+		if (delivery) {
+			if (!delivery.accepted) {
+				delivery.driver = user.id;
+				delivery.status = 2;
+				delivery.accepted = true;
+				delivery.expected_finish_time = new Date(new Date().getTime() + 60 * 10000); // TODO
 
-			db.query("INSERT INTO current_tasks VALUES (?,?)", [user.id, delivery.id]);
-			db.query("UPDATE deliveries SET status=?, accepted=?", [delivery.status, delivery.accepted ? 1 : 0]);
+				db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, expected_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.expected_finish_time, delivery.id]);
 
-			sendNewDeliveryStatus(data);
-			socket.emit('accepted_delivery_approve');
+				sendNewDeliveryStatus(data);
+
+				socket.emit('accepted_delivery_approve', delivery.id);
+			} else {
+				socket.emit('accepted_delivery_not_approve', delivery.id);
+			}
 		}
 	});
 	socket.on('refused_delivery', (data) => {
@@ -1135,22 +1113,29 @@ io.on('connection', (socket) => {
 			delivery.status = 3;
 			delete delivery.expected_finish_time;
 			sendNewDeliveryStatus(data);
-			removeDriverTask(user, data);
 
-			setDriverAvailableIn(user.id);
+			db.query("UPDATE deliveries SET status=? WHERE id=?", [delivery.status, delivery.id]);
+		}
+	});
+	socket.on('cancel_delivery', (data) => {
+		var delivery = getDelivery('id', data);
+		if (delivery) {
+			delivery.status = getOnlineDrivers().length ? 1 : 0;
+			delivery.driver = null;
+			delivery.accepted = false;
+			delete delivery.expected_finish_time;
+			sendNewDeliveryStatus(data);
 
-			db.query("UPDATE deliveries SET status=?", [delivery.status]);
-
-			newDriverConnected(user);
+			db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, expected_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.expected_finish_time, delivery.id]);
 		}
 	});
 	socket.on('completed_delivery', (data) => {
 		let delivery = getDelivery('id', data);
-		if (delivery) finishedDelivery(delivery, getUser(delivery.driver), 4);
+		if (delivery) finishedDelivery(delivery, 4);
 	});
 	socket.on('failed_delivery', (data) => {
 		let delivery = getDelivery('id', data);
-		if (delivery) finishedDelivery(delivery, getUser(delivery.driver), 5);
+		if (delivery) finishedDelivery(delivery, 5);
 	});
 
 	// Disconnection
@@ -1265,28 +1250,9 @@ function todaysDate() {
 	return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
 }
 
-function getLeastBusyDriver(from) {
-	if (drivers) {
-		let times = [];
-		let d = [];
-		let onlineDrivers = drivers.filter(obj => obj.status == 1);
-		if (onlineDrivers) {
-			onlineDrivers.forEach(driver => {
-				let travel_time = getTravelTime(driver.pos, from);
-				let t = driver.available_in;
-				t += travel_time + 1;
-				times.push(t);
-				d.push(driver);
-			});
-			if (times.length) {
-				return {
-					driver: d[times.indexOf(Math.min(...times))],
-					time: Math.min(...times)
-				} // least busy driver
-			}
-		}
-	}
-	return 'no driver available right now';
+function getOnlineDrivers() {
+	if (drivers && drivers.length) return drivers.filter(obj => obj.status == 1);
+	return [];
 }
 
 function getPartnersInfo(forAdmin) {
@@ -1300,9 +1266,6 @@ function getPartnersInfo(forAdmin) {
 	});
 }
 
-function getDriverTasks(driverID) {
-	return tasks.filter(e => e.driver == driverID);
-}
 
 
 // Some validations and stuff
@@ -1397,13 +1360,9 @@ function getTravelTime(pos, from) {
 	return Math.ceil(((getDistance(pos, from) / settings.driverSpeed) * 60) * (1 + settings.percentageAddedToTime / 100));
 }
 
-function calculateTime(distance, speed) {
-	return Math.ceil((distance / (speed || settings.driverSpeed) / settings.nearestMinute) * settings.nearestMinute);
-}
-
-function willDeliveryExceedOurWorkTime(driver, timeToFinish) {
-	let now = Date.now() + (driver.available_in + timeToFinish) * 60 * 1000;
-	return !inWorkHours(now);
+function willDeliveryExceedOurWorkTime(timeToFinish) {
+	let time = Date.now() + timeToFinish * 60 * 1000;
+	return !inWorkHours(time);
 }
 
 function isToday(date) {
@@ -1514,7 +1473,8 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		expected_finish_time: null,
 		date: new Date(),
 		partner: null,
-		item: null
+		item: null,
+		finish_time: null
 	}
 
 	if (type == 1) {
@@ -1528,56 +1488,20 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.expected_finish_time, delivery.date, delivery.partner, delivery.item], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.expected_finish_time, delivery.date, delivery.partner, delivery.item, delivery.finish_time], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {
-			let user = getUser('id', uid)
-			user.last_delivery = delivery.date;
-			user.hash = '';
-			handleNewDelivery(delivery);
+			let user = getUser('id', uid);
+			if (user) {
+				user.last_delivery = delivery.date;
+				user.hash = '';
+			}
+			sendDeliveryToDrivers(delivery);
 		}
 	});
 
 	return true;
-}
-
-function handleNewDelivery(delivery, driverConnected) {
-	if (delivery) {
-		let result = getLeastBusyDriver(delivery.delivery_from);
-
-		if (result == 'no driver available right now') {
-			delivery.status = 6;
-			deliveriesBuffer.push(delivery);
-			db.query("UPDATE deliveries SET status=?", [delivery.status]);
-		} else {
-			let driver = result.driver;
-			let time = result.time + settings.driverRestTime; // result.time = leastbusyrdriver.available_in
-
-			delivery.status = 1;
-
-			delivery.expected_finish_time = new Date(getExpectedFinishTime(time, delivery.delivery_to, delivery.delivery_from));
-
-			delivery.driver = driver.id;
-
-			db.query("INSERT INTO tasks VALUES (?,?)", [delivery.id, driver.id], (err, results) => {
-				if (!err) tasks.push({ delivery: delivery.id, driver: driver.id });
-			});
-
-			db.query("UPDATE deliveries SET driver=?, status=?, expected_finish_time=?", [delivery.driver, delivery.status, delivery.expected_finish_time]);
-
-			if (deliveriesBuffer.includes(delivery)) {
-				deliveriesBuffer = deliveriesBuffer.filter(obj => obj.id != delivery.id);
-			}
-
-			if (driver.socket && !driverConnected) {
-				io.to(driver.socket).emit('got_a_new_delivery', getDetailsToSendToDriver(delivery));
-			}
-
-			setDriverAvailableIn(driver);
-		}
-		sendNewDeliveryStatus(delivery.id);
-	}
 }
 
 function getExpectedFinishTime(time, delivery_to, delivery_from) {
@@ -1590,10 +1514,6 @@ function sendNewDeliveryStatus(delivery) {
 	if (delivery) {
 		io.to(delivery.id).emit('new_delivery_status');
 	}
-}
-
-function fillDeliveriesBuffer() {
-	if (deliveries) deliveriesBuffer = deliveries.filter(obj => obj.status == 6);
 }
 
 function deliveryInfoPage(delivery) {
@@ -1620,25 +1540,6 @@ function deliveryInfoPage(delivery) {
 }
 
 // Driver stuff
-function newDriverConnected(driverID) {
-	while (deliveriesBuffer && deliveriesBuffer.length) {
-		let driverTasks = getDriverTasks(driverID);
-		if (driverTasks && driverTasks.length > settings.maxDriverDeliveriesAtOnce) break;
-		handleNewDelivery(deliveriesBuffer[0], true);
-	}
-}
-
-function getTasksOfDriver(driverID) {
-	let t = [];
-	if (tasks) {
-		getDriverTasks(driverID).forEach(task => {
-			t.push(getDetailsToSendToDriver(getDelivery('id', task.delivery)))
-		});
-		return t;
-	}
-	return [];
-}
-
 function getDetailsToSendToDriver(delivery) {
 	if (delivery) {
 		let user = getUser('id', delivery.uid);
@@ -1655,7 +1556,8 @@ function getDetailsToSendToDriver(delivery) {
 				from: delivery.delivery_from,
 				to: delivery.delivery_to,
 				expected_finish_time: delivery.expected_finish_time,
-				accepted: delivery.accepted
+				accepted: delivery.accepted,
+				date: delivery.date
 			}
 			if (delivery.type == 1) {
 				let partner = getPartner('id', delivery.partner);
@@ -1672,55 +1574,21 @@ function getDetailsToSendToDriver(delivery) {
 	}
 }
 
-function setDriverAvailableIn(driver) {
-	let t = getDriverTasks(driver.id);
-	driver.available_in = [];
-	if (t && t.length) {
-		let lastDelivery = getDelivery('id', t[0].delivery);
-		driver.available_in = calculateTime(getDistance(driver.pos || lastDelivery.delivery_from, lastDelivery.delivery_from) + lastDelivery.distance);
-		t.slice(1).forEach(task => {
-			let delivery = getDelivery('id', task.delivery);
-			if (delivery) {
-				driver.available_in += calculateTime(getDistance(lastDelivery.delivery_to, delivery.delivery_from) + delivery.distance) + settings.driverRestTime;
-				lastDelivery = delivery;
-			}
-		});
-	}
-}
-
-function removeDriverTask(driver, deliveryID) {
-	let t = getDriverTasks(driver);
-	if (t) {
-		db.query("DELETE FROM tasks WHERE driver=? AND delivery=?", [driver, deliveryID], (err, results) => {
-			if (!err) {
-				t.forEach(task => {
-					let delivery = getDelivery('id', task);
-					if (delivery && delivery.driver) {
-						driver = getDriver('id', driver);
-						if (driver) {
-							delivery.expected_finish_time = getExpectedFinishTime((driver.available_in + settings.driverRestTime), delivery.delivery_to, delivery.delivery_from);
-							sendNewDeliveryStatus(delivery);
-						}
-					}
-				});
-				tasks = tasks.filter(e => e.delivery != deliveryID);
-			}
-		});
-	}
-}
-
-function finishedDelivery(delivery, driver, status) {
+function finishedDelivery(delivery, status) {
 	delivery.status = status;
 	delivery.finish_time = new Date();
 	delete delivery.expected_finish_time;
 
 	sendNewDeliveryStatus(delivery.id);
-	removeDriverTask(driver, delivery.id);
 
-	db.query("DELETE FROM tasks WHERE driver=? AND delivery=?", [delivery.driver, delivery.id]);
-	db.query("DELETE FROM current_tasks WHERE driver=? AND delivery=?", [delivery.driver, delivery.id]);
+	db.query("UPDATE deliveries SET status=?, expected_finish_time=?, finish_time=? WHERE id=?", [delivery.status, null, delivery.finish_time, delivery.id]);
+}
 
-	db.query("UPDATE deliveries SET status=?, finish_time=? WHERE id=?", [delivery.status, delivery.finish_time, delivery.id]);
-
-	newDriverConnected(driver);
+function sendDeliveryToDrivers(delivery) {
+	let online = getOnlineDrivers();
+	if (online) {
+		online.forEach(driver => {
+			if (driver && driver.socket) io.to(driver.socket).emit('new_delivery', getDetailsToSendToDriver(delivery));
+		});
+	}
 }

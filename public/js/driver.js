@@ -5,37 +5,33 @@ var requests = document.getElementById('requests');
 var modalTitle = document.getElementById('modal-title');
 var modalButton = document.getElementById('modal-button');
 
-var current_delivery = false;
-var current_function = false;
-
 sendPosition("driver_connected");
 
 setInterval(() => {
 	sendPosition("driver_position")
 }, 1000 * 60 * 3); // 3 minutes
 
-socket.on("driver_tasks_info", (data) => {
-	requests.removeChild(document.getElementById('loading-img'));
-	if (data && data.tasks && data.tasks.length) {
-		let c_task = data.tasks.find(obj => obj.id == data.current_task);
-		if (c_task) {
-			createNewRequestDiv(c_task, 1);
+socket.on("deliveries", async (data) => {
+	if (data && data.length) {
+		deliveries = [...data.filter(e => e.accepted).sort((a, b) => (a.date > b.date) ? 1 : -1), ...data.filter(e => !e.accepted).sort((a, b) => (a.date > b.date) ? 1 : -1)];
+		for (const delivery of deliveries) {
+			let d = await createNewRequestDiv(delivery, delivery.accepted);
+			requests.appendChild(d);
+			if (document.getElementById('loading-img')) requests.removeChild(document.getElementById('loading-img'));
 		}
-		data.tasks.forEach(task => {
-			if (!c_task || task.id != c_task.id) createNewRequestDiv(task);
-		});
-		deliveries = data.tasks;
 	} else {
 		requests.innerHTML = `<hr class="my-5"><h5>${js_lang_text.no_deliveries}</h5>`;
 	}
+	if (document.getElementById('loading-img')) requests.removeChild(document.getElementById('loading-img'));
 });
 
-socket.on('got_a_new_delivery', (data) => {
-	createNewRequestDiv(data, 'new');
+socket.on('new_delivery', (data) => {
+	createNewRequestDiv(data, 'new').then(d => requests.appendChild(d));
 });
+
 socket.on('canceled_delivery', (data) => {
 	let the_div = document.getElementById(data);
-	the_div.parentElement.removeChild(the_div);
+	requests.removeChild(the_div);
 });
 
 async function sendPosition(socketmsg) {
@@ -51,7 +47,7 @@ function getPosition() {
 }
 
 
-async function createNewRequestDiv(delivery, c) {
+async function createNewRequestDiv(delivery, deliveryStatus) {
 	let request_div = document.createElement("div");
 	request_div.setAttribute('id', delivery.id);
 	request_div.classList.add('d-flex');
@@ -60,8 +56,7 @@ async function createNewRequestDiv(delivery, c) {
 
 	let inner_div = document.createElement("div");
 	inner_div.classList.add('jumbotron');
-	if (c == 1) inner_div.classList.add('bg-warning');
-	if (c == 'new') {
+	if (deliveryStatus === 'new') {
 		inner_div.style.backgroundColor = '#FF7373';
 		let notification_text = js_lang_text.notification_text(delivery.price, delivery.distance, delivery.name);
 		if (typeof (delivery.partner) != 'undefined') notification_text += ` - ${delivery.name}`;
@@ -104,22 +99,35 @@ async function createNewRequestDiv(delivery, c) {
 		delivery.link = link + `&waypoints=${delivery.from[0]},${delivery.from[1]}`;
 	}
 
-	if (c == 1) {
+	if (deliveryStatus === true) {
 		let route_button = document.createElement("button");
+		inner_div.style.backgroundColor = '#FECDA0';
 		route_button.innerHTML = js_lang_text.route_text;
 		route_button.classList.add('btn');
 		route_button.classList.add('btn-info');
 		route_button.classList.add('mx-2');
 		inner_div.appendChild(route_button);
-		route_button.addEventListener('click', () => {
+		$(route_button).off();
+		$(route_button).on('click', () => {
 			window.open(delivery.link);
 		});
+
+		let cancel_button = document.createElement("button");
+		cancel_button.innerHTML = js_lang_text.cancel_text;
+		cancel_button.classList.add('btn');
+		cancel_button.classList.add('btn-warning');
+		cancel_button.classList.add('m-2');
+		cancel_button.setAttribute('data-toggle', 'modal');
+		cancel_button.setAttribute('data-target', '#modal');
+		cancel_button.setAttribute('id', 'failed-button');
+		inner_div.appendChild(cancel_button);
+
 
 		let failed_button = document.createElement("button");
 		failed_button.innerHTML = js_lang_text.failed_text;
 		failed_button.classList.add('btn');
 		failed_button.classList.add('btn-danger');
-		failed_button.classList.add('mx-2');
+		failed_button.classList.add('m-2');
 		failed_button.setAttribute('data-toggle', 'modal');
 		failed_button.setAttribute('data-target', '#modal');
 		failed_button.setAttribute('id', 'failed-button');
@@ -129,29 +137,41 @@ async function createNewRequestDiv(delivery, c) {
 		completed_button.innerHTML = js_lang_text.completed_text;
 		completed_button.classList.add('btn');
 		completed_button.classList.add('btn-success');
-		completed_button.classList.add('mx-2');
+		completed_button.classList.add('m-2');
 		completed_button.setAttribute('data-toggle', 'modal');
 		completed_button.setAttribute('data-target', '#modal');
 		completed_button.setAttribute('id', 'completed-button');
 		inner_div.appendChild(completed_button);
 
-		completed_button.addEventListener('click', () => {
-			current_delivery = delivery.id;
-			current_function = completedDelivery;
+		$(completed_button).off();
+		$(completed_button).on('click', () => {
+			$('#modal-button').off();
+			$('#modal-button').on('click', () => completedDelivery(delivery.id));
 			modalTitle.innerHTML = texts[2];
 			modalButton.innerHTML = buttonTexts[2];
 			modalButton.className = "";
 			modalButton.classList.add('btn');
 			modalButton.classList.add('btn-success');
 		});
-		failed_button.addEventListener('click', () => {
-			current_delivery = delivery.id;
-			current_function = failedDelivery;
+		$(failed_button).off();
+		$(failed_button).on('click', () => {
+			$('#modal-button').off();
+			$('#modal-button').on('click', () => failedDelivery(delivery.id));
 			modalTitle.innerHTML = texts[3];
 			modalButton.innerHTML = buttonTexts[3];
 			modalButton.className = "";
 			modalButton.classList.add('btn');
 			modalButton.classList.add('btn-danger');
+		});
+		$(cancel_button).off();
+		$(cancel_button).on('click', () => {
+			$('#modal-button').off();
+			$('#modal-button').on('click', () => cancelDelivery(delivery.id));
+			modalTitle.innerHTML = texts[4];
+			modalButton.innerHTML = buttonTexts[4];
+			modalButton.className = "";
+			modalButton.classList.add('btn');
+			modalButton.classList.add('btn-warning');
 		});
 	} else {
 		let refuse_button = document.createElement("button");
@@ -174,18 +194,20 @@ async function createNewRequestDiv(delivery, c) {
 		accept_button.setAttribute('id', 'accept-button');
 		inner_div.appendChild(accept_button);
 
-		accept_button.addEventListener('click', () => {
-			current_delivery = delivery.id;
-			current_function = acceptDelivery;
+		$(accept_button).off();
+		$(accept_button).on('click', () => {
+			$('#modal-button').off();
+			$('#modal-button').on('click', () => acceptDelivery(delivery.id));
 			modalTitle.innerHTML = texts[0];
 			modalButton.innerHTML = buttonTexts[0];
 			modalButton.className = "";
 			modalButton.classList.add('btn');
 			modalButton.classList.add('btn-success');
 		});
-		refuse_button.addEventListener('click', () => {
-			current_delivery = delivery.id;
-			current_function = refuseDelivery;
+		$(refuse_button).off();
+		$(refuse_button).on('click', () => {
+			$('#modal-button').off();
+			$('#modal-button').on('click', () => refuseDelivery(delivery.id));
 			modalTitle.innerHTML = texts[1];
 			modalButton.innerHTML = buttonTexts[1];
 			modalButton.className = "";
@@ -195,105 +217,134 @@ async function createNewRequestDiv(delivery, c) {
 	}
 
 	request_div.appendChild(document.createElement('hr'));
-	requests.appendChild(request_div);
-	requests.appendChild(request_div);
+	return request_div;
 }
 
-function setCurrentDelivery(did) {
-	current_delivery = did;
-}
-
-function acceptDelivery() {
-	let delivery = getDelivery(current_delivery);
+function acceptDelivery(id) {
+	let delivery = getDelivery(id);
 
 	socket.emit("accepted_delivery", delivery.id);
+}
 
+socket.on('accepted_delivery_not_approve', (id) => {
+	let div = document.getElementById(id);
+	if (div) requests.removeChild(div);
+});
 
+socket.on('accepted_delivery_approve', (id) => {
+	let delivery = getDelivery(id)
+	let inner_div = document.getElementById(id).getElementsByClassName('jumbotron')[0];
+	inner_div.style.backgroundColor = '#FECDA0';
 
-	socket.on('accepted_delivery_approve', () => {
-		let inner_div = document.getElementById(current_delivery).getElementsByClassName('jumbotron')[0];
-		inner_div.style.backgroundColor = '#FECDA0';
+	let accept_button = inner_div.querySelector('#accept-button');
+	let refuse_button = inner_div.querySelector('#refuse-button');
 
-		let accept_button = inner_div.querySelector('#accept-button');
-		let refuse_button = inner_div.querySelector('#refuse-button');
+	if (accept_button && refuse_button) {
+		inner_div.removeChild(accept_button);
+		inner_div.removeChild(refuse_button);
+	}
+
+	let route_button = document.createElement("button");
+	route_button.innerHTML = js_lang_text.route_text;
+	route_button.classList.add('btn');
+	route_button.classList.add('btn-info');
+	route_button.classList.add('m-2');
+	inner_div.appendChild(route_button);
+
+	let cancel_button = document.createElement("button");
+	cancel_button.innerHTML = js_lang_text.cancel_text;
+	cancel_button.classList.add('btn');
+	cancel_button.classList.add('btn-warning');
+	cancel_button.classList.add('m-2');
+	cancel_button.setAttribute('data-toggle', 'modal');
+	cancel_button.setAttribute('data-target', '#modal');
+	cancel_button.setAttribute('id', 'failed-button');
+	inner_div.appendChild(cancel_button);
+
+	let failed_button = document.createElement("button");
+	failed_button.innerHTML = js_lang_text.failed_text;
+	failed_button.classList.add('btn');
+	failed_button.classList.add('btn-danger');
+	failed_button.classList.add('m-2');
+	failed_button.setAttribute('data-toggle', 'modal');
+	failed_button.setAttribute('data-target', '#modal');
+	failed_button.setAttribute('id', 'failed-button');
+	inner_div.appendChild(failed_button);
+
+	let completed_button = document.createElement("button");
+	completed_button.innerHTML = js_lang_text.completed_text;
+	completed_button.classList.add('btn');
+	completed_button.classList.add('btn-success');
+	completed_button.classList.add('m-2');
+	completed_button.setAttribute('data-toggle', 'modal');
+	completed_button.setAttribute('data-target', '#modal');
+	completed_button.setAttribute('id', 'completed-button');
+	inner_div.appendChild(completed_button);
+
+	$(route_button).off();
+	$(route_button).on('click', () => {
 		window.open(delivery.link);
-
-		accept_button.parentElement.removeChild(accept_button);
-		refuse_button.parentElement.removeChild(refuse_button);
-
-		let route_button = document.createElement("button");
-		route_button.innerHTML = js_lang_text.route_text;
-		route_button.classList.add('btn');
-		route_button.classList.add('btn-info');
-		route_button.classList.add('mx-2');
-		inner_div.appendChild(route_button);
-
-		let failed_button = document.createElement("button");
-		failed_button.innerHTML = js_lang_text.failed_text;
-		failed_button.classList.add('btn');
-		failed_button.classList.add('btn-danger');
-		failed_button.classList.add('mx-2');
-		failed_button.setAttribute('data-toggle', 'modal');
-		failed_button.setAttribute('data-target', '#modal');
-		failed_button.setAttribute('id', 'failed-button');
-		inner_div.appendChild(failed_button);
-
-		let completed_button = document.createElement("button");
-		completed_button.innerHTML = js_lang_text.completed_text;
-		completed_button.classList.add('btn');
-		completed_button.classList.add('btn-success');
-		completed_button.classList.add('mx-2');
-		completed_button.setAttribute('data-toggle', 'modal');
-		completed_button.setAttribute('data-target', '#modal');
-		completed_button.setAttribute('id', 'completed-button');
-		inner_div.appendChild(completed_button);
-
-		route_button.addEventListener('click', () => {
-			window.open(delivery.link);
-		});
-		completed_button.addEventListener('click', () => {
-			current_delivery = delivery.id;
-			current_function = completedDelivery;
-			modalTitle.innerHTML = texts[2];
-			modalButton.innerHTML = buttonTexts[2];
-			modalButton.className = "";
-			modalButton.classList.add('btn');
-			modalButton.classList.add('btn-success');
-		});
-		failed_button.addEventListener('click', () => {
-			current_delivery = delivery.id;
-			current_function = failedDelivery;
-			modalTitle.innerHTML = texts[3];
-			modalButton.innerHTML = buttonTexts[3];
-			modalButton.className = "";
-			modalButton.classList.add('btn');
-			modalButton.classList.add('btn-danger');
-		});
 	});
-}
+	$(completed_button).off();
+	$(completed_button).on('click', () => {
+		$('#modal-button').off();
+		$('#modal-button').on('click', () => completedDelivery(delivery.id));
+		modalTitle.innerHTML = texts[2];
+		modalButton.innerHTML = buttonTexts[2];
+		modalButton.className = "";
+		modalButton.classList.add('btn');
+		modalButton.classList.add('btn-success');
+	});
+	$(failed_button).off();
+	$(failed_button).on('click', () => {
+		$('#modal-button').off();
+		$('#modal-button').on('click', () => failedDelivery(delivery.id));
+		modalTitle.innerHTML = texts[3];
+		modalButton.innerHTML = buttonTexts[3];
+		modalButton.className = "";
+		modalButton.classList.add('btn');
+		modalButton.classList.add('btn-danger');
+	});
+	$(cancel_button).off();
+	$(cancel_button).on('click', () => {
+		$('#modal-button').off();
+		$('#modal-button').on('click', () => cancelDelivery(delivery.id));
+		modalTitle.innerHTML = texts[4];
+		modalButton.innerHTML = buttonTexts[4];
+		modalButton.className = "";
+		modalButton.classList.add('btn');
+		modalButton.classList.add('btn-warning');
+	});
+});
 
-function refuseDelivery() {
-	let delivery = getDelivery(current_delivery);
+
+function refuseDelivery(id) {
+	let delivery = getDelivery(id);
 	socket.emit("refused_delivery", delivery.id);
-	let div = document.getElementById(current_delivery);
-	div.parentElement.removeChild(div);
-	current_delivery = false;
+	let div = document.getElementById(id);
+	requests.removeChild(div);
 }
 
-function completedDelivery() {
-	let delivery = getDelivery(current_delivery);
+function completedDelivery(id) {
+	let delivery = getDelivery(id);
 	socket.emit("completed_delivery", delivery.id);
-	let div = document.getElementById(current_delivery);
-	div.parentElement.removeChild(div);
-	current_delivery = false;
+	let div = document.getElementById(id);
+	requests.removeChild(div);
 }
 
-function failedDelivery() {
-	let delivery = getDelivery(current_delivery);
+function failedDelivery(id) {
+	let delivery = getDelivery(id);
 	socket.emit("failed_delivery", delivery.id);
-	let div = document.getElementById(current_delivery);
-	div.parentElement.removeChild(div);
-	current_delivery = false;
+	let div = document.getElementById(id);
+	requests.removeChild(div);
+}
+
+function cancelDelivery(id) {
+	let delivery = getDelivery(id);
+	socket.emit("cancel_delivery", delivery.id);
+	let div = document.getElementById(id);
+	requests.removeChild(div);
+	createNewRequestDiv(delivery).then(d => requests.appendChild(d));
 }
 
 function getDelivery(id) {
