@@ -446,7 +446,7 @@ app.post('/register', checkNotAuth, (req, res) => {
 							last_delivery: 0,
 							reg_date: new Date()
 						}
-						db.query("INSERT INTO users VALUES (?,?,?,?,?,?)", [newUser.id, newUser.name, newUser.phone, newUser.password, newUser.confirmed, newUser.reg_date], (err, results) => {
+						db.query("INSERT INTO users VALUES (?,?,?,?,?,?)", [newUser.id, newUser.name, newUser.phone, newUser.password, newUser.confirmed ? 1 : 0, newUser.reg_date], (err, results) => {
 							if (err) return res.redirect('/register?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 							users.push(newUser);
 							sendPin(phone, getAndSetPageLanguage(req, res));
@@ -1123,7 +1123,7 @@ io.on('connection', (socket) => {
 			user.current_task = data;
 
 			db.query("INSERT INTO current_tasks VALUES (?,?)", [user.id, delivery.id]);
-			db.query("UPDATE deliveries SET status=?, accepted=?", [delivery.status, delivery.accepted]);
+			db.query("UPDATE deliveries SET status=?, accepted=?", [delivery.status, delivery.accepted ? 1 : 0]);
 
 			sendNewDeliveryStatus(data);
 			socket.emit('accepted_delivery_approve');
@@ -1528,7 +1528,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.accepted, delivery.expected_finish_time, delivery.date, delivery.partner, delivery.item], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.expected_finish_time, delivery.date, delivery.partner, delivery.item], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {
