@@ -1588,11 +1588,7 @@ function getExpectedFinishTime(time, delivery_to, delivery_from) {
 function sendNewDeliveryStatus(delivery) {
 	delivery = getDelivery('id', delivery);
 	if (delivery) {
-		io.to(delivery.id).emit('new_delivery_status', {
-			status: delivery.status,
-			driver: getDriver('id', delivery.driver),
-			expected_finish_time: delivery.expected_finish_time
-		});
+		io.to(delivery.id).emit('new_delivery_status');
 	}
 }
 
