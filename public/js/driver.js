@@ -153,7 +153,7 @@ async function createNewRequestDiv(delivery, c) {
 			modalButton.classList.add('btn');
 			modalButton.classList.add('btn-danger');
 		});
-	} else if (!delivery.accepted) {
+	} else {
 		let refuse_button = document.createElement("button");
 		refuse_button.innerHTML = js_lang_text.refuse_text;
 		refuse_button.classList.add('btn');
