@@ -1023,7 +1023,7 @@ app.get('*', (req, res) => {
 
 // Handling sockets
 io.on('connection', (socket) => {
-	let user = getUser('id', socket.request.session.uid) || {};
+	let user = getUser('id', socket.request.session.uid);
 	if (user) user.socket = socket.id;
 
 
@@ -1079,6 +1079,11 @@ io.on('connection', (socket) => {
 		user.pos = data;
 		user.socket = socket.id;
 		user.status = 1;
+		deliveries.filter(e => e.status == 0).forEach(delivery => {
+			db.query("UPDATE deliveries SET status=1 WHERE id=?", [delivery.id], (err, results) => {
+				if (!err) delivery.status = 1;
+			});
+		});
 		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d)));
 	});
 	socket.on('driver_position', (data) => {
@@ -1137,8 +1142,18 @@ io.on('connection', (socket) => {
 	});
 
 	// Disconnection
-	socket.on('disconnect', function () {
+	socket.on('disconnect', () => {
 		if (user && user.socket) {
+			if (user.type == 2) {
+				user.status = 0;
+				if (getOnlineDrivers().length == 0) {
+					deliveries.filter(e => e.status == 1).forEach(delivery => {
+						db.query("UPDATE deliveries SET status=0 WHERE id=?", [delivery.id], (err, results) => {
+							if (!err) delivery.status = 0;
+						});
+					});
+				}
+			}
 			let s = user.socket;
 			setTimeout(() => {
 				if (users.socket == s) delete user.socket;
@@ -1465,7 +1480,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		recipients_phone: phone || null,
 		weight: parseInt(weight),
 		distance: parseFloat(distance),
-		status: 0,
+		status: getOnlineDrivers().length ? 1 : 0,
 		driver: null,
 		accepted: false,
 		expected_finish_time: null,
