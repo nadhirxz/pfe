@@ -80,21 +80,6 @@ CREATE TABLE deliveries (
 	FOREIGN KEY (item) REFERENCES items(id)
 );
 
-CREATE TABLE tasks (
-	delivery VARCHAR(20) PRIMARY KEY,
-	driver VARCHAR(8),
-	FOREIGN KEY (delivery) REFERENCES deliveries(id),
-	FOREIGN KEY (driver) REFERENCES drivers(id)
-);
-
-CREATE TABLE current_tasks (
-	driver VARCHAR(8),
-	delivery VARCHAR(20),
-	PRIMARY KEY (driver, delivery),
-	FOREIGN KEY (driver) REFERENCES drivers(id),
-	FOREIGN KEY (delivery) REFERENCES deliveries(id)
-);
-
 CREATE TABLE finance (
 	id VARCHAR(10) NOT NULL,
 	deliveires INT(4) NOT NULL,
