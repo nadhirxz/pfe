@@ -221,15 +221,8 @@ async function createNewRequestDiv(delivery, deliveryStatus) {
 }
 
 function acceptDelivery(id) {
-	let delivery = getDelivery(id);
-
-	socket.emit("accepted_delivery", delivery.id);
+	socket.emit("accepted_delivery", id);
 }
-
-socket.on('accepted_delivery_not_approve', (id) => {
-	let div = document.getElementById(id);
-	if (div) requests.removeChild(div);
-});
 
 socket.on('accepted_delivery_approve', (id) => {
 	let delivery = getDelivery(id)

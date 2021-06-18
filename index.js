@@ -1102,8 +1102,6 @@ io.on('connection', (socket) => {
 				sendNewDeliveryStatus(data);
 
 				socket.emit('accepted_delivery_approve', delivery.id);
-			} else {
-				socket.emit('accepted_delivery_not_approve', delivery.id);
 			}
 		}
 	});
