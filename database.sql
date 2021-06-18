@@ -73,6 +73,7 @@ CREATE TABLE deliveries (
 	accepted BIT,
 	partner VARCHAR(8),
 	item VARCHAR(8),
+	finish_time TIMESTAMP,
 	FOREIGN KEY (uid) REFERENCES users(id),
 	FOREIGN KEY (driver) REFERENCES drivers(id),
 	FOREIGN KEY (partner) REFERENCES partners(id),
