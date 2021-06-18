@@ -8,8 +8,8 @@ buttonTexts = [
     "Waiting"
 ];
 texts = [
-    "Your request is sent and waiting a driver to accept it.",
-    "Waiting driver to contact you.",
+    "No driver is available at the moment. Please wait.",
+    "Waiting driver to accept your delivery.",
     "Driver accepted your delivery.",
     "Driver refused your delivery.",
     "Your delivery has been completed successfully.",

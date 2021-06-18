@@ -8,8 +8,8 @@ buttonTexts = [
     "En attente"
 ];
 texts = [
-    "Votre demande est envoyée et en attente d'un livreur pour l'accepter.",
-    "En attente du livreur pour vous contacter.",
+    "Aucun livreur n'est disponible pour le moment. Attendez s'il vous plaît..",
+    "En attente du livreur pour accepter votre demande de livraison.",
     "Le livreur a accepté votre demande de livraison.",
     "Le livreur a refusé votre demande de livraison.",
     "Votre livraison est terminée avec succès.",
