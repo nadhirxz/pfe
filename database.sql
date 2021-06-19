@@ -19,7 +19,8 @@ CREATE TABLE drivers (
 	name VARCHAR(40) NOT NULL,
 	phone VARCHAR(10) NOT NULL,
 	password VARCHAR(64) NOT NULL,
-	status BIT NOT NULL
+	status BIT NOT NULL,
+	pos VARCHAR(50)
 );
 
 CREATE TABLE secretkeys (

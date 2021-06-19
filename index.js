@@ -74,6 +74,7 @@ db.query("SELECT * FROM users", (err, results) => {
 			results.forEach(result => {
 				result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
 				result.status = result.status.readIntBE(0, 1);
+				result.pos = parsePosition(result.pos);
 				drivers.push(Object.assign({}, result));
 			});
 
@@ -502,10 +503,11 @@ app.post('/drivers/register', checkNotAuth, async (req, res) => {
 						name: formatName(name),
 						phone: phone,
 						password: generateHash(password, id),
-						status: false
+						status: 0,
+						pos: null
 					}
 
-					db.query("INSERT INTO drivers VALUES (?,?,?,?,?)", [driver.id, driver.name, driver.phone, driver.password, driver.status], (err, results) => {
+					db.query("INSERT INTO drivers VALUES (?,?,?,?,?,?)", [driver.id, driver.name, driver.phone, driver.password, driver.status, driver.pos], (err, results) => {
 						if (err) {
 							res.redirect('/drivers?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 						} else {
@@ -1088,12 +1090,14 @@ io.on('connection', (socket) => {
 		}
 		user.pos = data;
 		user.status = 1;
+		db.query("UPDATE drivers SET status=?, pos=?", [user.status, stringifyPosition(user.pos)]);
 		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d)));
 	});
 	socket.on('driver_position', (data) => {
 		if (user) {
 			user.pos = data;
 			user.status = 1;
+			db.query("UPDATE drivers SET status=?, pos=?", [user.status, stringifyPosition(user.pos)]);
 		}
 	});
 
