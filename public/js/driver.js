@@ -73,7 +73,7 @@ async function createNewRequestDiv(delivery, deliveryStatus) {
 	let date = new Date(delivery.expected_finish_time);
 	text1.innerHTML = js_lang_text.text_1_text(delivery.thing, delivery.price, delivery.type, date);
 	inner_div.appendChild(text1);
-	if (typeof (delivery.recipients_phone) != 'undefined') {
+	if (typeof (delivery.recipients_phone) != 'undefined' && delivery.recipients_phone != null) {
 		let text = document.createElement("p");
 		text.innerHTML = `${js_lang_text.rcvr_phone_text} <a href="tel:${delivery.recipients_phone}">${delivery.recipients_phone}</a>`;
 		inner_div.appendChild(text);
