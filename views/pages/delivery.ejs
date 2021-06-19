@@ -61,9 +61,14 @@
 
 			<% if (estimated_finish_time) { %>
 			<% if (estimated_finish_time.getTime() - Date.now() > 0) { %>
-			<% var finishDate = new Date(estimated_finish_time) %>
-			<p class="delivery-info-text"><b class="estimated_finish_time_text"></b> ~ <span id="finish-time"><%= pad(finishDate.getHours()) %>:<%= pad(finishDate.getMinutes()) %></p>
+			<% var estimatedFinishDate = new Date(estimated_finish_time) %>
+			<p class="delivery-info-text"><b class="estimated_finish_time_text"></b> <span id="finish-time"><%= pad(estimatedFinishDate.getHours()) %>:<%= pad(estimatedFinishDate.getMinutes()) %></p>
 			<% } %>
+			<% } %>
+
+			<% if (finish_time) { %>
+			<% var finishDate = new Date(finish_time) %>
+			<p class="delivery-info-text"><b class="finish_time_text"></b> <span id="finish-time"><%= pad(finishDate.getHours()) %>:<%= pad(finishDate.getMinutes()) %></p>
 			<% } %>
 
             </div>

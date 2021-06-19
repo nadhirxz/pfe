@@ -1554,7 +1554,8 @@ function deliveryInfoPage(delivery) {
 		date: new Date(delivery.date),
 		driver: driver,
 		driverStatus: driver ? driver.status : null,
-		estimated_finish_time: delivery.estimated_finish_time
+		estimated_finish_time: delivery.estimated_finish_time,
+		finish_time: delivery.finish_time
 	}
 	if (item) {
 		if (item.name) obj.thing = item.name;
