@@ -1076,7 +1076,6 @@ io.on('connection', (socket) => {
 
 	// Driver stuff
 	socket.on('driver_connected', (data) => {
-		console.log(user)
 		if (user.status == 0) { // means he didn't come back back before the ending of that timeout
 			deliveries.filter(e => e.status == 0).forEach(delivery => {
 				db.query("UPDATE deliveries SET status=1 WHERE id=?", [delivery.id], (err, results) => {
