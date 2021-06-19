@@ -62,7 +62,7 @@
 			<% } %>
 
 			<% if (driver) { %>
-			<p class="delivery-info-text" id="driver-info"><b class="driver_text"></b> <%= driver.name %> - <%= driver.phone %></p>
+			<p class="delivery-info-text" id="driver-info"><b class="driver_text"></b> (<% if (driverStatus == 1) { %><span class="online_text"></span><% } else { %><span class="offline_text"></span><% } %>) <%= driver.name %> - <%= driver.phone %></p>
 			<% }%>
 
             </div>

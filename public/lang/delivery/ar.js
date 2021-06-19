@@ -21,4 +21,6 @@ lang_text = {
     cncl_cnfrm_text: "هل أنت متأكد أنك تريد إلغاء طلب التوصيل ؟",
     sure_text: "متأكد",
     no_text: "لا",
+	online_text: "متصل",
+	offline_text: "غير متصل"
 }

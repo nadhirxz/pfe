@@ -1077,6 +1077,9 @@ io.on('connection', (socket) => {
 	// Driver stuff
 	socket.on('driver_connected', (data) => {
 		if (user.status == 0) { // means he didn't come back back before the ending of that timeout
+			deliveries.filter(e => e.driver == user.id).forEach(delivery => {
+				sendDeliveryStatus(delivery.id);
+			});
 			deliveries.filter(e => e.status == 0).forEach(delivery => {
 				db.query("UPDATE deliveries SET status=1 WHERE id=?", [delivery.id], (err, results) => {
 					if (!err) delivery.status = 1;
@@ -1150,6 +1153,9 @@ io.on('connection', (socket) => {
 				setTimeout(() => {
 					if (s == user.socket) { // means the socket didn't change since the last time meaning he didn't show up again
 						user.status = 0;
+						deliveries.filter(e => e.driver == user.id).forEach(delivery => {
+							sendDeliveryStatus(delivery.id);
+						});
 						if (getOnlineDrivers().length == 0) {
 							deliveries.filter(e => e.status == 1).forEach(delivery => {
 								db.query("UPDATE deliveries SET status=0 WHERE id=?", [delivery.id], (err, results) => {
@@ -1192,7 +1198,7 @@ function getUser(key, value) {
 function getDriver(key, value) {
 	if (drivers) {
 		let driver = drivers.find(obj => obj[key] == value);
-		if (driver) return { name: driver.name, phone: driver.phone }
+		if (driver) return { name: driver.name, phone: driver.phone, status: driver.status }
 	}
 	return false;
 }
@@ -1533,6 +1539,7 @@ function sendDeliveryStatus(id) {
 
 function deliveryInfoPage(delivery) {
 	let item = getItem('id', delivery.item);
+	let driver = getDriver('id', delivery.driver);
 	let obj = {
 		id: delivery.id,
 		d_type: delivery.type,
@@ -1544,14 +1551,15 @@ function deliveryInfoPage(delivery) {
 		price: delivery.price,
 		thingsPrice: 0,
 		date: new Date(delivery.date),
-		driver: getDriver('id', delivery.driver),
+		driver: driver,
+		driverStatus: driver ? driver.status : null,
 		expected_finish_time: delivery.expected_finish_time
 	}
 	if (item) {
 		if (item.name) obj.thing = item.name;
 		obj.thingsPrice = item.price || null;
 	}
-	return obj
+	return obj;
 }
 
 // Driver stuff
