@@ -100,7 +100,6 @@ db.query("SELECT * FROM users", (err, results) => {
 							result.delivery_from = parsePosition(result.delivery_from);
 							result.delivery_to = parsePosition(result.delivery_to);
 							result.weight = Boolean(result.weight.readIntBE(0, 1));
-							result.accepted = Boolean(result.accepted.readIntBE(0, 1));
 							deliveries.push(Object.assign({}, result));
 						});
 
@@ -1102,13 +1101,12 @@ io.on('connection', (socket) => {
 	socket.on('accepted_delivery', (data) => {
 		var delivery = getDelivery('id', data);
 		if (delivery) {
-			if (!delivery.accepted && deliveries.filter(e => e.driver == user.id && e.status == 2).length == 0) {
+			if (delivery.status !=2 && deliveries.filter(e => e.driver == user.id && e.status == 2).length == 0) {
 				delivery.driver = user.id;
 				delivery.status = 2;
-				delivery.accepted = true;
 				delivery.estimated_finish_time = getEstimatedFinishTime(user.pos, delivery.delivery_from, delivery.distance);
 
-				db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.estimated_finish_time, delivery.id]);
+				db.query("UPDATE deliveries SET status=?, driver=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.id]);
 
 				sendDeliveryStatus(delivery.id);
 
@@ -1131,11 +1129,10 @@ io.on('connection', (socket) => {
 		if (delivery) {
 			delivery.status = getOnlineDrivers().length ? 1 : 0;
 			delivery.driver = null;
-			delivery.accepted = false;
 			delete delivery.estimated_finish_time;
 			sendDeliveryStatus(delivery.id);
 
-			db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, null, delivery.id]);
+			db.query("UPDATE deliveries SET status=?, driver=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, null, delivery.id]);
 		}
 	});
 	socket.on('completed_delivery', (data) => {
@@ -1495,7 +1492,6 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		distance: parseFloat(distance),
 		status: getOnlineDrivers().length ? 1 : 0,
 		driver: null,
-		accepted: false,
 		estimated_finish_time: null,
 		date: new Date(),
 		partner: null,
@@ -1514,7 +1510,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.estimated_finish_time, delivery.date, delivery.partner, delivery.item, delivery.finish_time], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.date, delivery.partner, delivery.item, delivery.finish_time], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {
@@ -1581,7 +1577,6 @@ function getDetailsToSendToDriver(delivery) {
 				from: delivery.delivery_from,
 				to: delivery.delivery_to,
 				estimated_finish_time: delivery.estimated_finish_time,
-				accepted: delivery.accepted,
 				date: delivery.date
 			}
 			if (delivery.type == 1) {
