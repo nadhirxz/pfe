@@ -73,7 +73,7 @@ db.query("SELECT * FROM users", (err, results) => {
 		db.query("SELECT * FROM drivers", (err, results) => {
 			results.forEach(result => {
 				result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-				result.status = Boolean(result.status.readIntBE(0, 1));
+				result.status = result.status.readIntBE(0, 1);
 				drivers.push(Object.assign({}, result));
 			});
 
@@ -1076,20 +1076,21 @@ io.on('connection', (socket) => {
 
 	// Driver stuff
 	socket.on('driver_connected', (data) => {
-		user.pos = data;
-		user.socket = socket.id;
-		user.status = 1;
-		deliveries.filter(e => e.status == 0).forEach(delivery => {
-			db.query("UPDATE deliveries SET status=1 WHERE id=?", [delivery.id], (err, results) => {
-				if (!err) delivery.status = 1;
-				sendDeliveryStatus(delivery.id);
+		console.log(user)
+		if (user.status == 0) { // means he didn't come back back before the ending of that timeout
+			deliveries.filter(e => e.status == 0).forEach(delivery => {
+				db.query("UPDATE deliveries SET status=1 WHERE id=?", [delivery.id], (err, results) => {
+					if (!err) delivery.status = 1;
+					sendDeliveryStatus(delivery.id);
+				});
 			});
-		});
+		}
+		user.pos = data;
+		user.status = 1;
 		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d)));
 	});
 	socket.on('driver_position', (data) => {
 		user.pos = data;
-		user.socket = socket.id;
 		user.status = 1;
 	});
 
@@ -1146,20 +1147,23 @@ io.on('connection', (socket) => {
 	socket.on('disconnect', () => {
 		if (user && user.socket) {
 			if (user.type == 2) {
-				user.status = 0;
-				if (getOnlineDrivers().length == 0) {
-					deliveries.filter(e => e.status == 1).forEach(delivery => {
-						db.query("UPDATE deliveries SET status=0 WHERE id=?", [delivery.id], (err, results) => {
-							if (!err) delivery.status = 0;
-							sendDeliveryStatus(delivery.id);
-						});
-					});
-				}
+				let s = user.socket;
+				setTimeout(() => {
+					if (s == user.socket) { // means the socket didn't change since the last time meaning he didn't show up again
+						user.status = 0;
+						if (getOnlineDrivers().length == 0) {
+							deliveries.filter(e => e.status == 1).forEach(delivery => {
+								db.query("UPDATE deliveries SET status=0 WHERE id=?", [delivery.id], (err, results) => {
+									if (!err) delivery.status = 0;
+									sendDeliveryStatus(delivery.id);
+								});
+							});
+						}
+					}
+				}, settings.usersSocketTimeout);
+			} else {
+				delete user.socket;
 			}
-			let s = user.socket;
-			setTimeout(() => {
-				if (users.socket == s) delete user.socket;
-			}, settings.usersSocketTimeout);
 		}
 	});
 });
