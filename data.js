@@ -17,7 +17,6 @@ let settings = {
 
 	maxDeliveryDistance: 60, // km
 	maxDriverDeliveriesAtOnce: 5,
-	percentageAddedToTime: 30,
 	driverSpeed: 25, // km/h
 	driverRestTime: 5, // minutes
 	usersSocketTimeout: 20000, // ms

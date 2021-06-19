@@ -1104,7 +1104,7 @@ io.on('connection', (socket) => {
 				delivery.driver = user.id;
 				delivery.status = 2;
 				delivery.accepted = true;
-				delivery.expected_finish_time = new Date(new Date().getTime() + 60 * 10000); // TODO
+				delivery.expected_finish_time = getExpectedFinishTime(user.pos, delivery.delivery_from, delivery.distance);
 
 				db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, expected_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.expected_finish_time, delivery.id]);
 
@@ -1381,7 +1381,7 @@ function calculatePrice(distance, weight) {
 }
 
 function getTravelTime(pos, from) {
-	return Math.ceil(((getDistance(pos, from) / settings.driverSpeed) * 60) * (1 + settings.percentageAddedToTime / 100));
+	return Math.ceil(((getDistance(pos, from) / settings.driverSpeed) * 60));
 }
 
 function willDeliveryExceedOurWorkTime(timeToFinish) {
@@ -1528,9 +1528,8 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 	return true;
 }
 
-function getExpectedFinishTime(time, delivery_to, delivery_from) {
-	let coeff = 1000 * 60 * settings.nearestMinute;
-	return new Date(Math.ceil((new Date().getTime() + ((time + getTravelTime(delivery_to, delivery_from)) * 1000 * 60)) / coeff) * coeff);
+function getExpectedFinishTime(driverPos, deliveryFrom, deliveryDistance) {
+	return new Date(new Date().getTime() + (Math.ceil(((getTravelTime(driverPos, deliveryFrom) + (deliveryDistance / settings.driverSpeed) * 60 + settings.driverRestTime) / settings.nearestMinute) * settings.nearestMinute)) * 60 * 1000);
 }
 
 function sendDeliveryStatus(id) {
