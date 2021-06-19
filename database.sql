@@ -70,7 +70,6 @@ CREATE TABLE deliveries (
 	driver VARCHAR(8),
 	estimated_finish_time TIMESTAMP NULL,
 	date TIMESTAMP,
-	accepted BIT,
 	partner VARCHAR(8),
 	item VARCHAR(8),
 	finish_time TIMESTAMP NULL,
