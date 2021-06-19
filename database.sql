@@ -68,7 +68,7 @@ CREATE TABLE deliveries (
 	distance FLOAT,
 	status INT(1),
 	driver VARCHAR(8),
-	expected_finish_time TIMESTAMP NULL,
+	estimated_finish_time TIMESTAMP NULL,
 	date TIMESTAMP,
 	accepted BIT,
 	partner VARCHAR(8),

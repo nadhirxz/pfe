@@ -70,8 +70,8 @@ async function createNewRequestDiv(delivery, deliveryStatus) {
 	inner_div.appendChild(title);
 
 	let text1 = document.createElement("p");
-	let date = new Date(delivery.expected_finish_time);
-	text1.innerHTML = js_lang_text.text_1_text(delivery.thing, delivery.price, delivery.type, date);
+	if (delivery.estimated_finish_time) delivery.estimated_finish_time = new Date(delivery.estimated_finish_time)
+	text1.innerHTML = js_lang_text.text_1_text(delivery.thing, delivery.price, delivery.type, delivery.estimated_finish_time);
 	inner_div.appendChild(text1);
 	if (typeof (delivery.recipients_phone) != 'undefined' && delivery.recipients_phone != null) {
 		let text = document.createElement("p");
@@ -224,8 +224,10 @@ function acceptDelivery(id) {
 	socket.emit("accepted_delivery", id);
 }
 
-socket.on('accepted_delivery_approve', (id) => {
-	let delivery = getDelivery(id)
+socket.on('accepted_delivery_approve', (data) => {
+	let id = data.id;
+	let delivery = getDelivery(id);
+	delivery.estimated_finish_time = new Date(data.estimated_finish_time);
 	let inner_div = document.getElementById(id).getElementsByClassName('jumbotron')[0];
 	inner_div.style.backgroundColor = '#FECDA0';
 
@@ -236,6 +238,8 @@ socket.on('accepted_delivery_approve', (id) => {
 		inner_div.removeChild(accept_button);
 		inner_div.removeChild(refuse_button);
 	}
+
+	$('#24bf9e831103414992e6 .jumbotron p').html(js_lang_text.text_1_text(delivery.thing, delivery.price, delivery.type, delivery.estimated_finish_time));
 
 	let route_button = document.createElement("button");
 	route_button.innerHTML = js_lang_text.route_text;
@@ -334,6 +338,7 @@ function failedDelivery(id) {
 
 function cancelDelivery(id) {
 	let delivery = getDelivery(id);
+	delete delivery.estimated_finish_time;
 	socket.emit("cancel_delivery", delivery.id);
 	let div = document.getElementById(id);
 	requests.removeChild(div);

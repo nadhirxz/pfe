@@ -15,6 +15,7 @@ lang_text = {
     km_text: "km",
     date_submitted_text: "Date de soumission :",
     at_time_text: "à",
+	estimated_finish_time_text: "Heure de finition estimée :",
     finish_time_text: "Temps de finition :",
     driver_text: "Livreur :",
     cncl_delivery_text: "Annuler la livraison",

@@ -9,8 +9,8 @@
             return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
         }
     %>
-    <% if (locals.expected_finish_time) { %>
-    <script>var finish_time = <%= expected_finish_time.getTime() %>;</script>
+    <% if (locals.estimated_finish_time) { %>
+    <script>var finish_time = <%= estimated_finish_time.getTime() %>;</script>
     <% } else { %>
     <script>var finish_time = 0;</script>
     <% } %>
@@ -54,16 +54,17 @@
 			<p class="delivery-info-text"><b class="date_submitted_text"></b>
 				<%= `${pad(date.getDate())}-${pad(date.getMonth()+1)}-${date.getFullYear()}` %> <span class="at_time_text"></span> <%= `${pad(date.getHours())}:${pad(date.getMinutes())}` %>
 			</p>
-			<% if (expected_finish_time) { %>
-			<% if (expected_finish_time.getTime() - Date.now() > 0) { %>
-			<% var finishDate = new Date(expected_finish_time) %>
-			<p class="delivery-info-text"><b class="finish_time_text"></b> ~ <span id="finish-time"><%= pad(finishDate.getHours()) %>:<%= pad(finishDate.getMinutes()) %></p>
-			<% } %>
-			<% } %>
 
 			<% if (driver) { %>
 			<p class="delivery-info-text" id="driver-info"><b class="driver_text"></b> (<% if (driverStatus == 1) { %><span class="online_text"></span><% } else { %><span class="offline_text"></span><% } %>) <%= driver.name %> - <%= driver.phone %></p>
 			<% }%>
+
+			<% if (estimated_finish_time) { %>
+			<% if (estimated_finish_time.getTime() - Date.now() > 0) { %>
+			<% var finishDate = new Date(estimated_finish_time) %>
+			<p class="delivery-info-text"><b class="estimated_finish_time_text"></b> ~ <span id="finish-time"><%= pad(finishDate.getHours()) %>:<%= pad(finishDate.getMinutes()) %></p>
+			<% } %>
+			<% } %>
 
             </div>
 			<div id="delivery-status">

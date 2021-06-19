@@ -15,6 +15,7 @@ var lang_text = {
     km_text: "km",
     date_submitted_text: "Date submitted :",
     at_time_text: "at",
+	estimated_finish_time_text: "Estimated finish time :",
     finish_time_text: "Finish time :",
     driver_text: "Driver :",
     cncl_delivery_text: "Cancel delivery",

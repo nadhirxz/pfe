@@ -15,6 +15,7 @@ lang_text = {
     km_text: "كم",
     date_submitted_text: "تاريخ الطلب :",
     at_time_text: "على",
+	estimated_finish_time_text: "الوقت المقدر للإنهاء :",
     finish_time_text: "وقت الإنهاء :",
     driver_text: "السائق :",
     cncl_delivery_text: "إلغاء الطلب",

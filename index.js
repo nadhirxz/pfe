@@ -1092,8 +1092,10 @@ io.on('connection', (socket) => {
 		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d)));
 	});
 	socket.on('driver_position', (data) => {
-		user.pos = data;
-		user.status = 1;
+		if (user) {
+			user.pos = data;
+			user.status = 1;
+		}
 	});
 
 	// Delivery handling by driver
@@ -1104,13 +1106,13 @@ io.on('connection', (socket) => {
 				delivery.driver = user.id;
 				delivery.status = 2;
 				delivery.accepted = true;
-				delivery.expected_finish_time = getExpectedFinishTime(user.pos, delivery.delivery_from, delivery.distance);
+				delivery.estimated_finish_time = getEstimatedFinishTime(user.pos, delivery.delivery_from, delivery.distance);
 
-				db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, expected_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.expected_finish_time, delivery.id]);
+				db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.estimated_finish_time, delivery.id]);
 
 				sendDeliveryStatus(delivery.id);
 
-				socket.emit('accepted_delivery_approve', delivery.id);
+				socket.emit('accepted_delivery_approve', {id: delivery.id, estimated_finish_time: delivery.estimated_finish_time});
 			}
 		}
 	});
@@ -1118,7 +1120,7 @@ io.on('connection', (socket) => {
 		var delivery = getDelivery('id', data);
 		if (delivery) {
 			delivery.status = 3;
-			delete delivery.expected_finish_time;
+			delete delivery.estimated_finish_time;
 			sendDeliveryStatus(delivery.id);
 
 			db.query("UPDATE deliveries SET status=? WHERE id=?", [delivery.status, delivery.id]);
@@ -1130,10 +1132,10 @@ io.on('connection', (socket) => {
 			delivery.status = getOnlineDrivers().length ? 1 : 0;
 			delivery.driver = null;
 			delivery.accepted = false;
-			delete delivery.expected_finish_time;
+			delete delivery.estimated_finish_time;
 			sendDeliveryStatus(delivery.id);
 
-			db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, expected_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, null, delivery.id]);
+			db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, null, delivery.id]);
 		}
 	});
 	socket.on('completed_delivery', (data) => {
@@ -1494,7 +1496,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		status: getOnlineDrivers().length ? 1 : 0,
 		driver: null,
 		accepted: false,
-		expected_finish_time: null,
+		estimated_finish_time: null,
 		date: new Date(),
 		partner: null,
 		item: null,
@@ -1512,7 +1514,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.expected_finish_time, delivery.date, delivery.partner, delivery.item, delivery.finish_time], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.estimated_finish_time, delivery.date, delivery.partner, delivery.item, delivery.finish_time], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {
@@ -1528,7 +1530,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 	return true;
 }
 
-function getExpectedFinishTime(driverPos, deliveryFrom, deliveryDistance) {
+function getEstimatedFinishTime(driverPos, deliveryFrom, deliveryDistance) {
 	return new Date(new Date().getTime() + (Math.ceil(((getTravelTime(driverPos, deliveryFrom) + (deliveryDistance / settings.driverSpeed) * 60 + settings.driverRestTime) / settings.nearestMinute) * settings.nearestMinute)) * 60 * 1000);
 }
 
@@ -1552,7 +1554,7 @@ function deliveryInfoPage(delivery) {
 		date: new Date(delivery.date),
 		driver: driver,
 		driverStatus: driver ? driver.status : null,
-		expected_finish_time: delivery.expected_finish_time
+		estimated_finish_time: delivery.estimated_finish_time
 	}
 	if (item) {
 		if (item.name) obj.thing = item.name;
@@ -1577,7 +1579,7 @@ function getDetailsToSendToDriver(delivery) {
 				distance: delivery.distance,
 				from: delivery.delivery_from,
 				to: delivery.delivery_to,
-				expected_finish_time: delivery.expected_finish_time,
+				estimated_finish_time: delivery.estimated_finish_time,
 				accepted: delivery.accepted,
 				date: delivery.date
 			}
@@ -1599,11 +1601,11 @@ function getDetailsToSendToDriver(delivery) {
 function finishedDelivery(delivery, status) {
 	delivery.status = status;
 	delivery.finish_time = new Date();
-	delete delivery.expected_finish_time;
+	delete delivery.estimated_finish_time;
 
 	sendDeliveryStatus(delivery.id);
 
-	db.query("UPDATE deliveries SET status=?, expected_finish_time=?, finish_time=? WHERE id=?", [delivery.status, null, delivery.finish_time, delivery.id]);
+	db.query("UPDATE deliveries SET status=?, estimated_finish_time=?, finish_time=? WHERE id=?", [delivery.status, null, delivery.finish_time, delivery.id]);
 }
 
 function sendDeliveryToDrivers(delivery) {
