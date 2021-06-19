@@ -13,25 +13,44 @@ setInterval(() => {
 
 socket.on("deliveries", async (data) => {
 	if (data && data.length) {
-		deliveries = [...data.filter(e => e.accepted).sort((a, b) => (a.date > b.date) ? 1 : -1), ...data.filter(e => !e.accepted).sort((a, b) => (a.date > b.date) ? 1 : -1)];
+		deliveries = [...data.filter(e => e.status == 2).sort((a, b) => (a.date > b.date) ? 1 : -1), ...data.filter(e => e.status != 2).sort((a, b) => (a.date > b.date) ? 1 : -1)];
 		for (const delivery of deliveries) {
-			let d = await createNewRequestDiv(delivery, delivery.accepted);
+			let d = await createNewRequestDiv(delivery, delivery.status == 2);
 			requests.appendChild(d);
 			if (document.getElementById('loading-img')) requests.removeChild(document.getElementById('loading-img'));
 		}
 	} else {
-		requests.innerHTML = `<hr class="my-5"><h5>${js_lang_text.no_deliveries}</h5>`;
+		requests.innerHTML = `<h4 id="no-dlv" class="my-5"> ${js_lang_text.no_deliveries}</h4 >`;
 	}
 	if (document.getElementById('loading-img')) requests.removeChild(document.getElementById('loading-img'));
 });
 
 socket.on('new_delivery', (data) => {
-	createNewRequestDiv(data, 'new').then(d => requests.appendChild(d));
+	let delivery = getDelivery(data.id);
+	if (typeof (delivery) == 'undefined') deliveries.push(data);
+	createNewRequestDiv(data, 'new').then(d => {
+		$('#no-dlv').remove();
+		requests.appendChild(d);
+	});
+});
+
+socket.on('remove_delivery', (delivery) => {
+	let d = getDelivery(delivery.id);
+	if (typeof (d) != 'undefined') {
+		deliveries = deliveries.filter(e => e.id != delivery.id);
+		let div = document.getElementById(delivery.id);
+		if (div) {
+			requests.removeChild(div);
+			checkEmpty();
+		}
+
+	}
 });
 
 socket.on('canceled_delivery', (data) => {
 	let the_div = document.getElementById(data);
 	requests.removeChild(the_div);
+	checkEmpty();
 });
 
 async function sendPosition(socketmsg) {
@@ -320,6 +339,7 @@ function refuseDelivery(id) {
 	socket.emit("refused_delivery", delivery.id);
 	let div = document.getElementById(id);
 	requests.removeChild(div);
+	checkEmpty();
 }
 
 function completedDelivery(id) {
@@ -327,6 +347,7 @@ function completedDelivery(id) {
 	socket.emit("completed_delivery", delivery.id);
 	let div = document.getElementById(id);
 	requests.removeChild(div);
+	checkEmpty();
 }
 
 function failedDelivery(id) {
@@ -334,6 +355,7 @@ function failedDelivery(id) {
 	socket.emit("failed_delivery", delivery.id);
 	let div = document.getElementById(id);
 	requests.removeChild(div);
+	checkEmpty();
 }
 
 function cancelDelivery(id) {
@@ -342,9 +364,18 @@ function cancelDelivery(id) {
 	socket.emit("cancel_delivery", delivery.id);
 	let div = document.getElementById(id);
 	requests.removeChild(div);
-	createNewRequestDiv(delivery).then(d => requests.appendChild(d));
+	createNewRequestDiv(delivery).then(d => {
+		$('#no-dlv').remove();
+		requests.appendChild(d);
+	});
 }
 
 function getDelivery(id) {
 	return deliveries.find(obj => obj.id == id);
+}
+
+function checkEmpty() {
+	if (!$.trim($('#requests').html()).length) {
+		$('#requests').html(`<h4 id="no-dlv" class="my-5">${js_lang_text.no_deliveries}</h4>`);
+	}
 }

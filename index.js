@@ -1101,16 +1101,20 @@ io.on('connection', (socket) => {
 	socket.on('accepted_delivery', (data) => {
 		var delivery = getDelivery('id', data);
 		if (delivery) {
-			if (delivery.status !=2 && deliveries.filter(e => e.driver == user.id && e.status == 2).length == 0) {
+			if (delivery.status != 2 && deliveries.filter(e => e.driver == user.id && e.status == 2).length == 0) {
 				delivery.driver = user.id;
 				delivery.status = 2;
 				delivery.estimated_finish_time = getEstimatedFinishTime(user.pos, delivery.delivery_from, delivery.distance);
 
 				db.query("UPDATE deliveries SET status=?, driver=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.id]);
 
+				getOnlineDrivers().forEach(driver => {
+					if (driver.id != user.id && driver.socket) io.to(driver.socket).emit('remove_delivery', getDetailsToSendToDriver(delivery));
+				});
+
 				sendDeliveryStatus(delivery.id);
 
-				socket.emit('accepted_delivery_approve', {id: delivery.id, estimated_finish_time: delivery.estimated_finish_time});
+				socket.emit('accepted_delivery_approve', { id: delivery.id, estimated_finish_time: delivery.estimated_finish_time });
 			}
 		}
 	});
@@ -1131,6 +1135,10 @@ io.on('connection', (socket) => {
 			delivery.driver = null;
 			delete delivery.estimated_finish_time;
 			sendDeliveryStatus(delivery.id);
+
+			getOnlineDrivers().forEach(driver => {
+				if (driver.id != user.id && driver.socket) io.to(driver.socket).emit('new_delivery', getDetailsToSendToDriver(delivery));
+			});
 
 			db.query("UPDATE deliveries SET status=?, driver=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, null, delivery.id]);
 		}
@@ -1577,7 +1585,8 @@ function getDetailsToSendToDriver(delivery) {
 				from: delivery.delivery_from,
 				to: delivery.delivery_to,
 				estimated_finish_time: delivery.estimated_finish_time,
-				date: delivery.date
+				date: delivery.date,
+				status: delivery.status
 			}
 			if (delivery.type == 1) {
 				let partner = getPartner('id', delivery.partner);
