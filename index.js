@@ -1082,6 +1082,7 @@ io.on('connection', (socket) => {
 		deliveries.filter(e => e.status == 0).forEach(delivery => {
 			db.query("UPDATE deliveries SET status=1 WHERE id=?", [delivery.id], (err, results) => {
 				if (!err) delivery.status = 1;
+				sendDeliveryStatus(delivery.id);
 			});
 		});
 		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d)));
@@ -1104,7 +1105,7 @@ io.on('connection', (socket) => {
 
 				db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, expected_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.expected_finish_time, delivery.id]);
 
-				sendNewDeliveryStatus(data);
+				sendDeliveryStatus(delivery.id);
 
 				socket.emit('accepted_delivery_approve', delivery.id);
 			}
@@ -1115,7 +1116,7 @@ io.on('connection', (socket) => {
 		if (delivery) {
 			delivery.status = 3;
 			delete delivery.expected_finish_time;
-			sendNewDeliveryStatus(data);
+			sendDeliveryStatus(delivery.id);
 
 			db.query("UPDATE deliveries SET status=? WHERE id=?", [delivery.status, delivery.id]);
 		}
@@ -1127,9 +1128,9 @@ io.on('connection', (socket) => {
 			delivery.driver = null;
 			delivery.accepted = false;
 			delete delivery.expected_finish_time;
-			sendNewDeliveryStatus(data);
+			sendDeliveryStatus(delivery.id);
 
-			db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, expected_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, delivery.expected_finish_time, delivery.id]);
+			db.query("UPDATE deliveries SET status=?, driver=?, accepted=?, expected_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.accepted ? 1 : 0, null, delivery.id]);
 		}
 	});
 	socket.on('completed_delivery', (data) => {
@@ -1150,6 +1151,7 @@ io.on('connection', (socket) => {
 					deliveries.filter(e => e.status == 1).forEach(delivery => {
 						db.query("UPDATE deliveries SET status=0 WHERE id=?", [delivery.id], (err, results) => {
 							if (!err) delivery.status = 0;
+							sendDeliveryStatus(delivery.id);
 						});
 					});
 				}
@@ -1522,11 +1524,8 @@ function getExpectedFinishTime(time, delivery_to, delivery_from) {
 	return new Date(Math.ceil((new Date().getTime() + ((time + getTravelTime(delivery_to, delivery_from)) * 1000 * 60)) / coeff) * coeff);
 }
 
-function sendNewDeliveryStatus(delivery) {
-	delivery = getDelivery('id', delivery);
-	if (delivery) {
-		io.to(delivery.id).emit('new_delivery_status');
-	}
+function sendDeliveryStatus(id) {
+	io.to(id).emit('new_delivery_status');
 }
 
 function deliveryInfoPage(delivery) {
@@ -1592,7 +1591,7 @@ function finishedDelivery(delivery, status) {
 	delivery.finish_time = new Date();
 	delete delivery.expected_finish_time;
 
-	sendNewDeliveryStatus(delivery.id);
+	sendDeliveryStatus(delivery.id);
 
 	db.query("UPDATE deliveries SET status=?, expected_finish_time=?, finish_time=? WHERE id=?", [delivery.status, null, delivery.finish_time, delivery.id]);
 }
