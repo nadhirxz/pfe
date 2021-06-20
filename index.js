@@ -952,6 +952,17 @@ app.post('/partners/desc/:id', checkAdmin, (req, res) => {
 	return res.redirect('/partners/' + req.params.id);
 });
 
+app.post('/partners/name/:id', checkAdmin, (req, res) => {
+	let { name } = req.body;
+	let p = getPartner('id', req.params.id);
+	if (typeof (name) && p) {
+		p.name = name;
+		db.query("UPDATE partners SET name=?", [name]);
+	}
+	return res.redirect('/partners/' + req.params.id);
+});
+
+
 
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');

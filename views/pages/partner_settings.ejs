@@ -7,17 +7,20 @@
 		en: {
 			choose_file: "Choose file...",
 			save: "Save",
-			desc: "Description"
+			desc: "Description",
+			name: "Name"
 		},
 		fr: {
 			choose_file: "Choisir un fichier...",
 			save: "Sauvegarder",
-			desc: "Description"
+			desc: "Description",
+			name: "Nom"
 		},
 		ar: {
 			choose_file: "اختر ملفًا...",
 			save: "حفظ",
-			desc: "وصف"
+			desc: "وصف",
+			name: "الإسم"
 		},
 	}
 	%>
@@ -27,7 +30,7 @@
     <%- include ('../partials/navbar') %>
     <div class="px-5 m-auto text-center pt-2">
         <% if (partner) { %>
-        <h4 class="mt-4"><%= partner.name %></h4>
+        <h4><%= partner.name %></h4>
 		<hr class="mb-4 col-10 col-md-4">
 		<div class="row w-100">
 			<div class="col-12 col-md-6">
@@ -37,17 +40,32 @@
 						<label class="custom-file-label" for="partner-image"><%= l[lang].choose_file %></label>
 						<input type="file" class="custom-file-input" name="img" id="partner-image" accept="image/*" required>
 						<button type="submit" class="btn btn-success my-2 col-8"><%= l[lang].save %></button>
+						<hr class="my-4 d-block d-md-none">
+					</div>
+				</form>
+			</div>
+
+
+			<div class="col-12 col-md-6 pl-md-5 pt-5 mt-md-0 mt-4">
+				<form method="post" action="/partners/name/<%= partner.id %>">
+					<label for="name"><%= l[lang].name %></label>
+					<div class="row mx-auto">
+						<div class="form-group col-8">
+							<input class="form-control text-center" maxlength="40" name="name" id="name" value="<%= partner.name %>">
+						</div>
+						<div class="flex-grow-1">
+							<button type="submit" class="btn btn-block btn-success"><%= l[lang].save %></button>
+						</div>
 					</div>
 				</form>
 
-			</div>
+				<hr class="my-4">
 
-			<div class="col-12 col-md-6 pl-md-5 pt-5">
 				<form method="post" action="/partners/desc/<%= partner.id %>">
 					<div class="custom-file w-100">
 						<div class="form-group">
-							<label for="exampleTextarea"><%= l[lang].desc %></label>
-							<textarea class="form-control" name="desc" id="exampleTextarea" rows="5"><%= partner.desc %></textarea>
+							<label for="desc"><%= l[lang].desc %></label>
+							<textarea class="form-control" name="desc" id="desc" rows="5"><%= partner.desc %></textarea>
 						</div>
 						<button type="submit" class="btn btn-success my-2 col-5"><%= l[lang].save %></button>
 					</div>
