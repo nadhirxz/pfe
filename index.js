@@ -823,7 +823,8 @@ app.get('/admin', checkAdmin, (req, res) => {
 		type: user.type,
 		lang: lang,
 		deliveries_today: todaysDeliveries.length,
-		profit_today: todaysDeliveries.reduce((acc, b) => acc += b.price, 0)
+		deliveries: todaysDeliveries,
+		profit_today: todaysDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0)
 	});
 });
 
