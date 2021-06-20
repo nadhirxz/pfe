@@ -330,7 +330,9 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 		let page = 'home';
 		if (user.type == 1) {
 			page = 'home_partner';
-			dataToSend.client_deliveries_amount = deliveries.filter(e => e.partner == user.id).reduce((acc, b) => acc += b, 0);
+			let d = deliveries.filter(e => e.partner == user.id && e.status == 4);
+			dataToSend.client_deliveries = d.length;
+			dataToSend.client_deliveries_amount = d.reduce((acc, b) => acc += b.price, 0);
 			dataToSend.percentage = user.percentage;
 			dataToSend.amount_to_pay_us = normalizePrice(((user.percentage / 100) * (dataToSend.client_deliveries_amount || 0)), 50);
 		}
