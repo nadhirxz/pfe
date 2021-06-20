@@ -254,6 +254,19 @@ let checkAdmin = (req, res, next) => {
 	}
 }
 
+let checkPartnerOrAdmin = (req, res, next) => {
+	if (!req.session.uid) { // user not authenticated
+		res.redirect('/login');
+	} else {
+		let user = getUser('id', req.session.uid);
+		if (user && (user.type == 3 || user.type == 1)) {
+			next();
+		} else {
+			res.redirect('/');
+		}
+	}
+}
+
 let checkInWorkHours = (req, res, next) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
@@ -891,19 +904,19 @@ app.get('/partners/info', checkAdmin, (req, res) => {
 app.get('/partners/:id', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let place = getPartner('id', req.params.id);
-	if (place) {
+	let partner = getPartner('id', req.params.id);
+	if (partner) {
 		return res.render('pages/partner_settings', {
 			title: titles[lang].partners + settings.titleSuffix[lang],
 			name: user.name,
 			type: user.type,
 			lang: lang,
 			partner: {
-				name: place.name,
-				id: place.id,
-				place: place.place,
-				desc: place.description,
-				img: fs.existsSync(`./public/img/partners/${place.id}.png`) ? `/img/partners/${place.id}.png` : '/img/partners/default.png'
+				name: partner.name,
+				id: partner.id,
+				place: partner.place,
+				desc: partner.description,
+				img: fs.existsSync(`./public/img/partners/${partner.id}.png`) ? `/img/partners/${partner.id}.png` : '/img/partners/default.png'
 			}
 		});
 	}
@@ -920,7 +933,41 @@ app.get('/partners/:id', checkAdmin, (req, res) => {
 	});
 });
 
-app.post('/partners/img/:id', checkAdmin, upload.single('img'), (req, res) => {
+app.get('/partner/details', checkPartner, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+
+	if (user) {
+		return res.render('pages/partner_settings', {
+			title: titles[lang].details + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			partner: {
+				name: user.name,
+				id: user.id,
+				place: user.place,
+				desc: user.description,
+				img: fs.existsSync(`./public/img/partners/${user.id}.png`) ? `/img/partners/${user.id}.png` : '/img/partners/default.png'
+			}
+		});
+	}
+	let name, type;
+	if (user) {
+		name = user.name;
+		type = user.type;
+	}
+	return res.render('pages/404', {
+		title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+		name: name,
+		type: type,
+		lang: lang,
+	});
+});
+
+
+
+app.post('/partners/img/:id', checkPartnerOrAdmin, upload.single('img'), (req, res) => {
 	let tempPath = req.file.path;
 	let ext = path.extname(req.file.originalname).toLowerCase()
 	let targetPath = path.join(__dirname, `./public/img/partners/${req.params.id}.png`);
@@ -942,7 +989,7 @@ app.post('/partners/img/:id', checkAdmin, upload.single('img'), (req, res) => {
 	return res.redirect('/partner/' + req.params.id);
 });
 
-app.post('/partners/desc/:id', checkAdmin, (req, res) => {
+app.post('/partners/desc/:id', checkPartnerOrAdmin, (req, res) => {
 	let { desc } = req.body;
 	let p = getPartner('id', req.params.id);
 	if (typeof (desc) && p) {
@@ -952,7 +999,7 @@ app.post('/partners/desc/:id', checkAdmin, (req, res) => {
 	return res.redirect('/partners/' + req.params.id);
 });
 
-app.post('/partners/name/:id', checkAdmin, (req, res) => {
+app.post('/partners/name/:id', checkPartnerOrAdmin, (req, res) => {
 	let { name } = req.body;
 	let p = getPartner('id', req.params.id);
 	if (typeof (name) && p) {
