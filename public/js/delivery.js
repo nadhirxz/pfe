@@ -12,8 +12,6 @@ var classes = [
 	"btn-primary",
 	"btn-danger",
 	"btn-success",
-	"btn-danger",
-	"btn-warning",
 	"btn-danger"
 ];
 
