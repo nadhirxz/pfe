@@ -318,7 +318,7 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			total_spent: userDeliveries.reduce((acc, obj) => acc += obj.price, 0),
+			total_spent: userDeliveries.filter(e => e.status == 4).reduce((acc, obj) => acc += obj.price, 0),
 			total_deliveries: userDeliveries.length,
 			userDeliveries: userDeliveries,
 			working: we_are_working_now,

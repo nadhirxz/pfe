@@ -2,19 +2,33 @@
 <%- include ('../partials/html') %>
 <head>
 	<%- include ('../partials/head') %>
+	<% var texts = [ "Waiting", "Pending", "Accepted", "Refused", "Success", "Failure"]; %>
+	<% var classes = [ "warning", "info", "primary", "danger", "success", "danger", "warning", "danger"];%>
+	<%
+		function groupBy(items, key) {
+			return items.reduce(
+				(result, item) => ({
+				...result,
+				[item[key]]: [
+					...(result[item[key]] || []),
+					item,
+				],
+				}), 
+				{},
+			)
+		}
+	%>
+	<% var d = groupBy(userDeliveries, 'status'); %>
 </head>
 <body>
     <%- include ('../partials/navbar') %> 
-    <div class="col-md-8 col-lg-4 px-5 m-auto text-center pt-5">
-        <% if (locals.winner) { %>
-        <div class="alert alert-dismissible alert-info rounded mb-4 free_dlvr_text"></div>
-        <% } %>
+    <div class="col-md-8 col-lg-6 px-5 m-auto text-center pt-5">
         <% if (!working) { %>
         <h4 class="out_of_srvc_text"></h4>
         <% } else if(!work_hours) { %>
         <h4><span class="not_wrkn_now_text"></span> <%= schedule[0][0]%> <span class="to_text"></span> <%= schedule[0][1]%></h4>
         <% } else { %>
-        <div class="dropdown pb-3">
+        <div class="dropdown pb-3 mx-auto col-md-8">
             <button class="btn btn-success btn-block dropdown-toggle" role="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="new_delivery_text"></span></button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <a class="dropdown-item" href="/buy"><span class="buy_sth_from_shop_text"></span></a>
@@ -23,8 +37,13 @@
         </div>
         <% } %>
         <hr class="pt-3">
-        <p><span class="ttl_delvrs_text"></span> <b><%= total_deliveries %></b></p>
-        <p><span class="ttl_spnt_text"></span> <b><%= total_spent %></b> DZD</p>
+        <p class="mb-1"><span class="ttl_delvrs_text mb-0"></span> <b><%= total_deliveries %></b><% if (total_deliveries) { %></p>
+		<% if (userDeliveries && userDeliveries.length) { %>
+			<div class="mb-3">
+				<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class=" badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[key] %></span><% } %><% });%><% } %>
+			</div>
+		<% } %>
+		<p><span class="ttl_spnt_text"></span> <b><%= total_spent %></b> DZD</p>
     </div>
     <%- include ('../partials/user_deliveries') %> 
 <%- include ('../partials/footer') %>
