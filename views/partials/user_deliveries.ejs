@@ -62,12 +62,12 @@ function pad(n,z) {
                         <p class="delivery-info-text"><span class="thing_text"></span><b> <%= delivery.thing %></b></p>
                     </div>
                     <div class="col-sm">
-                        <p class="delivery-info-text"><span class="distance_text"></span><b> <%= delivery.distance %></b> km</p>
+                        <p class="delivery-info-text"><span class="distance_text"></span><b> <%= delivery.distance %></b> <% if (lang == 'ar') { %>كلم<% } else { %>km<% } %></p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-sm">
-                        <p class="delivery-info-text"><span class="price_text"></span><b> <%= delivery.price %></b> DZD</p>
+                        <p class="delivery-info-text"><span class="price_text"></span><b> <%= delivery.price %></b> <% if (lang == 'ar') { %>دج<% } else { %>DZD<% } %></p>
                     </div>
                     <div class="col-sm">
                         <p class="delivery-info-text"><span class="status_text"></span> <span class="ml-2 badge badge-<%= classes[delivery.status] %>"><%= texts[lang][delivery.status] %></span></p>
