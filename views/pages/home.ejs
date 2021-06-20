@@ -41,11 +41,13 @@
         </div>
         <% } %>
         <hr class="pt-3">
-        <p class="mb-1"><span class="ttl_delvrs_text mb-0"></span> <b><%= total_deliveries %></b><% if (total_deliveries) { %></p>
-		<% if (userDeliveries && userDeliveries.length) { %>
-			<div class="mb-3">
-				<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class=" badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%><% } %>
+        <p class="mb-1"><span class="ttl_delvrs_text mb-0"></span> <b><%= total_deliveries %></b></p>
+		<% if (total_deliveries) { %>
+			<% if (userDeliveries && userDeliveries.length) { %>
+			<div class="my-2">
+				<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class=" badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
 			</div>
+			<% } %>
 		<% } %>
 		<p><span class="ttl_spnt_text"></span> <b><%= total_spent %></b> <% if (lang == 'ar') { %>دج<% } else { %>DZD<% } %></p>
     </div>
