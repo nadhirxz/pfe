@@ -852,8 +852,11 @@ app.get('/schedule', checkAdmin, (req, res) => {
 
 app.post('/schedule', checkAdmin, (req, res) => {
 	let { from, to } = req.body;
-	schedule = [from, to];
-	db.query("UPDATE schedule SET s_from=?, s_to=? WHERE id='schedule'", [schedule[0], schedule[1]]);
+	let r = /^([01]\d|2[0-3]):?([0-5]\d)$/;
+	if (r.test(from) && r.test(to) && new Date('1/1/1 ' + from).getTime() < new Date('1/1/1 ' + to)) {
+		schedule = [from, to];
+		db.query("UPDATE schedule SET s_from=?, s_to=? WHERE id='schedule'", [schedule[0], schedule[1]]);
+	}
 	return res.redirect('/schedule');
 });
 

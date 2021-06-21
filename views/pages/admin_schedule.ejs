@@ -14,14 +14,12 @@
         <h5 class="text-danger stop_wrkn"></h5>
         <button class="btn btn-success btn-sm start_wrkn" data-toggle="modal" data-target="#modal"></button>
         <% } %>
-        <hr class="my-4">
-        <form action="/schedule" method="post">
-            <div class="row">
-				<input type="text" class="form-control m-auto col-5" name="from" placeholder="eg. 09:00" value="<%= schedule[0] %>" required>
-				<input type="text" class="form-control m-auto col-5" name="to" placeholder="eg. 18:00" value="<%= schedule[1] %>" required>
-			</div>
-            <button class="btn btn-success col-4 my-4 save" type="submit"></button>
-        </form>
+		<hr class="my-4">
+		<div class="row justify-content-center">
+			<input type="text" class="form-control form-control-lg text-center mx-2 col-4" maxlength="5" id="from" name="from" placeholder="09:00" value="<%= schedule[0] %>" required>
+			<input type="text" class="form-control form-control-lg text-center mx-2 col-4" maxlength="5" id="to" name="to" placeholder="18:00" value="<%= schedule[1] %>" required>
+		</div>
+		<button class="btn btn-success col-4 my-4 save" id="save" type="submit"></button>
     </div>
     <div class="modal" id="modal">
         <div class="vertical-alignment-helper">
@@ -55,12 +53,5 @@
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
-<script>
-    $('#datepicker').datepicker({
-        format: 'HH:mm',
-        calendarWeeks: true,
-        autoclose: true,
-        todayHighlight: true,
-    });
-</script>
+<script src="/js/admin_schedule.js"></script>
 </html>
