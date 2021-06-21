@@ -833,7 +833,7 @@ app.get('/admin', checkAdmin, (req, res) => {
 		lang: lang,
 		deliveries_today: todaysDeliveries.length,
 		deliveries: todaysDeliveries,
-		profit_today: todaysDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0)
+		profit_today: calculateProfit(todaysDeliveries)
 	});
 });
 
@@ -881,10 +881,10 @@ app.get('/details', checkAdmin, (req, res) => {
 		weekly_deliveries: weeklyDeliveries.length,
 		monthly_deliveries: monthlyDeliveries.length,
 		all_time_deliveries: deliveries.length,
-		daily_profit: dailyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
-		weekly_profit: weeklyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
-		monthly_profit: monthlyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
-		all_time_profit: deliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+		daily_profit: calculateProfit(dailyDeliveries),
+		weekly_profit: calculateProfit(weeklyDeliveries),
+		monthly_profit: calculateProfit(monthlyDeliveries),
+		all_time_profit: calculateProfit(deliveries),
 		dailyDeliveries,
 		weeklyDeliveries,
 		monthlyDeliveries,
@@ -932,7 +932,7 @@ app.get('/details/:something', checkAdmin, (req, res) => {
 			day: req.params.something,
 			deliveries_count: d.length,
 			deliveries: d,
-			profit: d.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0)
+			profit: calculateProfit(d)
 		});
 	} else {
 		res.render('pages/404', {
@@ -1669,6 +1669,13 @@ function isToday(date) {
 	let today = new Date();
 	date = new Date(date);
 	return date.getDate() == today.getDate() && date.getMonth() == today.getMonth() && date.getFullYear() == today.getFullYear();
+}
+
+
+function calculateProfit(deliveries) {
+	let p = normalizePrice(deliveries.filter(e => e.status == 4).map(e => { return { p: getPartner('id', e.partner) ? getPartner('id', e.partner).percentage || settings.partnerPercentage : false, price: e.price } }).filter(e => e.p).reduce((acc, b) => acc += (b.price * b.p) / 100, 0) || 0, 50);
+	let d = normalizePrice(deliveries.filter(e => e.status == 4).map(e => { return { p: getUser('id', e.driver) ? getUser('id', e.driver).percentage || settings.driverPercentage : false, price: e.price } }).filter(e => e.p).reduce((acc, b) => acc += (b.price * b.p) / 100, 0) || 0, 50);
+	return p + d;
 }
 
 
