@@ -470,7 +470,7 @@ app.post('/register', checkNotAuth, (req, res) => {
 	}
 });
 
-app.post('/partners/register', checkNotAuth, async (req, res) => {
+app.post('/partners/register', checkNotAuth, (req, res) => {
 	let { phone, name, password, secret } = req.body;
 	if (phone && name && password && secret) {
 		if (phoneValid(phone)) {
