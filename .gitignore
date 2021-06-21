@@ -6,4 +6,5 @@ dbOptions.txt
 secret.js
 local/
 ecosystem.config.js
-public/img/partners/
+public/img/partners/*.png
+!public/img/partners/default.png
