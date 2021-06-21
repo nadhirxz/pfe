@@ -2,27 +2,6 @@
 <%- include ('../partials/html') %>
 <head>
 	<%- include ('../partials/head') %>
-	<% var texts = {
-		en: [ "Waiting", "Pending", "Accepted", "Refused", "Success", "Failure"],
-		fr: ["En attente", "En cours", "Accepté", "Refusé", "Succès", "Échec"],
-		ar: ["انتظار", "قيد الانتظار", "قبول", "رفض", "نجاح", "فشل"]
-	}; %>
-	<% var classes = [ "warning", "info", "primary", "danger", "success", "danger", "warning", "danger"];%>
-	<%
-		function groupBy(items, key) {
-			return items.reduce(
-				(result, item) => ({
-				...result,
-				[item[key]]: [
-					...(result[item[key]] || []),
-					item,
-				],
-				}), 
-				{},
-			)
-		}
-	%>
-	<% var d = groupBy(deliveries, 'status'); %>
 </head>
 
 <body>
@@ -31,7 +10,7 @@
         <h5><span class="deliveries_today"></span><span class="font-weight-bold"><%= deliveries_today %></span> (<span class="font-weight-bold"><%= profit_today %></span> <span class="dzd"><% if (lang == 'ar') { %>دج<% } else { %>DZD<% } %></span>)</h5>
 		<% if (deliveries && deliveries.length) { %>
 			<div class="my-2">
-				<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class="badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
+				<%- include ('../partials/delivery_status') %>
 			</div>
 		<% } %>
         <a type="button" class="btn btn-block btn-success mx-2 my-4 details" href="/details"></a>

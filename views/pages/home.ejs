@@ -2,27 +2,6 @@
 <%- include ('../partials/html') %>
 <head>
 	<%- include ('../partials/head') %>
-	<% var texts = {
-		en: [ "Waiting", "Pending", "Accepted", "Refused", "Success", "Failure"],
-		fr: ["En attente", "En cours", "Accepté", "Refusé", "Succès", "Échec"],
-		ar: ["انتظار", "قيد الانتظار", "قبول", "رفض", "نجاح", "فشل"]
-	}; %>
-	<% var classes = [ "warning", "info", "primary", "danger", "success", "danger", "warning", "danger"];%>
-	<%
-		function groupBy(items, key) {
-			return items.reduce(
-				(result, item) => ({
-				...result,
-				[item[key]]: [
-					...(result[item[key]] || []),
-					item,
-				],
-				}), 
-				{},
-			)
-		}
-	%>
-	<% var d = groupBy(userDeliveries, 'status'); %>
 </head>
 <body>
     <%- include ('../partials/navbar') %> 
@@ -45,7 +24,7 @@
 		<% if (total_deliveries) { %>
 			<% if (userDeliveries && userDeliveries.length) { %>
 			<div class="my-2">
-				<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class="badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
+				<% locals.deliveries = userDeliveries; %><%- include ('../partials/delivery_status') %>
 			</div>
 			<% } %>
 		<% } %>
