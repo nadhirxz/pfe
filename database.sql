@@ -43,6 +43,7 @@ CREATE TABLE partners (
 	startTime VARCHAR(5),
 	endTime VARCHAR(5),
 	percentage INT(2),
+	paid INT(10),
 	FOREIGN KEY (secret) REFERENCES secretkeys(id)
 );
 

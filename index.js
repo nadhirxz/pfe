@@ -1012,6 +1012,16 @@ app.post('/partners/name/:id', checkPartnerOrAdmin, (req, res) => {
 	return res.redirect('/partners/' + req.params.id);
 });
 
+app.post('/partners/pay/:id', checkPartnerOrAdmin, (req, res) => {
+	let amount = req.body.amount;
+	let p = getPartner('id', req.params.id);
+	if (typeof (amount) && p) {
+		amount = parseInt(amount) || 0;
+		p.paid = parseInt(isNaN(p.paid) ? amount : p.paid + amount);
+		db.query("UPDATE partners SET paid=?", [p.paid]);
+	}
+	return res.send();
+});
 
 
 app.get('/en', (req, res) => {
