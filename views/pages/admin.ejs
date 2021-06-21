@@ -27,18 +27,17 @@
 
 <body>
     <%- include ('../partials/navbar') %>
-    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2" id="divvv">
-        <h5><span class="deliveries_today"></span><b><%= deliveries_today %></b></h5>
+    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-3">
+        <h5><span class="deliveries_today"></span><span class="font-weight-bold"><%= deliveries_today %></span> (<span class="font-weight-bold"><%= profit_today %></span> <span class="dzd"><% if (lang == 'ar') { %>دج<% } else { %>DZD<% } %></span>)</h5>
 		<% if (deliveries && deliveries.length) { %>
 			<div class="my-2">
-				<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class=" badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
+				<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class="badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
 			</div>
 		<% } %>
-        <h5><span class="profit_today"></span><b><%= profit_today %></b> <span class="dzd"><% if (lang == 'ar') { %>دج<% } else { %>DZD<% } %></span></h5>
-        <a type="button" class="btn btn-block btn-success mx-2 mt-5 mb-4 details" href="/details"></a>
-        <a type="button" class="btn btn-block btn-success mx-2 mb-4 shcedule" href="/schedule"></a>
+        <a type="button" class="btn btn-block btn-success mx-2 my-4 details" href="/details"></a>
+        <a type="button" class="btn btn-block btn-success mx-2 my-4 shcedule" href="/schedule"></a>
         <a type="button" class="btn btn-block btn-success mx-2 my-4 partners" href="/partners/info"></a>
-        <a type="button" class="btn btn-block btn-success mx-2 mb-4 new_key" href="/admin/new-key"></a>
+        <a type="button" class="btn btn-block btn-success mx-2 my-4 new_key" href="/admin/new-key"></a>
         <a type="button" class="btn btn-block btn-success mx-2 my-4 new_partner" href="/admin/new-partner"></a>
     </div>
 <%- include ('../partials/footer') %>
