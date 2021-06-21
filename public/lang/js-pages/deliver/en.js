@@ -11,7 +11,6 @@ js_lang_text = {
     clc_price_text: "Calculating Price ..",
     dstnc_too_far_text: "Distance is too far for our service. Please try other places",
     we_dont_wrk_now_text: "Sorry, we don't work around this time",
-    cant_fnsh_in_wrk_time_txt: "Sorry, we cannot finish your delivery within our working time",
     dlvr_info_txt: (distance, price, time) => {
         let text = `Distance: ${distance} km`;
         text += `<br>Price : ${price} DZD`;

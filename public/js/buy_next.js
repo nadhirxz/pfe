@@ -211,9 +211,6 @@ function submitButtonClick(map, invalidInput, deliveryDiv, title, buttons, submi
 							case 4:
 								resultText = js_lang_text.shop_not_wrkn(fromPlace);
 								break;
-							case 5:
-								resultText = js_lang_text.cant_fnsh_in_wrk_time_txt;
-								break;
 						}
 						document.getElementById("result").innerHTML = resultText;
 

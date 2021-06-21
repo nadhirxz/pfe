@@ -129,9 +129,6 @@ firstNextButton.addEventListener('click', () => {
 											case 3:
 												resultText = js_lang_text.we_dont_wrk_now_text;
 												break;
-											case 5:
-												resultText = js_lang_text.cant_fnsh_in_wrk_time_txt;
-												break;
 										}
 										document.getElementById("result").innerHTML = resultText;
 										let cancel = createButton(js_lang_text.cancel_text, "cancel", "btn btn-danger col-4 mx-2 my-2");
