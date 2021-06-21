@@ -2,52 +2,128 @@
 <%- include ('../partials/html') %>
 <head>
 	<%- include ('../partials/head') %>
+	<%- include ('../partials/head') %>
+	<% var texts = {
+		en: [ "Waiting", "Pending", "Accepted", "Refused", "Success", "Failure"],
+		fr: ["En attente", "En cours", "Accepté", "Refusé", "Succès", "Échec"],
+		ar: ["انتظار", "قيد الانتظار", "قبول", "رفض", "نجاح", "فشل"]
+	}; %>
+	<% var classes = [ "warning", "info", "primary", "danger", "success", "danger", "warning", "danger"];%>
+	<%
+		function groupBy(items, key) {
+			return items.reduce(
+				(result, item) => ({
+				...result,
+				[item[key]]: [
+					...(result[item[key]] || []),
+					item,
+				],
+				}), 
+				{},
+			)
+		}
+	%>
+	<% var d; %>
+	<% var dzd = lang == 'ar' ? 'دج' : 'DZD' %>
 </head>
 
 <body>
     <%- include ('../partials/navbar') %>
     <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
         <% if (locals.day) { %>
-            <h4 class="mt-4"><%= day %></h4>
+            <div class="input-group input-group-lg col-8 my-3 mx-auto">
+                <input type="text" class="form-control text-center" id="datepicker" placeholder="Date" readonly="readonly" style="cursor:pointer" value="<%= day %>">
+            </div>
             <hr class="my-4">
-            <p class="my-1 text-left">Deliveries : <b><%= deliveries %></b></p>
-            <p class="my-1 text-left">Profit : <b><%= profit %></b> DZD</p>
+            <p class="my-2"><span class="dlv"></span> <b><%= deliveries_count %></b> (<b><%= profit %></b> <%= dzd %>)</p>
+			<% d = groupBy(deliveries, 'status'); %>
+			<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class="badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
+			<div class="my-4 mx-auto col-6">
+				<a type="button" class="btn btn-block btn-success mx-2 all_details" href="/details"></a>
+			</div>
         <% } else if (locals.drivers) {%>
-            <h4 class="mt-4">Drivers</h4>
+            <h4 class="mt-4"><span class="drivers"></h4>
             <% drivers.forEach(driver => { %>
             <hr class="my-4">
-            <h6 class="my-1 text-center"><%= driver.name %> - <a href="tel:<%= driver.phone %>"><%= driver.phone %></a></h6>
-            <p class="my-1 text-left">Deliveries today : <b><%= driver.daily_deliveries %></b> - Profit today : <b><%= driver.daily_profit %></b> DZD</p>
-            <p class="my-1 text-left">Deliveries this week : <b><%= driver.weekly_deliveries %></b> - Profit this week : <b><%= driver.weekly_profit %></b> DZD</p>
-            <p class="my-1 text-left">All time deliveries : <b><%= driver.all_time_deliveries %></b> - All time profit : <b><%= driver.all_time_profit %></b> DZD</p>
+            <h6 class="my-1"><%= driver.name %> - <a href="tel:<%= driver.phone %>"><%= driver.phone %></a></h6>
+            <p class="my-1"><span class="dlv_tdy"></span> <b><%= driver.daily_deliveries %></b> (<b><%= driver.daily_profit %></b> <%= dzd %>)</p>
+            <p class="my-1"><span class="dlv_week"></span> <b><%= driver.weekly_deliveries %></b> (<b><%= driver.weekly_profit %></b> <%= dzd %>)</p>
+			<p class="my-1"><span class="dlv_mnth"></span> <b><%= driver.monthly_deliveries %></b> (<b><%= driver.monthly_profit %></b> <%= dzd %>)</p>
+            <p class="my-1"><span class="dlv_all"></span> <b><%= driver.all_time_deliveries %></b> (<b><%= driver.all_time_profit %></b> <%= dzd %>)</p>
+			<p class="my-1"><span class="payment"></span> <b<% if(lang == 'ar') { %> dir="ltr"<% } %>><span class="text-<%= driver.paid_status ? 'success' : 'danger' %>"><%= driver.paid %></span> / <%= driver.payment_amount %></b> <%= dzd %> <% if (!driver.paid_status) { %>(<b><%= driver.payment_amount - driver.paid %></b> <%= dzd %> <span class="left_text"></span>)<% } %></p>
+			<p class="my-1"><span class="percentage"></span> <b><%= driver.percentage %>%</b></p>
+			<button class="mt-3 col-4 btn btn-sm btn-success" onclick="pay('d','<%= driver.id %>', '<%= driver.name %>', <%= driver.payment_amount - driver.paid %>)" data-toggle="modal" data-target="#modal"><span class="text_pay"></span></button>
             <% }); %>
+			<hr class="my-4">
+			<div class="my-4 mx-auto col-6">
+				<a type="button" class="btn btn-block btn-success mx-2 all_details" href="/details"></a>
+			</div>
         <% } else if (locals.partners) { %>
-            <h4 class="mt-4">Partners</h4>
+            <h4 class="mt-4"><span class="partners"></h4>
             <% partners.forEach(partner => { %>
             <hr class="my-4">
-            <h6 class="my-1 text-center"><%= partner.name %> - <a href="tel:<%= partner.phone %>"><%= partner.phone %></a></h6>
-            <p class="my-1 text-left">Deliveries from this partner this week : <b><%= partner.deliveries_amount %></b> DZD</p>
-            <p class="my-1 text-left">Percentage : <b><%= partner.percentage %>%</b> - Amount to pay us : <b><%= partner.payment_amount %></b> DZD</p>
+            <h6 class="my-1"><%= partner.name %> - <a href="tel:<%= partner.phone %>"><%= partner.phone %></a></h6>
+            <p class="my-1"><span class="dlv"></span> <b><%= partner.deliveries %></b> (<b><%= partner.deliveries_amount %></b> <%= dzd %>)</p>
+			<% d = groupBy(partner.dlv, 'status'); %>
+			<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class="badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
+            <p class="my-1"><span class="payment"></span> <b><span class="text-<%= partner.paid_status ? 'success' : 'danger' %>"><%= partner.paid %></span> / <%= partner.payment_amount %></b> <%= dzd %> <% if (!partner.paid_status) { %>(<b><%= partner.payment_amount - partner.paid %></b> <%= dzd %> <span class="left_text"></span>)<% } %></p>
+			<p class="my-1"><span class="percentage"></span> <b><%= partner.percentage %>%</b></p>
+			<button class="mt-3 col-4 btn btn-sm btn-success" onclick="pay('p', '<%= partner.id %>', '<%= partner.name %>', <%= partner.payment_amount - partner.paid %>)" data-toggle="modal" data-target="#modal"><span class="text_pay"></span></button>
             <% }); %>
+			<hr class="my-4">
+			<div class="my-4 mx-auto col-6">
+				<a type="button" class="btn btn-block btn-success mx-2 all_details" href="/details"></a>
+			</div>
         <% } else { %>
             <% var today = new Date() %>
-            <h4 class="mt-4"><%= today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0'); %></h4>
-            <hr class="my-4">
-            <p class="my-1 text-left">Deliveries today : <b><%= daily_deliveries %></b> - Profit today : <b><%= daily_deliveries %></b> DZD</p>
-            <p class="my-1 text-left">Deliveries this week : <b><%= weekly_deliveries %></b> - Profit this week : <b><%= weekly_deliveries %></b> DZD</p>
-            <p class="my-1 text-left">All time deliveries : <b><%= all_time_deliveries %></b> - All time profit : <b><%= all_time_deliveries %></b> DZD</p>
-            <hr class="my-4">
-            <a class="btn btn-success" href="/details/drivers">Drivers</a>
-            <a class="btn btn-success" href="/details/partners">Partners</a>
-            <hr class="my-4">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" id="datepicker" placeholder="Date" readonly="readonly">
-                <div class="input-group-append">
-                    <button class="btn btn-success" id="details-btn">Details</button>
-                </div>
+            <div class="input-group input-group-lg col-8 mb-3 mx-auto">
+                <input type="text" class="form-control text-center" id="datepicker" placeholder="Date" readonly="readonly" style="cursor:pointer" value="<%= new Date() %>">
             </div>
-            
+            <p class="my-1"><span class="dlv_tdy"></span> <b><%= daily_deliveries %></b> (<b><%= daily_profit %></b> <%= dzd %>)</p>
+			<% d = groupBy(dailyDeliveries, 'status'); %>
+			<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class="badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
+			<hr>
+            <p class="my-1"><span class="dlv_week"></span> <b><%= weekly_deliveries %></b> (<b><%= weekly_profit %></b> <%= dzd %>)</p>
+			<% d = groupBy(weeklyDeliveries, 'status'); %>
+			<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class="badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
+			<hr>
+			<p class="my-1"><span class="dlv_mnth"></span> <b><%= monthly_deliveries %></b> (<b><%= monthly_profit %></b> <%= dzd %>)</p>
+			<% d = groupBy(monthlyDeliveries, 'status'); %>
+			<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class="badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
+			<hr>
+            <p class="my-1"><span class="dlv_all"></span> <b><%= all_time_deliveries %></b> (<b><%= all_time_profit %></b> <%= dzd %>)</p>
+			<% d = groupBy(deliveries, 'status'); %>
+			<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class="badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
+            <hr class="my-4">
+            <a class="btn btn-success" href="/details/drivers"><span class="drivers"></span></a>
+            <a class="btn btn-success" href="/details/partners"><span class="partners"></span></a>
         <% } %>
+		<% if (locals.partners || locals.drivers ) { %>
+			<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="modal-label"></h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="input-group">
+								<input type="text" onkeypress="return onlyNumberKey(event)" min="0" class="form-control" id="amount">
+								<div class="input-group-append">
+								  	<span class="input-group-text"><%= dzd %></span>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer mx-auto col">
+							<button type="button" class="btn col btn-success text_pay" id="pay-btn"></button>
+							<button type="button" class="btn col btn-secondary text_close" data-dismiss="modal"></button>
+						</div>
+				  	</div>
+				</div>
+			</div>
+		<% } %>
     </div>
 <%- include ('../partials/footer') %>
 </body>
@@ -58,13 +134,11 @@
         format: 'yyyy-mm-dd',
         calendarWeeks: true,
         autoclose: true,
-        todayHighlight: true
-    });
-    $('#details-btn').on('click', () => {
-        if ($('#datepicker').val()) {
-            window.location.href = '/details/'+$('#datepicker').val();   
-        }
+        todayHighlight: true,
+    })<% if(!locals.day) { %>.datepicker('setDate', new Date());;<% } %>
+    $('#datepicker').on('change', (e) => {
+		window.location.href = '/details/'+e.target.value;   
     });
 </script>
-  
+<script src="/js/details.js"></script>
 </html>

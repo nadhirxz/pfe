@@ -818,7 +818,7 @@ app.get('/delivery/:did', checkAuth, checkUser, (req, res) => {
 app.get('/admin', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let todaysDeliveries = getDeliveriesOfToday();
+	let todaysDeliveries = getDeliveriesByDate('today');
 	res.render('pages/admin', {
 		title: titles[lang].admin + settings.titleSuffix[lang],
 		name: user.name,
@@ -828,6 +828,130 @@ app.get('/admin', checkAdmin, (req, res) => {
 		deliveries: todaysDeliveries,
 		profit_today: todaysDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0)
 	});
+});
+
+app.get('/details', checkAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let dailyDeliveries = getDeliveriesByDate('today');
+	let weeklyDeliveries = getDeliveriesByDate('week');
+	let monthlyDeliveries = getDeliveriesByDate('month');
+	res.render('pages/details', {
+		title: titles[lang].details + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
+		daily_deliveries: dailyDeliveries.length,
+		weekly_deliveries: weeklyDeliveries.length,
+		monthly_deliveries: monthlyDeliveries.length,
+		all_time_deliveries: deliveries.length,
+		daily_profit: dailyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+		weekly_profit: weeklyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+		monthly_profit: monthlyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+		all_time_profit: deliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+		dailyDeliveries,
+		weeklyDeliveries,
+		monthlyDeliveries,
+		deliveries
+	});
+});
+
+app.get('/details/:something', checkAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	if (req.params.something == 'drivers') {
+		let d = [];
+		drivers.forEach(driver => {
+			let dailyDeliveries = getDeliveriesByDate('today', driver.id);
+			let weeklyDeliveries = getDeliveriesByDate('week', driver.id);
+			let monthlyDeliveries = getDeliveriesByDate('month', driver.id);
+			let dlv = deliveries.filter(e => e.driver == driver.id);
+			let dlv_amount = dlv.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0);
+			let p_amount = normalizePrice(((dlv_amount || 0) * (driver.percentage / 100)), 50)
+			let paid = driver.paid || 0;
+			d.push({
+				id: driver.id,
+				name: driver.name,
+				phone: driver.phone,
+				daily_deliveries: dailyDeliveries.length,
+				weekly_deliveries: weeklyDeliveries.length,
+				monthly_deliveries: monthlyDeliveries.length,
+				all_time_deliveries: dlv.length,
+				daily_profit: dailyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+				weekly_profit: weeklyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+				monthly_profit: monthlyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+				all_time_profit: dlv_amount,
+				dailyDeliveries,
+				weeklyDeliveries,
+				monthlyDeliveries,
+				dlv,
+				percentage: driver.percentage,
+				payment_amount: p_amount,
+				paid,
+				paid_status: paid == p_amount,
+			})
+		});
+		return res.render('pages/details', {
+			title: titles[lang].details + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			drivers: d
+		});
+	}
+	if (req.params.something == 'partners') {
+		let p = [];
+		partners.forEach(partner => {
+			let dlv = deliveries.filter(e => e.partner == p.id);
+			let dlv_amount = dlv.reduce((acc, b) => acc += b.price, 0)
+			let p_amount = normalizePrice(((dlv_amount || 0) * (partner.percentage / 100)), 50)
+			let paid = partner.paid || 0;
+			p.push({
+				id: partner.id,
+				name: partner.name,
+				phone: partner.phone,
+				deliveries: dlv.length,
+				deliveries_amount: dlv_amount,
+				percentage: partner.percentage,
+				payment_amount: p_amount,
+				paid,
+				paid_status: paid == p_amount,
+				dlv
+			})
+		});
+		return res.render('pages/details', {
+			title: titles[lang].details + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			partners: p
+		});
+	}
+	let date = new Date(req.params.something);
+	let today = new Date(todaysDate());
+	date.setHours(0, 0, 0, 0);
+	today.setHours(23, 59, 59, 999);
+
+	if (!isNaN(date.getTime()) && today.getTime() >= date.getTime()) {
+		let d = getDeliveriesByDate(date);
+		res.render('pages/details', {
+			title: titles[lang].details + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			day: req.params.something,
+			deliveries_count: d.length,
+			deliveries: d,
+			profit: d.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0)
+		});
+	} else {
+		res.render('pages/404', {
+			title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang
+		});
+	}
 });
 
 app.get('/admin/new-key', checkAdmin, (req, res) => {
@@ -847,7 +971,7 @@ app.post('/admin/new-key', checkAdmin, (req, res) => {
 		id: randomHash(4),
 		secretKey: generateKey(secret, phone, parseInt(type)),
 		secretText: secret,
-		percentage: parseInt(percentage) || (type == 1 ? settings.partnerPercentage : settings.driverPercentage),
+		percentage: parseInt(percentage) || null,
 	}
 	db.query("INSERT INTO secretkeys VALUES (?,?,?,?)", [key.id, key.secretKey, key.secretText, key.percentage], (err, results) => {
 		secretkeys.push(key);
@@ -1022,6 +1146,17 @@ app.post('/partners/pay/:id', checkPartnerOrAdmin, (req, res) => {
 		amount = parseInt(amount) || 0;
 		p.paid = parseInt(isNaN(p.paid) ? amount : p.paid + amount);
 		db.query("UPDATE partners SET paid=?", [p.paid]);
+	}
+	return res.send();
+});
+
+app.post('/drivers/pay/:id', checkPartnerOrAdmin, (req, res) => {
+	let amount = req.body.amount;
+	let driver = getUser('id', req.params.id);
+	if (typeof (amount) && driver && driver.type == 2) {
+		amount = parseInt(amount) || 0;
+		driver.paid = parseInt(isNaN(driver.paid) ? amount : driver.paid + amount);
+		db.query("UPDATE drivers SET paid=?", [driver.paid]);
 	}
 	return res.send();
 });
@@ -1314,13 +1449,6 @@ function getDeliveriesOfUser(id) {
 	return [false];
 }
 
-function getDeliveriesOfToday() {
-	if (deliveries) {
-		return deliveries.filter(obj => isToday(obj.date));
-	}
-	return [false];
-}
-
 function getAndSetPageLanguage(req, res, lang) {
 	let language, user;
 
@@ -1375,6 +1503,30 @@ function getPartnersInfo(forAdmin) {
 	});
 }
 
+function getSunday(d) {
+	d = new Date(d);
+	let day = d.getDay();
+	let diff = d.getDate() - day;
+	return new Date(d.setDate(diff));
+}
+
+function getSaturday(date) {
+	date = new Date(date);
+	let resultDate = new Date(date.getTime());
+	resultDate.setDate(date.getDate() + (7 + 6 - date.getDay()) % 7);
+	resultDate.setHours(23, 59, 59);
+	return resultDate;
+}
+
+function getDeliveriesByDate(date, user = false) {
+	if (deliveries) {
+		if (date == 'today') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && isToday(obj.date));
+		else if (date == 'week') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && obj.date.getTime() < getSaturday(new Date(todaysDate())) && obj.date.getTime() > getSunday(new Date(todaysDate())));
+		else if (date == 'month') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && obj.date.getMonth() == new Date(todaysDate()).getMonth() && obj.date.getFullYear() == new Date(todaysDate()).getFullYear());
+		else return deliveries.filter(obj => (user === false || obj.driver == user === false || obj.partner == user) && obj.date.toDateString() == new Date(date).toDateString());
+	}
+	return false;
+}
 
 
 // Some validations and stuff
