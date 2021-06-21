@@ -13,7 +13,7 @@ const MySQLStore = require('express-mysql-session')(session);
 const multer = require('multer');
 const jimp = require('jimp')
 const dotenv = require('dotenv');
-
+const nodeSchedule = require('node-schedule')
 
 // Getting some values
 dotenv.config();
@@ -1913,3 +1913,9 @@ function sendDeliveryToDrivers(delivery) {
 		});
 	}
 }
+
+// Scheduling
+nodeSchedule.scheduleJob({ hour: 12, minute: 29, second: 0 }, () => {
+	loadSchedules();
+	makePartnersSchedules();
+});
