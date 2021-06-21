@@ -519,10 +519,12 @@ app.post('/drivers/register', checkNotAuth, async (req, res) => {
 						phone: phone,
 						password: generateHash(password, id),
 						status: 0,
-						pos: null
+						pos: null,
+						percentage: secretKey.percentage || settings.driverPercentage,
+						paid: null
 					}
 
-					db.query("INSERT INTO drivers VALUES (?,?,?,?,?,?)", [driver.id, driver.name, driver.phone, driver.password, driver.status, driver.pos], (err, results) => {
+					db.query("INSERT INTO drivers VALUES (?,?,?,?,?,?,?,?)", [driver.id, driver.name, driver.phone, driver.password, driver.status, driver.pos, driver.percentage, driver.paid], (err, results) => {
 						if (err) {
 							res.redirect('/drivers?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 						} else {
@@ -845,7 +847,7 @@ app.post('/admin/new-key', checkAdmin, (req, res) => {
 		id: randomHash(4),
 		secretKey: generateKey(secret, phone, parseInt(type)),
 		secretText: secret,
-		percentage: parseInt(percentage) || null,
+		percentage: parseInt(percentage) || (type == 1 ? settings.partnerPercentage : settings.driverPercentage),
 	}
 	db.query("INSERT INTO secretkeys VALUES (?,?,?,?)", [key.id, key.secretKey, key.secretText, key.percentage], (err, results) => {
 		secretkeys.push(key);

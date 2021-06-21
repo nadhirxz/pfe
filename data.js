@@ -14,6 +14,7 @@ let settings = {
 	maxHoursWithoutConfirmation: 50, // hours .. obviously
 
 	partnerPercentage: 10,
+	driverPercentage: 25,
 
 	maxDeliveryDistance: 60, // km
 	maxDriverDeliveriesAtOnce: 5,
