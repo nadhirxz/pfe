@@ -8,19 +8,31 @@
 			choose_file: "Choose file...",
 			save: "Save",
 			desc: "Description",
-			name: "Name"
+			name: "Name",
+			working_days: "Working Days",
+			evrdy_excpt_fri: "Everyday except Friday",
+			evrdy_excpt_fri_sat: "Everyday except Friday and Saturday",
+			evrdy: "Everyday"
 		},
 		fr: {
 			choose_file: "Choisir un fichier...",
 			save: "Sauvegarder",
 			desc: "Description",
-			name: "Nom"
+			name: "Nom",
+			working_days: "Jours de travail",
+			evrdy_excpt_fri: "Tous les jours sauf vendredi",
+			evrdy_excpt_fri_sat: "Tous les jours sauf vendredi et samedi",
+			evrdy: "Tous les jours"
 		},
 		ar: {
 			choose_file: "اختر ملفًا...",
 			save: "حفظ",
 			desc: "وصف",
-			name: "الإسم"
+			name: "الإسم",
+			working_days: "أيام العمل",
+			evrdy_excpt_fri: "كل يوم ما عدا الجمعة",
+			evrdy_excpt_fri_sat: "كل يوم ما عدا الجمعة والسبت",
+			evrdy: "كل يوم"
 		},
 	}
 	%>
@@ -74,11 +86,11 @@
 				<hr class="my-4">
 
 				<div class="form-group col-10 mx-auto">
-					<label for="select">Jours de travail</label> 
+					<label for="select"><%= l[lang].working_days %></label> 
 					<select class="custom-select" id="select">
-						<option value="0"<% if (partner.schedule == 0) { %>selected<% } %>>Tous les jours sauf vendredi</option>
-						<option value="1"<% if (partner.schedule == 1) { %>selected<% } %>>Tous les jours sauf vendredi et samedi</option>
-						<option value="2"<% if (partner.schedule == 2) { %>selected<% } %>>Tous les jours</option>
+						<option value="0"<% if (partner.schedule == 0) { %>selected<% } %>><%= l[lang].evrdy_excpt_fri %></option>
+						<option value="1"<% if (partner.schedule == 1) { %>selected<% } %>><%= l[lang].evrdy_excpt_fri_sat %></option>
+						<option value="2"<% if (partner.schedule == 2) { %>selected<% } %>><%= l[lang].evrdy %></option>
 					</select>
 					</div>
 				<div class="row justify-content-center">
