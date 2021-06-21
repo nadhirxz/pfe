@@ -12,6 +12,6 @@ lang_text = {
 		"phone-field": "رقم الهاتف",
 		"password-field": "كلمه السر",
 		"secret-field": "الرمز السري",
-		"p-field": "النسبة المئوية (للشركاء فقط)"
+		"perc": "النسبة"
 	}
 }

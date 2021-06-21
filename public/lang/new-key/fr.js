@@ -12,6 +12,6 @@ lang_text = {
 		"phone-field": "Numéro de téléphone",
 		"password-field": "Mot de passe",
 		"secret-field": "Code secret",
-		"p-field": "Pourcentage (uniquement pour les partenaires)"
+		"perc": "Pourcentage"
 	}
 }
