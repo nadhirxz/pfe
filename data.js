@@ -91,7 +91,7 @@ let titles = {
 		terms: "Conditions d'utilisation",
 		driver: "Livreur",
 		car_driver: "Livreur avec voiture",
-		staff: "Livreurs",
+		drivers: "Livreurs",
 		admin: "Administrateur",
 		add_partner: "Ajouter un partenaire",
 		add_key: "Ajouter une clé",
