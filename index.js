@@ -530,7 +530,7 @@ app.post('/drivers/register', checkNotAuth, (req, res) => {
 						password: generateHash(password, id),
 						status: 0,
 						pos: null,
-						percentage: secretKey.percentage || settings.driverPercentage,
+						percentage: secretkey.percentage || settings.driverPercentage,
 						paid: null
 					}
 
