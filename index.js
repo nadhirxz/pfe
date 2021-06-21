@@ -1002,7 +1002,7 @@ app.post('/admin/new-partner', checkAdmin, (req, res) => {
 			paid: 0
 		}
 		partners.push(newPartner);
-		db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", [newPartner.id, name, newPartner.phone, newPartner.password, stringifyPosition(newPartner.pos), newPartner.confirmed, newPartner.secret, newPartner.description, schedule, startTime, endTime, newPartner.paid]);
+		db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [newPartner.id, name, newPartner.phone, newPartner.password, stringifyPosition(newPartner.pos), newPartner.confirmed, newPartner.secret, newPartner.description, schedule, startTime, endTime, newPartner.percentage, newPartner.paid]);
 		return res.redirect('/partners/' + id);
 	}
 	return res.redirect('/admin/new-partner/?sec=' + secret + '&err=' + errors.invalidSecret);
