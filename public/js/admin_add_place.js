@@ -26,7 +26,7 @@ const l = {
 		evrdy_excpt_fri_sat: "Everyday except Friday and Saturday",
 		evrdy: "Everyday",
 		eg9: "eg. 09:00",
-		eg5: "eg. 17:00",
+		eg5: "eg. 18:00",
 		save: "Save"
 	},
 	fr: {
@@ -36,8 +36,8 @@ const l = {
 		evrdy_excpt_fri: "Tous les jours sauf vendredi",
 		evrdy_excpt_fri_sat: "Tous les jours sauf vendredi et samedi",
 		evrdy: "Tous les jours",
-		eg9: "ex. 09h00",
-		eg5: "ex. 17:00",
+		eg9: "ex. 09:00",
+		eg5: "ex. 18:00",
 		save: "Sauvegarder"
 	},
 	ar: {
@@ -48,7 +48,7 @@ const l = {
 		evrdy_excpt_fri_sat: "كل يوم ما عدا الجمعة والسبت",
 		evrdy: "كل يوم",
 		eg9: "مثال: 09:00",
-		eg5: "مثال: 17:00",
+		eg5: "مثال: 18:00",
 		save: "حفظ"
 	}
 }
@@ -70,14 +70,34 @@ nextButton.addEventListener('click', () => {
 			startTime = document.getElementById('from').value;
 			endTime = document.getElementById('to').value;
 			if (position && placeName && secretKey && startTime && endTime) {
-				post("/admin/new-partner", {
-					name: placeName,
-					place: position,
-					secret: secretKey,
-					schedule: schedule,
-					startTime: startTime,
-					endTime: endTime
-				});
+
+				let r = /^([01]\d|2[0-3]):?([0-5]\d)$/;
+				let save = true;
+
+				if (r.test(startTime)) {
+					document.getElementById('from').classList.remove('is-invalid');
+				} else {
+					document.getElementById('from').classList.add('is-invalid');
+					save = false;
+				}
+
+				if (r.test(endTime)) {
+					document.getElementById('to').classList.remove('is-invalid');
+				} else {
+					document.getElementById('to').classList.add('is-invalid');
+					save = false;
+				}
+
+				if (save) {
+					post("/admin/new-partner", {
+						name: placeName,
+						place: position,
+						secret: secretKey,
+						schedule: schedule,
+						startTime: startTime,
+						endTime: endTime
+					});
+				}
 			}
 		});
 	}
