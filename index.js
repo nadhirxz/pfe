@@ -861,36 +861,7 @@ app.get('/details/:something', checkAdmin, (req, res) => {
 	let lang = getAndSetPageLanguage(req, res);
 	if (req.params.something == 'drivers') {
 		let d = [];
-		drivers.forEach(driver => {
-			let dailyDeliveries = getDeliveriesByDate('today', driver.id);
-			let weeklyDeliveries = getDeliveriesByDate('week', driver.id);
-			let monthlyDeliveries = getDeliveriesByDate('month', driver.id);
-			let dlv = deliveries.filter(e => e.driver == driver.id);
-			let dlv_amount = dlv.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0);
-			let p_amount = normalizePrice(((dlv_amount || 0) * (driver.percentage / 100)), 50)
-			let paid = driver.paid || 0;
-			d.push({
-				id: driver.id,
-				name: driver.name,
-				phone: driver.phone,
-				daily_deliveries: dailyDeliveries.length,
-				weekly_deliveries: weeklyDeliveries.length,
-				monthly_deliveries: monthlyDeliveries.length,
-				all_time_deliveries: dlv.length,
-				daily_profit: dailyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
-				weekly_profit: weeklyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
-				monthly_profit: monthlyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
-				all_time_profit: dlv_amount,
-				dailyDeliveries,
-				weeklyDeliveries,
-				monthlyDeliveries,
-				dlv,
-				percentage: driver.percentage,
-				payment_amount: p_amount,
-				paid,
-				paid_status: paid == p_amount,
-			})
-		});
+		drivers.forEach(driver => d.push(getDriverDetails(driver)));
 		return res.render('pages/details', {
 			title: titles[lang].details + settings.titleSuffix[lang],
 			name: user.name,
@@ -901,24 +872,7 @@ app.get('/details/:something', checkAdmin, (req, res) => {
 	}
 	if (req.params.something == 'partners') {
 		let p = [];
-		partners.forEach(partner => {
-			let dlv = deliveries.filter(e => e.partner == p.id);
-			let dlv_amount = dlv.reduce((acc, b) => acc += b.price, 0)
-			let p_amount = normalizePrice(((dlv_amount || 0) * (partner.percentage / 100)), 50)
-			let paid = partner.paid || 0;
-			p.push({
-				id: partner.id,
-				name: partner.name,
-				phone: partner.phone,
-				deliveries: dlv.length,
-				deliveries_amount: dlv_amount,
-				percentage: partner.percentage,
-				payment_amount: p_amount,
-				paid,
-				paid_status: paid == p_amount,
-				dlv
-			})
-		});
+		partners.forEach(partner => p.push(getPartnerDetails(partner)));
 		return res.render('pages/details', {
 			title: titles[lang].details + settings.titleSuffix[lang],
 			name: user.name,
@@ -1528,6 +1482,55 @@ function getDeliveriesByDate(date, user = false) {
 	return false;
 }
 
+function getPartnerDetails(partner) {
+	let dlv = deliveries.filter(e => e.partner == partner.id);
+	let dlv_amount = dlv.reduce((acc, b) => acc += b.price, 0)
+	let p_amount = normalizePrice(((dlv_amount || 0) * (partner.percentage / 100)), 50)
+	let paid = partner.paid || 0;
+	return {
+		id: partner.id,
+		name: partner.name,
+		phone: partner.phone,
+		deliveries: dlv.length,
+		deliveries_amount: dlv_amount,
+		percentage: partner.percentage,
+		payment_amount: p_amount,
+		paid,
+		paid_status: paid >= p_amount,
+		dlv
+	};
+}
+
+function getDriverDetails(driver) {
+	let dailyDeliveries = getDeliveriesByDate('today', driver.id);
+	let weeklyDeliveries = getDeliveriesByDate('week', driver.id);
+	let monthlyDeliveries = getDeliveriesByDate('month', driver.id);
+	let dlv = deliveries.filter(e => e.driver == driver.id);
+	let dlv_amount = dlv.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0);
+	let p_amount = normalizePrice(((dlv_amount || 0) * (driver.percentage / 100)), 50)
+	let paid = driver.paid || 0;
+	return {
+		id: driver.id,
+		name: driver.name,
+		phone: driver.phone,
+		daily_deliveries: dailyDeliveries.length,
+		weekly_deliveries: weeklyDeliveries.length,
+		monthly_deliveries: monthlyDeliveries.length,
+		all_time_deliveries: dlv.length,
+		daily_profit: dailyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+		weekly_profit: weeklyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+		monthly_profit: monthlyDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0),
+		all_time_profit: dlv_amount,
+		dailyDeliveries,
+		weeklyDeliveries,
+		monthlyDeliveries,
+		dlv,
+		percentage: driver.percentage,
+		payment_amount: p_amount,
+		paid,
+		paid_status: paid >= p_amount,
+	};
+}
 
 // Some validations and stuff
 function phoneValid(phone) {
