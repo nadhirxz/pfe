@@ -45,7 +45,7 @@
 		<% if (total_deliveries) { %>
 			<% if (userDeliveries && userDeliveries.length) { %>
 			<div class="my-2">
-				<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class=" badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
+				<% Object.keys(d).forEach(key => { %> <% if (d[key] && d[key].length) { %><span class="badge badge-<%= classes[key] %>">(<%= d[key].length %>) <%= texts[lang][key] %></span><% } %><% });%>
 			</div>
 			<% } %>
 		<% } %>
