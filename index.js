@@ -49,7 +49,9 @@ var partners = [];
 var items = [];
 var drivers = [];
 var admins = [];
-var we_are_working_now = true;
+var working_status = true;
+var schedule = ['08:00', '18:00'];
+var todays_schedule = [];
 var partners_schedule = [];
 var secretkeys = [];
 
@@ -108,6 +110,14 @@ db.query("SELECT * FROM users", (err, results) => {
 							results.forEach(result => {
 								secretkeys.push(Object.assign({}, result));
 							});
+
+							db.query("SELECT * FROM schedule WHERE id='schedule'", (err, results) => {
+								results = Object.assign({}, results[0]);
+								schedule = [results.s_from, results.s_to]
+								working_status = Boolean(results.working.readIntBE(0, 1));
+								loadSchedules();
+							});
+
 						});
 					});
 				});
@@ -274,7 +284,7 @@ let checkInWorkHours = (req, res, next) => {
 		if (inWorkHours()) next();
 		else return res.render('pages/errors', {
 			title: titles[lang].out_of_srvc + settings.titleSuffix[lang],
-			error: titles[lang].crrntly_out_of_srvc + settings.titleSuffix[lang],
+			error: titles[lang].crrntly_out_of_srvc,
 			body: '',
 			name: user.name,
 			type: user.type,
@@ -321,11 +331,11 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 			total_spent: userDeliveries.filter(e => e.status == 4).reduce((acc, obj) => acc += obj.price, 0),
 			total_deliveries: userDeliveries.length,
 			userDeliveries: userDeliveries,
-			working: we_are_working_now,
+			working: working_status,
 			work_hours: inWorkHours()
 		}
 
-		if (!inWorkHours()) dataToSend.schedule = our_schedule;
+		if (!inWorkHours()) dataToSend.schedule = schedule;
 
 		let page = 'home';
 		if (user.type == 1) {
@@ -721,6 +731,7 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 	// 1 = accepted and didn't find a driver
 	// 2 = distance too far
 	// 3 = not in work hours range
+	// 4 = partner not working
 
 	if (data.distance > settings.maxDeliveryDistance || getDistance(data.from, settings.AlgiersPos) > settings.maxDeliveryDistance || getDistance(data.to, settings.AlgiersPos) > settings.maxDeliveryDistance) {
 		dataToSend.status = 2;
@@ -742,14 +753,10 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 			} else {
 				let timeToFinish = Math.ceil((d.time + ((data.distance / settings.driverSpeed) * 60)) / settings.nearestMinute) * settings.nearestMinute;
 
-				if (willDeliveryExceedOurWorkTime(timeToFinish)) {
-					dataToSend.status = 5;
-				} else {
-					user.hash = generateHash('' + data.distance, '' + user.last_delivery_price);
-					dataToSend.status = 0;
-					dataToSend.time = timeToFinish;
-					dataToSend.price = user.last_delivery_price;
-				}
+				user.hash = generateHash('' + data.distance, '' + user.last_delivery_price);
+				dataToSend.status = 0;
+				dataToSend.time = timeToFinish;
+				dataToSend.price = user.last_delivery_price;
 			}
 		}
 	} else {
@@ -828,6 +835,32 @@ app.get('/admin', checkAdmin, (req, res) => {
 		deliveries: todaysDeliveries,
 		profit_today: todaysDeliveries.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0)
 	});
+});
+
+app.get('/schedule', checkAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/admin_schedule', {
+		title: titles[lang].schedule + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
+		we_are_working_now: working_status,
+		schedule: schedule
+	});
+});
+
+app.post('/schedule', checkAdmin, (req, res) => {
+	let { from, to } = req.body;
+	schedule = [from, to];
+	db.query("UPDATE schedule SET s_from=?, s_to=? WHERE id='schedule'", [schedule[0], schedule[1]]);
+	return res.redirect('/schedule');
+});
+
+app.post('/schedule/working', checkAdmin, (req, res) => {
+	working_status = !working_status;
+	db.query("UPDATE schedule SET working=? WHERE id='schedule'", [working_status]);
+	return res.redirect('/schedule');
 });
 
 app.get('/details', checkAdmin, (req, res) => {
@@ -1428,7 +1461,12 @@ function getAndSetPageLanguage(req, res, lang) {
 }
 
 function inWorkHours() {
-	return true;
+	let now = new Date();
+	return working_status && (now >= (new Date(todays_schedule[0])) && now <= (new Date(todays_schedule[1])));
+}
+
+function loadSchedules() {
+	todays_schedule = [new Date(`${todaysDate()} ${schedule[0]}`).getTime(), new Date(`${todaysDate()} ${schedule[1]}`).getTime()];
 }
 
 function normalizePrice(price, to, floor) {
@@ -1622,11 +1660,6 @@ function calculatePrice(distance, weight) {
 
 function getTravelTime(pos, from) {
 	return Math.ceil(((getDistance(pos, from) / settings.driverSpeed) * 60));
-}
-
-function willDeliveryExceedOurWorkTime(timeToFinish) {
-	let time = Date.now() + timeToFinish * 60 * 1000;
-	return !inWorkHours(time);
 }
 
 function isToday(date) {

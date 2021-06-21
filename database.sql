@@ -98,6 +98,9 @@ CREATE TABLE finance_drivers (
 
 CREATE TABLE schedule (
 	id VARCHAR(8) PRIMARY KEY,
-	schedule TEXT NOT NULL,
+	s_from VARCHAR(5) NOT NULL,
+	s_to VARCHAR(5) NOT NULL,
 	working BIT NOT NULL
 );
+
+INSERT INTO schedule VALUES ('schedule', '08:00', '18:00', 1);
