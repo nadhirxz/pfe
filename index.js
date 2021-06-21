@@ -1031,13 +1031,7 @@ app.get('/partners/:id', checkAdmin, (req, res) => {
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			partner: {
-				name: partner.name,
-				id: partner.id,
-				place: partner.place,
-				desc: partner.description,
-				img: fs.existsSync(`./public/img/partners/${partner.id}.png`) ? `/img/partners/${partner.id}.png` : '/img/partners/default.png'
-			}
+			partner: getPartnerSettings(partner)
 		});
 	}
 	let name, type;
@@ -1063,13 +1057,7 @@ app.get('/partner/details', checkPartner, (req, res) => {
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			partner: {
-				name: user.name,
-				id: user.id,
-				place: user.place,
-				desc: user.description,
-				img: fs.existsSync(`./public/img/partners/${user.id}.png`) ? `/img/partners/${user.id}.png` : '/img/partners/default.png'
-			}
+			partner: getPartnerSettings(user)
 		});
 	}
 	let name, type;
@@ -1138,6 +1126,19 @@ app.post('/partners/pay/:id', checkPartnerOrAdmin, (req, res) => {
 		db.query("UPDATE partners SET paid=?", [p.paid]);
 	}
 	return res.send();
+});
+
+app.post('/partners/schedule/:id', checkPartnerOrAdmin, (req, res) => {
+	let { from, to, schedule } = req.body;
+	let p = getPartner('id', req.params.id);
+	let r = /^([01]\d|2[0-3]):?([0-5]\d)$/;
+	if (p && r.test(from) && r.test(to) && new Date('1/1/1 ' + from).getTime() < new Date('1/1/1 ' + to)) {
+		p.schedule = parseInt(schedule) || p.schedule;
+		p.startTime = from;
+		p.endTime = to;
+		db.query("UPDATE partners SET schedule=?, startTime=?, endTime=? WHERE id=?", [p.schedule, p.startTime, p.endTime, p.id]);
+	}
+	return res.redirect('/partners/' + req.params.id);
 });
 
 app.post('/drivers/pay/:id', checkPartnerOrAdmin, (req, res) => {
@@ -1572,6 +1573,21 @@ function getDriverDetails(driver) {
 		paid_status: paid >= p_amount,
 	};
 }
+
+function getPartnerSettings(partner) {
+	return {
+		name: partner.name,
+		id: partner.id,
+		place: partner.place,
+		desc: partner.description,
+		img: fs.existsSync(`./public/img/partners/${partner.id}.png`) ? `/img/partners/${partner.id}.png` : '/img/partners/default.png',
+		schedule: partner.schedule,
+		startTime: partner.startTime,
+		endTime: partner.endTime
+	}
+}
+
+
 
 // Some validations and stuff
 function phoneValid(phone) {
