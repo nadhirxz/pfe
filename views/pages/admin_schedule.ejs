@@ -2,63 +2,25 @@
 <%- include ('../partials/html') %>
 <head>
 	<%- include ('../partials/head') %>
-	<% var l = {
-		en: {
-			wrkn: "Working Now",
-			not_wrkn: "NOT Working Now",
-			stop_wrkn: "Stop working",
-			start_wrkn: "Start working",
-			save: "Save",
-			sure_stop: "Are you sure you want to stop working ?",
-			sure_start: "Are you sure you want to start working ?",
-			stop: "Stop",
-			start: "Start",
-			cancel: "Cancel"
-		},
-		fr: {
-			wrkn: "On travaille maintenant",
-			not_wrkn: "On ne travaille PAS maintenant",
-			stop_wrkn: "Arrêter de travailler",
-			start_wrkn: "Commencer à travailler",
-			save: "Sauvegarder",
-			sure_stop: "Êtes-vous sûr de vouloir arrêter de travailler ?",
-			sure_start: "Êtes-vous sûr de vouloir commencer à travailler ?",
-			stop: "Arrêter",
-			start: "Commencer",
-			cancel: "Annuler"
-		},
-		ar: {
-			wrkn: "We are currently working",
-			not_wrkn: "We are currently NOT working",
-			stop_wrkn: "Stop working",
-			start_wrkn: "Start working",
-			save: "Save",
-			sure_stop: "Are you sure you want to stop working ?",
-			sure_start: "Are you sure you want to start working ?",
-			stop: "Stop",
-			start: "Start",
-			cancel: "Cancel"
-		}
-	} %>
 </head>
 
 <body>
     <%- include ('../partials/navbar') %>
     <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
         <% if(we_are_working_now) { %>
-        <h5 class="text-success"><%= l[lang].wrkn %></h5>
-        <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal"><%= l[lang].stop_wrkn %></button>
+        <h5 class="text-success wrkn"></h5>
+        <button class="btn btn-danger btn-sm not_wrkn" data-toggle="modal" data-target="#modal"></button>
         <% } else { %>
-        <h5 class="text-danger"><%= l[lang].not_wrkn %></h5>
-        <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal"><%= l[lang].start_wrkn %></button>
+        <h5 class="text-danger stop_wrkn"></h5>
+        <button class="btn btn-success btn-sm start_wrkn" data-toggle="modal" data-target="#modal"></button>
         <% } %>
         <hr class="my-4">
         <form action="/schedule" method="post">
             <div class="row">
-				<input type="text" class="form-control m-auto col-5" id="secret-field" name="from" placeholder="eg. 09:00" value="<%= schedule[0] %>" required>
-				<input type="text" class="form-control m-auto col-5" id="secret-field" name="to" placeholder="eg. 18:00" value="<%= schedule[1] %>" required>
+				<input type="text" class="form-control m-auto col-5" name="from" placeholder="eg. 09:00" value="<%= schedule[0] %>" required>
+				<input type="text" class="form-control m-auto col-5" name="to" placeholder="eg. 18:00" value="<%= schedule[1] %>" required>
 			</div>
-            <button class="btn btn-success col-4 my-4" type="submit"><%= l[lang].save %></button>
+            <button class="btn btn-success col-4 my-4 save" type="submit"></button>
         </form>
     </div>
     <div class="modal" id="modal">
@@ -67,9 +29,9 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <% if(we_are_working_now) { %>
-                        <h5 class="modal-title"><%= l[lang].sure_stop %></h5>
+                        <h5 class="modal-title sure_stop"></h5>
                         <% } else { %>
-                        <h5 class="modal-title"><%= l[lang].sure_start %></h5>
+                        <h5 class="modal-title sure_start"></h5>
                         <% } %>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -79,12 +41,12 @@
                         <form action="/schedule/working" method="post">
                             <input type = "hidden" name = "nothing" value = "something" />
                             <% if(we_are_working_now) { %>
-                            <button type="submit" class="btn btn-danger mx-2"><%= l[lang].stop %></button>
+                            <button type="submit" class="btn btn-danger mx-2 stop"></button>
                             <% } else { %>
-                            <button type="submit" class="btn btn-success mx-2"><%= l[lang].start %></button>
+                            <button type="submit" class="btn btn-success mx-2 start"></button>
                             <% } %>
                         </form>
-                        <button type="button" class="btn btn-secondary mx-2" data-dismiss="modal"><%= l[lang].cancel %></button>
+                        <button type="button" class="btn btn-secondary mx-2 cancel" data-dismiss="modal"></button>
                     </div>
                 </div>
             </div>
@@ -93,4 +55,12 @@
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
+<script>
+    $('#datepicker').datepicker({
+        format: 'HH:mm',
+        calendarWeeks: true,
+        autoclose: true,
+        todayHighlight: true,
+    });
+</script>
 </html>
