@@ -512,7 +512,7 @@ app.post('/partners/register', checkNotAuth, (req, res) => {
 	}
 });
 
-app.post('/drivers/register', checkNotAuth, async (req, res) => {
+app.post('/drivers/register', checkNotAuth, (req, res) => {
 	let { phone, name, password, secret } = req.body;
 	if (phone && name && password && secret) {
 		if (phoneValid(phone)) {
