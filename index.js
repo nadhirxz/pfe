@@ -442,6 +442,7 @@ app.post('/login', checkNotAuth, (req, res) => {
 
 app.post('/register', checkNotAuth, (req, res) => {
 	let { name, phone, password } = req.body;
+	let lang = getAndSetPageLanguage(req, res);
 	if (phone && password && name) {
 		if (nameValid(name)) {
 			if (phoneValid(phone)) {
@@ -458,9 +459,10 @@ app.post('/register', checkNotAuth, (req, res) => {
 							pin_retries: 5,
 							confirmed: false,
 							last_delivery: 0,
-							reg_date: new Date()
+							reg_date: new Date(),
+							lang
 						}
-						db.query("INSERT INTO users VALUES (?,?,?,?,?,?)", [newUser.id, newUser.name, newUser.phone, newUser.password, newUser.confirmed ? 1 : 0, newUser.reg_date], (err, results) => {
+						db.query("INSERT INTO users VALUES (?,?,?,?,?,?,?)", [newUser.id, newUser.name, newUser.phone, newUser.password, newUser.confirmed ? 1 : 0, newUser.reg_date, user.lang], (err, results) => {
 							if (err) return res.redirect('/register?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 							users.push(newUser);
 							sendPin(phone, getAndSetPageLanguage(req, res));
@@ -526,6 +528,7 @@ app.post('/partners/register', checkNotAuth, (req, res) => {
 
 app.post('/drivers/register', checkNotAuth, (req, res) => {
 	let { phone, name, password, secret } = req.body;
+	let lang = getAndSetPageLanguage(req, res);
 	if (phone && name && password && secret) {
 		if (phoneValid(phone)) {
 			let user = getUser('phone', phone);
@@ -543,10 +546,11 @@ app.post('/drivers/register', checkNotAuth, (req, res) => {
 						status: 0,
 						pos: null,
 						percentage: secretkey.percentage || settings.driverPercentage,
-						paid: null
+						paid: null,
+						lang
 					}
 
-					db.query("INSERT INTO drivers VALUES (?,?,?,?,?,?,?,?)", [driver.id, driver.name, driver.phone, driver.password, driver.status, driver.pos, driver.percentage, driver.paid], (err, results) => {
+					db.query("INSERT INTO drivers VALUES (?,?,?,?,?,?,?,?,?)", [driver.id, driver.name, driver.phone, driver.password, driver.status, driver.pos, driver.percentage, driver.paid, driver.lang], (err, results) => {
 						if (err) {
 							res.redirect('/drivers?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 						} else {
@@ -998,6 +1002,7 @@ app.get('/admin/new-partner', checkAdmin, (req, res) => {
 app.post('/admin/new-partner', checkAdmin, (req, res) => {
 	let { name, secret, place, schedule, startTime, endTime } = req.body;
 	let secretKey = secretkeys.find(e => e.secretText == secret);
+	let lang = getAndSetPageLanguage(req, res);
 	if (secretKey) {
 		let id = randomHash(4);
 		let newPartner = {
@@ -1012,10 +1017,11 @@ app.post('/admin/new-partner', checkAdmin, (req, res) => {
 			schedule,
 			startTime,
 			endTime,
-			paid: 0
+			paid: 0,
+			lang
 		}
 		partners.push(newPartner);
-		db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [newPartner.id, name, newPartner.phone, newPartner.password, stringifyPosition(newPartner.pos), newPartner.confirmed, newPartner.secret, newPartner.description, schedule, startTime, endTime, newPartner.percentage, newPartner.paid]);
+		db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [newPartner.id, name, newPartner.phone, newPartner.password, stringifyPosition(newPartner.pos), newPartner.confirmed, newPartner.secret, newPartner.description, schedule, startTime, endTime, newPartner.percentage, newPartner.paid, newPartner.lang]);
 		return res.redirect('/partners/' + id);
 	}
 	return res.redirect('/admin/new-partner/?sec=' + secret + '&err=' + errors.invalidSecret);
@@ -1516,7 +1522,10 @@ function getAndSetPageLanguage(req, res, lang) {
 	if (req.session.uid) user = getUser('id', req.session.uid);
 
 	if (lang) {
-		if (user) user.lang = lang;
+		if (user) {
+			user.lang = lang;
+			db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'partners' : user.type == 2 ? 'drivers' : 'admins'} SET lang=? WHERE id=?`, [user.lang, user.id]);
+		}
 		language = lang;
 	} else if (user && user.lang && ['en', 'fr', 'ar'].includes(user.lang)) {
 		language = user.lang;
@@ -1527,7 +1536,10 @@ function getAndSetPageLanguage(req, res, lang) {
 		let user_lang;
 		if (l && ['en', 'fr', 'ar'].includes(l)) user_lang = req.acceptsLanguages()[0].substr(0, 2)
 		language = user_lang || settings.defaultWebsiteLanguage;
-		if (user) user.lang = language;
+		if (user) {
+			user.lang = language;
+			db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'partners' : user.type == 2 ? 'drivers' : 'admins'} SET lang=? WHERE id=?`, [user.lang, user.id]);
+		}
 	}
 
 	res.cookie('lang', language, { signed: true, maxAge: settings.sessionMaxAge });

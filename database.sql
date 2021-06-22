@@ -4,14 +4,16 @@ CREATE TABLE users (
 	phone VARCHAR(10) NOT NULL,
 	password VARCHAR(64) NOT NULL,
 	confirmed BIT NOT NULL,
-	reg_date TIMESTAMP
+	reg_date TIMESTAMP,
+	lang VARCHAR(2)
 );
 
 CREATE TABLE admins (
 	id VARCHAR(8) PRIMARY KEY,
 	name VARCHAR(40) NOT NULL,
 	phone VARCHAR(10) NOT NULL,
-	password VARCHAR(64) NOT NULL
+	password VARCHAR(64) NOT NULL,
+	lang VARCHAR(2)
 );
 
 CREATE TABLE drivers (
@@ -22,7 +24,8 @@ CREATE TABLE drivers (
 	status BIT NOT NULL,
 	pos VARCHAR(50),
 	percentage INT(2),
-	paid INT(10)
+	paid INT(10),
+	lang VARCHAR(2)
 );
 
 CREATE TABLE secretkeys (
@@ -46,6 +49,7 @@ CREATE TABLE partners (
 	endTime VARCHAR(5),
 	percentage INT(2),
 	paid INT(10),
+	lang VARCHAR(2),
 	FOREIGN KEY (secret) REFERENCES secretkeys(id)
 );
 
