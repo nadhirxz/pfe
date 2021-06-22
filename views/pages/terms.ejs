@@ -8,7 +8,43 @@
     <%- include ('../partials/navbar') %>
     <div class="px-5 my-2 m-auto text-center">
         <p id="terms">
-            <%- include ('../partials/terms') %>
+            <% if (lang == 'en') { %>
+			<h2 class="my-4">Terms of Service</h2>
+			<p class="col-md-6 m-auto text-left py-2">By using the Wesselli application or website, you signify your agreement to be bounded by these conditions.</p>
+			<p class="col-md-6 m-auto text-left py-2">In addition, when you use any current or future Wesselli service, you will also be subject to the terms and conditions applicable to that Wesselli service</p>
+			<p class="col-md-6 m-auto text-left py-2">1.	If you use the Wesselli website or application, you are responsible for the maintaining the confidentiality of your account and password and you agree to accept responsibility for all activities that accrue under your account or password. You should take all necessary steps to ensure that the password is kept confidential and secure and you should inform us if you have any reason to believe that your password has become knows to anyone else.</p>
+			<p class="col-md-6 m-auto text-left py-2">2.	To have access to our services the client should sign up on the application Wesselli or website wesselli.me filling up the required information correctly, if the information’s aren’t complete the login will not be validated.</p>
+			<p class="col-md-6 m-auto text-left py-2">3.	Before creating a profile, Wesselli needs to confirm the client’s phone number with a confirmation code.</p>
+			<p class="col-md-6 m-auto text-left py-2">4.	We receive and store any information you entre on our website or give us in any other way. You can choose not to provide certain information, but then you might not be able to take advantages of many of our services.</p>
+			<p class="col-md-6 m-auto text-left py-2">5.	We receive and store certain types of information whenever you interact with us. For example, the use of cookies …</p>
+			<p class="col-md-6 m-auto text-left py-2">6.	We may receive information about your location. We may use this information to provide you with location based services.</p>
+			<p class="col-md-6 m-auto text-left py-2">7.	Information about our customers is an important part of our business, that being said we share customer information only as described below. To help provide the best service possible to our customers we share certain information with our business partners and they have agreed to not share any of it.</p>
+			<p class="col-md-6 m-auto text-left py-2">8.	These terms can be updated; the client will be notified when it happens.</p>
+			<% } else if (lang == 'fr') { %>
+			<h2 class="my-4">Conditions d'utilisation</h2>
+			<p class="col-md-6 m-auto text-left py-2">En utilisant l'application Wesselli ou le site Web Wesselli.me, vous signifiez votre acceptation d'être lié par ces conditions.</p>
+			<p class="col-md-6 m-auto text-left py-2">De plus, lorsque vous utilisez un service de Wesselli actuel ou futur, vous serez également soumis aux conditions générales applicables à ce service.</p>
+			<p class="col-md-6 m-auto text-left py-2">1.	Si vous utilisez le site Web wesselli.me ou l'application Wesselli, vous êtes responsable du maintien la confidentialité de votre compte et de votre mot de passe et vous acceptez la responsabilité de toutes les activités qui découlent de votre compte et mot de passe. Vous devez prendre toutes les mesures nécessaires pour vous assurer que le mot de passe reste confidentiel et sécurisé et vous devez nous informer si vous avez des raisons de croire que votre mot de passe est devenu connu de quelqu'un d'autre.</p>
+			<p class="col-md-6 m-auto text-left py-2">2.	Pour avoir accès à nos services, le client doit s'inscrire sur l'application Wesselli ou sur le site Web wesselli.me en remplissant correctement les informations requises, si les informations ne sont pas complètes, l’inscription ne sera pas validée.</p>
+			<p class="col-md-6 m-auto text-left py-2">3.	Avant de créer un profil, Wesselli doit confirmer le numéro de téléphone du client avec un code de confirmation.</p>
+			<p class="col-md-6 m-auto text-left py-2">4.	Nous recevons et stockons toutes les informations que vous entrez sur notre site Web ou que vous nous communiquez de toute autre manière. Vous pouvez choisir de ne pas fournir certaines informations, mais vous ne pourrez peut-être pas profiter de bon nombre de nos services.</p>
+			<p class="col-md-6 m-auto text-left py-2">5.	Nous recevons et stockons certains types d'informations chaque fois que vous interagissez avec nous. Par exemple, l'utilisation de cookies ...</p>
+			<p class="col-md-6 m-auto text-left py-2">6.	Nous pouvons recevoir des informations sur votre emplacement. Nous pouvons utiliser ces informations pour vous fournir des services basés sur la localisation.</p>
+			<p class="col-md-6 m-auto text-left py-2">7.	Les informations sur nos clients sont une partie importante de notre activité et services, cela étant dit, nous partageons les informations clients uniquement comme décrit ci-dessous. Pour aider à fournir le meilleur service possible à nos clients, nous partageons certaines informations avec nos partenaires commerciaux et ils ont accepté de ne pas les partager.</p>
+			<p class="col-md-6 m-auto text-left py-2">8.	Ces conditions peuvent être mises à jour ; le client sera averti quand cela se produira.</p>
+			<% } else  { %>
+			<h2 class="my-4">شروط الخدمة</h2>
+			<p class="col-md-6 m-auto text-right py-2">باستخدام تطبيق Wesselli أو موقع الويب ، فإنك توافقتك على الالتزام بهذه الشروط.</p>
+			<p class="col-md-6 m-auto text-right py-2">بالإضافة إلى ذلك ، عندما تستخدم أي خدمة لي Wesselli حالية أومستقبلية ، فستخضع أيضًا  لنفس الشروط.</p>
+			<p class="col-md-6 m-auto text-right py-2">1.	إذا كنت تستخدم موقع Wesselli الإلكتروني أو تطبيقه ، فأنت مسؤول عن الحفاظ على سرية حسابك وكلمة المرور وتوافق على قبول المسؤولية عن جميع الأنشطة التي تتم من خلال حسابك و كلمة المرور. يجب عليك اتخاذ جميع الخطوات اللازمة لضمان الحفاظ على سرية كلمة المرور وأمانها ويجب عليك إبلاغنا إذا كان لديك أي سبب للاعتقاد بأن كلمة المرور الخاصة بك قد أصبحت معروفة من طرف أي شخص آخر.</p>
+			<p class="col-md-6 m-auto text-right py-2">2.	للوصول إلى خدماتنا ، يجب على العميل الاشتراك في تطبيق Wesselli أو موقع الويب wesselli.me وملء المعلومات المطلوبة بشكل صحيح، إذا لم تكن المعلومات كاملة، فلن يتم التحقق من صحة تسجيل الدخول.</p>
+			<p class="col-md-6 m-auto text-right py-2">3.	قبل إنشاء حساب، تحتاج Wesselli إلى تأكيد رقم هاتف العميل برمز تأكيد.</p>
+			<p class="col-md-6 m-auto text-right py-2">4.	نتلقى ونخزن أي معلومات تدخلها على موقعنا أو تعطينا اياها بأي طريقة أخرى. يمكنك اختيار عدم تقديم معلومات معينة ، ولكن قد لا تتمكن بعد ذلك من الاستفادة من العديد من خدماتنا.</p>
+			<p class="col-md-6 m-auto text-right py-2">5.	نتلقى ونخزن أنواعًا معينة من المعلومات كلما تفاعلت معنا. على سبيل المثال ، استخدام ملفات تعريف الارتباط (cookies)  ...</p>
+			<p class="col-md-6 m-auto text-right py-2">6.	قد نتلقى معلومات حول موقعك قد نستخدم هذه المعلومات لنوفر لك خدمات تستند على الموقع.</p>
+			<p class="col-md-6 m-auto text-right py-2">7.	تعتبر المعلومات المتعلقة بعملائنا جزءًا مهمًا من عملنا ، حيث إننا نشارك معلومات العملاء فقط كما هو موضح أدناه. للمساعدة في تقديم أفضل خدمة ممكنة لعملائنا ، نشارك معلومات معينة مع شركائنا التجاريين مع العلم أنهم وافقوا على عدم مشاركة أوبيع أي منها.</p>
+			<p class="col-md-6 m-auto text-right py-2">8.	يمكن تحديث هذه الشروط. سيتم إعلام العميل عند حدوث ذلك.</p>
+			<% } %>
         </p>
     </div>
 <%- include ('../partials/footer') %>

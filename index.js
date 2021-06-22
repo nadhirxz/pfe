@@ -1229,6 +1229,54 @@ app.post('/profile/name', checkAuth, checkConfirmed, checkNotPartner, (req, res)
 	return res.redirect('/');
 });
 
+app.get('/about', (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let name, type;
+	if (typeof (user) != 'undefined') {
+		name = user.name;
+		type = user.type;
+	}
+	res.render('pages/about', {
+		title: titles[lang].about + settings.titleSuffix[lang],
+		name: name,
+		type: type,
+		lang: lang
+	});
+});
+
+app.get('/terms', (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let name, type;
+	if (typeof (user) != 'undefined') {
+		name = user.name;
+		type = user.type;
+	}
+	res.render('pages/terms', {
+		title: titles[lang].terms + settings.titleSuffix[lang],
+		name: name,
+		type: type,
+		lang: lang,
+	});
+});
+
+app.get('/privacy', (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let name, type;
+	if (typeof (user) != 'undefined') {
+		name = user.name;
+		type = user.type;
+	}
+	res.render('pages/privacy', {
+		title: titles[lang].privacy + settings.titleSuffix[lang],
+		name: name,
+		type: type,
+		lang: lang,
+	});
+});
+
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
 	return res.redirect('/')
