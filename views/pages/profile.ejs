@@ -7,11 +7,18 @@
 <body>
     <%- include ('../partials/navbar') %>
     <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
-        <h1></h1>
-        <div class="form-group">
-            <label for="name-field" class="name_text"></label>
-            <input type="text" class="form-control text-center" id="name-field" name="phone" value="<%= name %>" disabled>
+		<div class="alert alert-dismissible alert-success rounded d-none">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <span class="name_chngd_txt"></span>
         </div>
+		<form action="/profile/name" method="post">
+			<div class="form-group">
+				<label for="name-field" class="name_text"></label>
+				<input type="text" class="form-control text-center" id="name-field" name="name" value="<%= name %>" required>
+				<div class="invalid-feedback" id="name-feed"></div>
+				<button type="submit" class="btn btn-success col my-3 save"></button>
+			</div>
+		</form>
         <div class="form-group">
             <label for="phone-field" class="phone_text"></label>
             <input type="tel" maxlength="10" class="form-control text-center" id="phone-field" name="phone" value="<%= phone %>" disabled>
@@ -22,5 +29,6 @@
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
+<script src="/js/profile.js"></script>
 
 </html>

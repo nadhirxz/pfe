@@ -1194,6 +1194,23 @@ app.post('/profile/password', checkAuth, checkConfirmed, (req, res) => {
 	return res.redirect('/');
 });
 
+app.post('/profile/name', checkAuth, checkConfirmed, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	if (user) {
+		let { name } = req.body;
+		if (name) {
+			if (nameValid(name)) {
+				user.name = formatName(name);
+				db.query("UPDATE users SET name=? WHERE id=?", [user.name, user.id]);
+				return res.redirect('/profile?success=1');
+			}
+			return res.redirect('/profile?err=' + errors.invalidNameErr + '&name=' + name);
+		}
+		return res.redirect('/profile?err=' + errors.invalidNameErr);
+	}
+	return res.redirect('/');
+});
+
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
 	return res.redirect('/')
