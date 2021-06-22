@@ -19,6 +19,7 @@ var page = false;
 if (window.location.pathname.split('/')[1] == 'delivery') page = 'delivery';
 else if (window.location.pathname.split('/')[1] == 'buy') page = 'buy';
 else if (window.location.pathname.split('/')[1] == 'details') page = 'details';
+else if (window.location.pathname.split('/')[2] == 'password') page = 'password';
 else if (window.location.pathname.split('/')[2]) page = window.location.pathname.split('/')[2]
 
 $.getScript(`/lang${page ? '/' + page : window.location.pathname.length > 1 ? window.location.pathname : '/index'}/${lng}.js`, () => {

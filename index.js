@@ -1154,6 +1154,46 @@ app.post('/drivers/pay/:id', checkPartnerOrAdmin, (req, res) => {
 });
 
 
+app.get('/profile', checkAuth, checkConfirmed, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/profile', {
+		title: titles[lang].profile + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
+		phone: user.phone
+	});
+});
+
+app.get('/profile/password', checkAuth, checkConfirmed, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	return res.render('pages/edit_password', {
+		title: titles[lang].edit_password + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang
+	});
+});
+
+app.post('/profile/password', checkAuth, checkConfirmed, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	if (user) {
+		let { old_password, new_password } = req.body;
+		if (generateHash(old_password, user.id) == user.password) {
+			if (passwordValid(new_password)) {
+				user.password = generateHash(new_password, user.id);
+				db.query("UPDATE users SET password=? WHERE id=?", [user.password, user.id]);
+				return res.redirect('/profile/password?success=1');
+			}
+			return res.redirect('/profile/password?err=' + errors.invalidPasswordErr);
+		}
+		return res.redirect('/profile/password?err=' + errors.wrongPasswordErr);
+	}
+	return res.redirect('/');
+});
+
 app.get('/en', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
 	return res.redirect('/')
