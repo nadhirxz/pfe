@@ -8,8 +8,13 @@ var weight;
 var thingsPrice;
 
 $('#object-select').on('change', (e) => {
-	if (e.target.value == 'other') $('#delivery-thing-div').removeClass('d-none');
-	else $('#delivery-thing-div').addClass('d-none');
+	if (e.target.value == 'other') {
+		$('#delivery-thing-div').removeClass('d-none');
+		$('#delivery-price-div').removeClass('d-none');
+	} else {
+		$('#delivery-thing-div').addClass('d-none');
+		$('#delivery-price-div').addClass('d-none');
+	}
 	trackInput();
 });
 
@@ -37,7 +42,8 @@ nextButton.addEventListener('click', () => {
 		else delivery.thing = $('#object-select').val();
 		if (deliverFromPartner) {
 			delivery.fromPlace = selectedPlace;
-			thingsPrice = parseInt($('#object-select').html().split('">')[2].split('(')[1].split(' DZD'));
+			if ($('#object-select').val() == 'other') thingsPrice = parseInt(thingsPriceInput.value) || 0;
+			else thingsPrice = parseInt($('#object-select').html().split('">')[2].split('(')[1].split(' DZD'));
 		} else {
 			delivery.fromPlace = nameInput.value;
 			thingsPrice = parseInt(document.getElementById('delivery-thing-price').value) || 0;
@@ -51,7 +57,7 @@ nextButton.addEventListener('click', () => {
 
 function trackInput() {
 	if (deliverFromPartner) {
-		if ((thingInput.value || $('#object-select').val() != 'other')) {
+		if ((thingInput.value && thingsPriceInput.value || $('#object-select').val() != 'other')) {
 			toggleButton(true);
 		} else {
 			toggleButton(false);

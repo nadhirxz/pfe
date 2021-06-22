@@ -16,6 +16,12 @@
                     <label class="deliver_from_text"></label>
                     <input type="text" class="form-control" value="<% if(partner == 'other') { %><%= other[lang] %><%} else { %><%= partner %><% } %>" disabled>
                 </div>
+				<% if (partner == 'other') { %>
+					<div class="form-group" id="another-shop">
+						<label for="delivery-thing" class="shop_name_text"></label>
+						<input type="text" class="form-control" id="name" onkeyup="trackInput()">
+					</div>
+					<% } %>
 				<% if (partner != 'other') { %>
 				<div class="form-group">
 					<label class="thing_text"></label>
@@ -33,6 +39,10 @@
                     <label for="delivery-thing" class="object_name"></label>
                     <input type="text" class="form-control" id="thing" onkeyup="trackInput()">
                 </div>
+				<div class="form-group" id="delivery-price-div">
+                    <label class="price_text"></label>
+                    <input type="number" onkeypress="return onlyNumberKey(event)" onkeyup="trackInput()" maxlength="10" min="0" class="form-control" id="delivery-thing-price" onkeyup="trackInput()">
+                </div>
                 <div class="form-group">
                     <label class="weight_text"></label>
                     <select class="custom-select" id="delivery-weight">
@@ -40,16 +50,6 @@
                         <option value="1" class="not_less_than_5_text"></option>
                     </select>
                 </div>
-                <% if (partner == 'other') { %>
-                <div class="form-group" id="another-shop">
-                    <label for="delivery-thing" class="shop_name_text"></label>
-                    <input type="text" class="form-control" id="name" onkeyup="trackInput()">
-                </div>
-                <div class="form-group">
-                    <label class="price_text"></label>
-                    <input type="number" onkeypress="return onlyNumberKey(event)" onkeyup="trackInput()" maxlength="10" min="0" class="form-control" id="delivery-thing-price" onkeyup="trackInput()">
-                </div>
-                <% } %>
             </div>
             <br>
             <button type="button" id="cancel-button" class="btn btn-danger col-4 cancel_text"></button>
