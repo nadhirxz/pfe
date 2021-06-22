@@ -11,14 +11,17 @@
             <button type="button" class="close" data-dismiss="alert">&times;</button>
             <span class="name_chngd_txt"></span>
         </div>
+		<% if (type != 1) { %>
 		<form action="/profile/name" method="post">
 			<div class="form-group">
 				<label for="name-field" class="name_text"></label>
 				<input type="text" class="form-control text-center" id="name-field" name="name" value="<%= name %>" required>
 				<div class="invalid-feedback" id="name-feed"></div>
+				
 				<button type="submit" class="btn btn-success col my-3 save"></button>
 			</div>
 		</form>
+		<% }%>
         <div class="form-group">
             <label for="phone-field" class="phone_text"></label>
             <input type="tel" maxlength="10" class="form-control text-center" id="phone-field" name="phone" value="<%= phone %>" disabled>

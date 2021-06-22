@@ -237,6 +237,18 @@ let checkPartner = (req, res, next) => {
 		}
 	}
 }
+let checkNotPartner = (req, res, next) => {
+	if (!req.session.uid) { // user not authenticated
+		res.redirect('/login');
+	} else {
+		let user = getUser('id', req.session.uid);
+		if (user && user.type != 1) {
+			next();
+		} else {
+			res.redirect('/');
+		}
+	}
+}
 
 let checkDriver = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
@@ -1194,7 +1206,7 @@ app.post('/profile/password', checkAuth, checkConfirmed, (req, res) => {
 	return res.redirect('/');
 });
 
-app.post('/profile/name', checkAuth, checkConfirmed, (req, res) => {
+app.post('/profile/name', checkAuth, checkConfirmed, checkNotPartner, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	if (user) {
 		let { name } = req.body;
