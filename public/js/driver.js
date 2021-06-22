@@ -77,9 +77,11 @@ async function createNewRequestDiv(delivery, deliveryStatus) {
 	inner_div.classList.add('jumbotron');
 	if (deliveryStatus === 'new') {
 		inner_div.style.backgroundColor = '#FF7373';
-		let notification_text = js_lang_text.notification_text(delivery.price, delivery.distance, delivery.name);
-		if (typeof (delivery.partner) != 'undefined') notification_text += ` - ${delivery.name}`;
-		if (typeof (Android) !== 'undefined') Android.showNotification(js_lang_text.new_delivery_request_text, notification_text);
+		if (typeof (Android) !== 'undefined') {
+			let notification_text = js_lang_text.notification_text(delivery.price, delivery.distance, delivery.name);
+			if (typeof (delivery.partner) != 'undefined') notification_text += ` - ${delivery.name}`;
+			Android.showNotification(js_lang_text.new_delivery_request_text, notification_text);
+		}
 	}
 
 	request_div.appendChild(inner_div);
