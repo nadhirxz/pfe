@@ -1,4 +1,3 @@
-</html>
 <!DOCTYPE html>
 <%- include ('../partials/html') %>
 <head>
@@ -6,50 +5,74 @@
     <%- include ('../partials/leaflet') %>
     <%- include ('../partials/lrm') %>
     <% var other = {en: "Other",fr: "Autre",ar: "أخرى"} %>
-    <% var choose = {en: "Choose",fr: "Choisir",ar: "اختر"} %>
 </head>
 
 <body>
     <%- include ('../partials/navbar') %>
-    <div class="col m-auto text-center pt-2" id="delivery-from">
-		<div class="container">
-			<div class="row justify-content-center">
-			<% if (places.length) { %>
-				<% places.forEach(place => { %>
-					<div class="col-lg-3 col-md-5 col-10 mx-3 my-3">
-						<div class="card h-100">
-							<div class="card-header">
-								<h5 class="card-title my-auto"><%= place.name %></h5>
-							</div>
-							<img class="my-auto" src="<%= place.img %>">
-							<% if (place.desc) { %>
-							<div class="card-body">
-								<p class="card-text"><%= place.desc %></p>
-							</div>
-							<% } %>
-							<div class="card-footer">
-								<a href="/buy/<%= place.id %>" class="btn btn-info sticky-bottom text-center"><%= choose[lang] %></a>
-							</div>
-						</div>
+    <div class="col-md-8 col-lg-5 m-auto text-center pt-2" id="delivery-from">
+        <div id="delivery">
+            <div class="form-group">
+                <div class="form-group">
+                    <label class="deliver_from_text"></label>
+                    <input type="text" class="form-control" value="<% if(partner == 'other') { %><%= other[lang] %><%} else { %><%= partner %><% } %>" disabled>
+                </div>
+				<% if (partner == 'other') { %>
+					<div class="form-group" id="another-shop">
+						<label for="delivery-thing" class="shop_name_text"></label>
+						<input type="text" class="form-control" id="name" onkeyup="trackInput()">
 					</div>
-				<% }); %>
-			<% } %>
-			<div class="col-lg-3 col-md-5 col-10 mx-3 my-3">
-				<div class="card h-100">
-					<div class="card-header">
-						<h5 class="card-title my-auto"><%= other[lang] %></h5>
-					</div>
-					<img class="my-auto" src="/img/partners/default.png">
-					<div class="card-footer">
-						<a href="/buy/other" class="btn btn-info sticky-bottom text-center"><%= choose[lang] %></a>
-					</div>
+					<% } %>
+				<% if (partner != 'other') { %>
+				<div class="form-group">
+					<label class="thing_text"></label>
+					<select id="object-select" class="custom-select" id="delivery-weight">
+						<% if (locals.items && items.length) { %>
+						<% items.forEach(item => { %>
+						<option value="<%= item.id %>"><%= item.name %> (<%= item.price %> DZD)</option>		
+						<% }); %>
+						<% } %>
+						<option value="other" class="other_text" selected></option>
+					</select>
 				</div>
-			</div>
-			</div>
-		</div>
+				<% } %>
+                <div class="form-group" id="delivery-thing-div">
+                    <label for="delivery-thing" class="object_name"></label>
+                    <input type="text" class="form-control" id="thing" onkeyup="trackInput()">
+                </div>
+				<div class="form-group" id="delivery-price-div">
+                    <label class="price_text"></label>
+                    <input type="number" onkeypress="return onlyNumberKey(event)" onkeyup="trackInput()" maxlength="10" min="0" class="form-control" id="delivery-thing-price" onkeyup="trackInput()">
+                </div>
+                <div class="form-group">
+                    <label class="weight_text"></label>
+                    <select class="custom-select" id="delivery-weight">
+                        <option value="0" selected class="less_than_5_text"></option>
+                        <option value="1" class="not_less_than_5_text"></option>
+                    </select>
+                </div>
+            </div>
+            <br>
+            <button type="button" id="cancel-button" class="btn btn-danger col-4 cancel_text"></button>
+            <button type="button" id="next-button" class="btn btn-secondary col-4 disabled next_text"></button>
+        </div>
     </div>
     
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
-</html>
+<script>
+    var at = "<%= at %>";
+    var gh = "<%= gh %>";
+</script>
+<script src="/lang/js-pages/buy/<%= lang %>.js"></script>
+<script src="/js/disable_refresh.js"></script>
+<script>
+    fromPlace = "<%= partner %>"
+    <% if (place) { %>
+    fromPos = [<%= place[0] %>,<%= place[1] %>];
+    selectedPlace = "<%= pid %>";
+    <% } else { %>
+    var selectedPlace;
+    <% } %>
+</script>
+<script src="/js/buy.js"></script>

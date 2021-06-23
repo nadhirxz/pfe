@@ -670,12 +670,12 @@ app.get('/buy', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	if (typeof (user.last_delivery) == 'undefined' || (((new Date().getTime() - new Date(user.last_delivery).getTime()) / 1000) / 60 > settings.intervalBetweenDeliveries)) {
-		return res.render('pages/buy', {
+		return res.render('pages/partners_page', {
 			title: titles[lang].new_buy + settings.titleSuffix[lang],
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			places: getPartnersInfo()
+			partners: getPartnersInfo()
 		});
 	}
 	return res.render('pages/errors', {
@@ -712,7 +712,7 @@ app.get('/buy/:id', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	}
 
 	if (typeof (user.last_delivery) == 'undefined' || (((new Date().getTime() - new Date(user.last_delivery).getTime()) / 1000) / 60 > settings.intervalBetweenDeliveries)) {
-		return res.render('pages/buy_next', {
+		return res.render('pages/buy', {
 			title: titles[lang].new_buy + settings.titleSuffix[lang],
 			name: user.name,
 			type: user.type,
@@ -807,7 +807,7 @@ app.get('/delivery-err', checkAuth, checkUser, (req, res) => {
 	})
 });
 
-app.get('/delivery/:did', checkAuth, checkUser, (req, res) => {
+app.get('/delivery/:did', checkAuth, (req, res) => {
 	let delivery = getDelivery('id', req.params.did);
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
@@ -817,23 +817,8 @@ app.get('/delivery/:did', checkAuth, checkUser, (req, res) => {
 		type: user.type,
 		lang: lang
 	}
-	if (delivery) {
-		return res.render('pages/delivery', {
-			...the_return, ...deliveryInfoPage(delivery)
-		});
-	} else {
-		db.query("SELECT * FROM deliveries WHERE id=?", [req.params.did], (err, results) => {
-			if (results && results[0]) {
-				delivery = results[0];
-				delivery.delivery_from = parsePosition(delivery.delivery_from);
-				delivery.delivery_to = parsePosition(delivery.delivery_to);
-				delivery.weight = Boolean(delivery.weight.readIntBE(0, 1));
-				return res.render('pages/delivery', {
-					...the_return, ...deliveryInfoPage(delivery)
-				});
-			}
-		});
-	}
+	if (delivery && (user.type == 3 || (user.type == 0 && delivery.uid == user.id) || (user.type == 1 && delivery.partner == user.id))) return res.render('pages/delivery', { ...the_return, ...deliveryInfoPage(delivery) });
+
 	the_return.title = titles[lang].pg_dsnt_xst + settings.titleSuffix[lang];
 	return res.render('pages/404', the_return);
 });
@@ -922,7 +907,6 @@ app.get('/details/:something', checkAdmin, (req, res) => {
 		});
 	}
 	if (req.params.something == 'deliveries') {
-		console.log(getGroupedDeliveries()[formatDate(new Date())])
 		return res.render('pages/deliveries', {
 			title: titles[lang].details + settings.titleSuffix[lang],
 			name: user.name,
@@ -1076,13 +1060,12 @@ app.post('/admin/new-partner', checkAdmin, (req, res) => {
 app.get('/partners/info', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let p = getPartnersInfo(true);
-	res.render('pages/partners_info', {
+	return res.render('pages/partners_page', {
 		title: titles[lang].partners + settings.titleSuffix[lang],
 		name: user.name,
 		type: user.type,
 		lang: lang,
-		partners: p
+		partners: getPartnersInfo(true)
 	});
 });
 
