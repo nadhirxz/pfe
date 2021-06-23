@@ -208,7 +208,7 @@ async function createNewRequestDiv(delivery, deliveryStatus) {
 		let accept_button = document.createElement("button");
 		accept_button.innerHTML = js_lang_text.accept_text;
 		accept_button.classList.add('btn');
-		accept_button.classList.add('btn-success');
+		accept_button.classList.add('btn-info');
 		accept_button.classList.add('mx-2');
 		accept_button.setAttribute('data-toggle', 'modal');
 		accept_button.setAttribute('data-target', '#modal');
@@ -265,7 +265,7 @@ socket.on('accepted_delivery_approve', (data) => {
 	let route_button = document.createElement("button");
 	route_button.innerHTML = js_lang_text.route_text;
 	route_button.classList.add('btn');
-	route_button.classList.add('btn-info');
+	route_button.classList.add('btn-primary');
 	route_button.classList.add('m-2');
 	inner_div.appendChild(route_button);
 

@@ -1,10 +1,10 @@
 if (typeof (Android) != 'undefined' && Android.getAppVersion().endsWith('(Driver)')) {
-	$('.bg-success').each((i, e) => {
-		$(e).addClass('bg-primary').removeClass('bg-primary');
+	$('.bg-info').each((i, e) => {
+		$(e).addClass('bg-success').removeClass('bg-info');
 	})
 	$('#nav-reg-btn').attr('href', '/drivers')
-	$('.btn .btn .btn-success .btn-block').each((i, e) => {
-		$(e).addClass('btn-primary').removeClass('btn-success');
+	$('.btn .btn .btn-info .btn-block').each((i, e) => {
+		$(e).addClass('btn-success').removeClass('btn-info');
 	});
-	$('#submit-btn').addClass('btn-primary').removeClass('btn-success');
+	$('#submit-btn').addClass('btn-success').removeClass('btn-info');
 }

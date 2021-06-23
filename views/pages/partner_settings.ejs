@@ -51,7 +51,7 @@
 					<div class="custom-file col-md-9 col-lg-6">
 						<label class="custom-file-label" for="partner-image"><%= l[lang].choose_file %></label>
 						<input type="file" class="custom-file-input" name="img" id="partner-image" accept="image/*" required>
-						<button type="submit" class="btn btn-success my-2 col-8"><%= l[lang].save %></button>
+						<button type="submit" class="btn btn-info my-2 col-8"><%= l[lang].save %></button>
 						<hr class="my-4 d-block d-md-none">
 					</div>
 				</form>
@@ -66,7 +66,7 @@
 							<input class="form-control text-center" maxlength="40" name="name" id="name" value="<%= partner.name %>">
 						</div>
 						<div class="flex-grow-1">
-							<button type="submit" class="btn btn-block btn-success"><%= l[lang].save %></button>
+							<button type="submit" class="btn btn-block btn-info"><%= l[lang].save %></button>
 						</div>
 					</div>
 				</form>
@@ -79,7 +79,7 @@
 							<label for="desc"><%= l[lang].desc %></label>
 							<textarea class="form-control" name="desc" id="desc" rows="2"><%= partner.desc %></textarea>
 						</div>
-						<button type="submit" class="btn btn-success my-2 col-5"><%= l[lang].save %></button>
+						<button type="submit" class="btn btn-info my-2 col-5"><%= l[lang].save %></button>
 					</div>
 				</form>
 
@@ -97,7 +97,7 @@
 					<input type="text" class="form-control form-control-lg text-center mx-2 col-4" maxlength="5" id="from" name="from" placeholder="09:00" value="<%= partner.startTime %>">
 					<input type="text" class="form-control form-control-lg text-center mx-2 col-4" maxlength="5" id="to" name="to" placeholder="18:00" value="<%= partner.endTime %>">
 				</div>
-				<button class="btn btn-success col-4 my-4" id="save-sc"><%= l[lang].save %></button>
+				<button class="btn btn-info col-4 my-4" id="save-sc"><%= l[lang].save %></button>
 			</div>
 		</div>
         <% } %>

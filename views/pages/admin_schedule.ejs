@@ -19,7 +19,7 @@
 			<input type="text" class="form-control form-control-lg text-center mx-2 col-4" maxlength="5" id="from" name="from" placeholder="09:00" value="<%= schedule[0] %>" required>
 			<input type="text" class="form-control form-control-lg text-center mx-2 col-4" maxlength="5" id="to" name="to" placeholder="18:00" value="<%= schedule[1] %>" required>
 		</div>
-		<button class="btn btn-success col-4 my-4 save" id="save" type="submit"></button>
+		<button class="btn btn-info col-4 my-4 save" id="save" type="submit"></button>
     </div>
     <div class="modal" id="modal">
         <div class="vertical-alignment-helper">
@@ -41,7 +41,7 @@
                             <% if(we_are_working_now) { %>
                             <button type="submit" class="btn btn-danger mx-2 stop"></button>
                             <% } else { %>
-                            <button type="submit" class="btn btn-success mx-2 start"></button>
+                            <button type="submit" class="btn btn-info mx-2 start"></button>
                             <% } %>
                         </form>
                         <button type="button" class="btn btn-secondary mx-2 cancel" data-dismiss="modal"></button>

@@ -5,7 +5,7 @@ var passwordField = document.getElementById('password-field');
 toggle.style.cursor = "pointer";
 toggle.addEventListener('click', () => {
     if (passwordField.type == 'password') {
-        toggleIcon.className = "fa fa-eye text-primary";
+        toggleIcon.className = "fa fa-eye text-info";
         passwordField.type = "text";
     } else {
         toggleIcon.className = "fa fa-eye-slash";

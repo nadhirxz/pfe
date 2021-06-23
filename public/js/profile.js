@@ -13,7 +13,6 @@ if (url) {
 		$('#name-feed').addClass('d-block');
 	}
 	if ('success' in params) {
-		console.log('success')
         $('.alert-success').removeClass('d-none');
         $('.name_chngd_txt').html(texts[lng][1]);
     }

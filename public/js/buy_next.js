@@ -75,11 +75,11 @@ function toggleButton(value) {
 	if (value) {
 		nextButton.classList.remove('disabled');
 		nextButton.classList.remove('btn-secondary');
-		nextButton.classList.add('btn-success');
+		nextButton.classList.add('btn-info');
 	} else {
 		nextButton.classList.add('disabled');
 		nextButton.classList.add('btn-secondary');
-		nextButton.classList.remove('btn-success');
+		nextButton.classList.remove('btn-info');
 	}
 }
 
@@ -98,7 +98,7 @@ function getNextDiv(deliverFromPartner, fromPlace) {
 	formGroupDiv.innerHTML = '';
 
 	var buttons = document.createElement('div');
-	var nextButton = createButton(js_lang_text.next_text, "next", "btn btn-success col-4");
+	var nextButton = createButton(js_lang_text.next_text, "next", "btn btn-info col-4");
 
 	buttons.appendChild(nextButton);
 
@@ -158,7 +158,7 @@ function nextButtonClick(map, invalidInput, deliveryDiv, title, buttons, nextBut
 
 			nextButton.parentElement.removeChild(nextButton);
 
-			let submitButton = createButton(js_lang_text.submit_text, "submit", "btn btn-success col-4");
+			let submitButton = createButton(js_lang_text.submit_text, "submit", "btn btn-info col-4");
 
 			submitButton.addEventListener("click", (e) => {
 				submitButtonClick(map, invalidInput, deliveryDiv, title, buttons, submitButton);
@@ -227,7 +227,7 @@ function submitButtonClick(map, invalidInput, deliveryDiv, title, buttons, submi
 						document.getElementById('confirmDeliveryButtonDiv').appendChild(cancel);
 
 						if (data.status == 0 || data.status == 1) {
-							let submit = createButton(js_lang_text.submit_text, "submit", "btn btn-success col-4 mx-2 my-2");
+							let submit = createButton(js_lang_text.submit_text, "submit", "btn btn-info col-4 mx-2 my-2");
 							submit.addEventListener("click", (e) => {
 								let type;
 								let partner;
