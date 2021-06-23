@@ -202,3 +202,7 @@ nav {
 i {
 	font-family: 'FontAwesome' !important;
 }
+
+b {
+	font-weight: 800;
+}
