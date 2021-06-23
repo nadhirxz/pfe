@@ -198,3 +198,7 @@ nav {
 	margin: 0 auto;
 	pointer-events: all;
 }
+
+i {
+	font-family: 'FontAwesome' !important;
+}

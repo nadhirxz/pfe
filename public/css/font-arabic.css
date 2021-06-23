@@ -1,0 +1,10 @@
+@font-face {
+	font-family: 'Arabic';
+	font-style: normal;
+	src: url(arabic.woff2) format('woff2');
+}
+
+* {
+    font-family: 'Arabic', normal !important;
+	font-size: 1.2rem;
+}

@@ -8,11 +8,10 @@
 	<meta name="msapplication-TileColor" content="#17c671">
 	<meta name="theme-color" content="#17c671">
 	<title><%= title %></title>
+	<% if (lang == 'ar') { %><link rel="stylesheet" href="/css/font-arabic.css">
+	<% } else { %><link rel="stylesheet" href="/css/font.css"><% } %>
 	<link rel="stylesheet" href="/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous">
 	<link rel="stylesheet" href="/css/shards.min.css">
 	<link rel="stylesheet" href="/css/main.css">
-	<% if (lang == 'ar') { %>
-	<link rel="stylesheet" href="/css/arabic.css">
-	<% } %>
 	<script src="/js/bootstrap/jquery-3.5.1.min.js"></script>
