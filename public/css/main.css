@@ -199,14 +199,14 @@ nav {
 	pointer-events: all;
 }
 
-i {
-	font-family: 'FontAwesome' !important;
-}
-
 b {
 	font-weight: 800;
 }
 
 .border-grey {
 	border: #5A6169 1px solid;
+}
+
+i {
+	font-family: 'FontAwesome' !important;
 }

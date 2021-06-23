@@ -5,6 +5,29 @@
 }
 
 * {
-    font-family: 'Arabic', normal !important;
-	font-size: 1.2rem;
+	font-family: 'Arabic', normal !important;
+}
+
+.btn, .btn>span, input, label, tr {
+	font-size: 1.2rem !important;
+}
+
+p, span, h6,  #datepicker {
+	font-size: 1.6rem !important;
+}
+
+h4 {
+	font-size: 2rem !important;
+}
+
+h2, h2>span {
+	font-size: 3rem !important;
+}
+
+h1>span{
+	font-size: 4rem !important;
+}
+
+.badge {
+	font-size: 1.2rem !important;
 }
