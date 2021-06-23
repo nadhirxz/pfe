@@ -64,7 +64,8 @@ let titles = {
 		privacy: "Privacy Policy",
 		edit_password: "Edit Password",
 		partners: "Partners",
-		your_items: "Your Items"
+		your_items: "Your Items",
+		deliveries: "Deliveries"
 	},
 	fr: {
 		out_of_srvc: "Hors service",
@@ -97,7 +98,8 @@ let titles = {
 		privacy: "Politique de confidentialité",
 		edit_password: "Modifier le Mot de Passe",
 		partners: "Partenaires",
-		your_items: "Votre Objets"
+		your_items: "Votre Objets",
+		deliveries: "Livraisons"
 	},
 	ar: {
 		out_of_srvc: "خارج الخدمة",
@@ -130,7 +132,8 @@ let titles = {
 		privacy: "سياسة الخصوصية",
 		edit_password: "تغيير كلمة السر",
 		partners: "الشركاء",
-		your_items: "السلعة الخاصة بك"
+		your_items: "السلعة الخاصة بك",
+		deliveries: "طلبات التوصيل"
 	}
 }
 

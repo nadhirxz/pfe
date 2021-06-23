@@ -1,5 +1,6 @@
 lang_text = {
 	all_details: "All Details",
+	dlvs: "Deliveries",
 	dlv: "Deliveries :",
 	dlv_tdy: "Deliveries today :",
 	dlv_week: "Deliveries this week :",

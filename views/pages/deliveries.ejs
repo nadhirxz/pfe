@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="mx-3 text-center">
+		<div class="input-group input-group-lg col-md-3 col-6 mb-3 mx-auto">
+			<input type="text" class="form-control text-center" id="datepicker" readonly="readonly" style="cursor:pointer" value="<%= new Date() %>">
+		</div>
+        <% if (locals.deliveries && deliveries.length) { %>
+			<% locals.userDeliveries = deliveries; locals.noTitle = true; %>
+			<%- include ('../partials/user_deliveries') %>
+		<% } else { %>
+			<h4 class="my-5 no_dlvrs"></h4>
+		<% } %>
+		<a class="btn btn-info col-md-2 col-5" href="/details/deliveries/all"><span class="all_dlv"></span></a>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shards-ui/3.0.0/js/shards.min.js" integrity="sha512-pY3v/NW9hYmsCbTOeU6NHkNbaTAAGXLTZ27i1MIqHVLwniv/0xt26F5vSKI3jr2bZBJP3k2jRvlilMCp3E1bKg==" crossorigin="anonymous"></script>
+
+<script>
+	$('#datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        calendarWeeks: true,
+        autoclose: true,
+        todayHighlight: true,
+    })<% if(locals.day) { %>.datepicker('setDate', new Date('<%= day %>'));;<% } %>
+    $('#datepicker').on('change', (e) => {
+		window.location.href = '/details/deliveries/'+e.target.value;   
+    });
+</script>
+
+</html>

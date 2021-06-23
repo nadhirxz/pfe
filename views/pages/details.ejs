@@ -66,8 +66,11 @@
 		<% locals.deliveries = deliveries; %><%- include ('../partials/delivery_status') %>
         <% } %>
 		<hr class="my-4">
-		<a class="btn btn-info" href="/details/drivers"><span class="drivers"></span></a>
-		<a class="btn btn-info" href="/details/partners"><span class="partners"></span></a>
+		<div class="row">
+			<a class="btn btn-info col mx-1" href="/details/drivers"><span class="drivers"></span></a>
+			<a class="btn btn-info col mx-1" href="/details/partners"><span class="partners"></span></a>
+			<a class="btn btn-info col mx-1" href="/details/deliveries"><span class="dlvs"></span></a>
+		</div>
 		<% } %>
 		<% if (locals.partners || locals.drivers ) { %>
 			<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

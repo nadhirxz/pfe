@@ -1,44 +1,40 @@
 <%
     var classes = [
-    "warning",
+    "light border-grey",
     "info",
     "primary",
-    "danger",
+    "warning",
     "success",
     "danger",
-    "warning",
-    "danger"
+    "dark",
 ];
 var texts = {
     'en' :  [
-        "Submitted",
+        "Waiting",
         "Pending",
         "Accepted",
         "Refused",
         "Success",
         "Failure",
-        "Waiting",
-        "Out"
+        "Canceled"
     ],
     'fr' :  [
-        "Soumis",
         "En attente",
+        "En cours",
         "Accepté",
         "Refusé",
         "Succès",
         "Échec",
-        "En attente",
-        "Hors service"
+        "Annulée"
     ],
     'ar' :  [
-        "تم التسجيل",
+        "انتظار",
         "قيد الانتظار",
         "قبول",
         "رفض",
         "نجاح",
         "فشل",
-        "انتظار",
-        "خارج الخدمة"
+        "ملغاة"
     ]
 }
 function pad(n,z) {
@@ -48,12 +44,10 @@ function pad(n,z) {
 }
 %>
 
-<div class="col-lg-6 px-3 py-3 m-auto text-center d-flex justify-content-center row">
-</div>
-
-<div class="col-lg-6 px-3 py-3 m-auto text-center d-flex justify-content-center row">
+<% if (locals.date) { %><div class="hr-sect col-md-10 col mx-auto"><h3><%= date %><h3></div><% } %>
+<div class="col-lg-7 p-3 m-auto text-center d-flex justify-content-center row">
     <% if(userDeliveries.length) { %>
-    <h3 class="mb-3"><span class="todays_deliveries_text"></span></h3>
+		<% if (!locals.date && !locals.noTitle) { %><h3 class="mb-3"><span class="todays_deliveries_text"></span></h3><% } %>
     <% userDeliveries.forEach(delivery => { %>
         <div class="jumbotron">
             <div class="text-<% if (lang=='ar') { %>right<% } else { %>left<% } %> container">
@@ -85,7 +79,7 @@ function pad(n,z) {
                     </div>
                 </div>
             </div>
-            <a class="btn btn-block btn-info mx-2" href="/delivery/<%= delivery.id %>"><span class="details_text"></span></a>
+            <a class="btn btn-info col-md-6 col" href="/delivery/<%= delivery.id %>"><span class="details_text"></span></a>
         </div>
     <% }); %>
     <% } else { %>

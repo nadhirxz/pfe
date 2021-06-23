@@ -18,6 +18,7 @@ if ($('#navbar')) {
 var page = false;
 if (window.location.pathname.split('/')[1] == 'delivery') page = 'delivery';
 else if (window.location.pathname.split('/')[1] == 'buy') page = 'buy';
+else if (window.location.pathname.split('/')[2] == 'deliveries') page = 'home';
 else if (window.location.pathname.split('/')[1] == 'details') page = 'details';
 else if (window.location.pathname.split('/')[2] == 'password') page = 'password';
 else if (window.location.pathname.split('/')[2]) page = window.location.pathname.split('/')[2]

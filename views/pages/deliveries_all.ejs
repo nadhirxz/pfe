@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="mx-3 text-center">
+        <% if (locals.deliveries) { %>
+			<% if (Object.keys(deliveries).length) { %>
+				<% Object.keys(deliveries).forEach(date => { %>
+					<% locals.userDeliveries = deliveries[date]; locals.date = date %>
+					<%- include ('../partials/user_deliveries') %>
+				<% }); %>
+			<% } else { %>
+				<h4 class="mt-5 no_dlvrs"></h4>
+			<% } %>
+		<% } %>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+
+</html>

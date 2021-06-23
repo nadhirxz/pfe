@@ -921,8 +921,19 @@ app.get('/details/:something', checkAdmin, (req, res) => {
 			partners: p
 		});
 	}
+	if (req.params.something == 'deliveries') {
+		console.log(getGroupedDeliveries()[formatDate(new Date())])
+		return res.render('pages/deliveries', {
+			title: titles[lang].details + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			deliveries: getGroupedDeliveries()[formatDate(new Date())],
+			day: formatDate(new Date())
+		});
+	}
 	let date = new Date(req.params.something);
-	let today = new Date(todaysDate());
+	let today = new Date(formatDate());
 	date.setHours(0, 0, 0, 0);
 	today.setHours(23, 59, 59, 999);
 
@@ -947,6 +958,44 @@ app.get('/details/:something', checkAdmin, (req, res) => {
 			deliveries_count: d.length,
 			deliveries: d,
 			profit: calculateProfit(d)
+		});
+	} else {
+		res.render('pages/404', {
+			title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang
+		});
+	}
+});
+
+app.get('/details/deliveries/:date', checkAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+
+	if (req.params.date == 'all') {
+		return res.render('pages/deliveries_all', {
+			title: titles[lang].deliveries + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			deliveries: getGroupedDeliveries()
+		});
+	}
+
+	let date = new Date(req.params.date);
+	let today = new Date(formatDate());
+	date.setHours(0, 0, 0, 0);
+	today.setHours(23, 59, 59, 999);
+
+	if (!isNaN(date.getTime()) && today.getTime() >= date.getTime()) {
+		return res.render('pages/deliveries', {
+			title: titles[lang].deliveries + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			deliveries: getGroupedDeliveries()[formatDate(new Date(req.params.date))],
+			day: formatDate(new Date(req.params.date))
 		});
 	} else {
 		res.render('pages/404', {
@@ -1616,7 +1665,7 @@ function inWorkHours() {
 }
 
 function loadSchedules() {
-	todays_schedule = [new Date(`${todaysDate()} ${schedule[0]}`).getTime(), new Date(`${todaysDate()} ${schedule[1]}`).getTime()];
+	todays_schedule = [new Date(`${formatDate()} ${schedule[0]}`).getTime(), new Date(`${formatDate()} ${schedule[1]}`).getTime()];
 }
 
 function normalizePrice(price, to, floor) {
@@ -1624,9 +1673,8 @@ function normalizePrice(price, to, floor) {
 	return Math.ceil(price / to) * to;
 }
 
-function todaysDate() {
-	let today = new Date();
-	return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+function formatDate(date = new Date()) {
+	return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 }
 
 function getOnlineDrivers() {
@@ -1663,8 +1711,8 @@ function getSaturday(date) {
 function getDeliveriesByDate(date, user = false) {
 	if (deliveries) {
 		if (date == 'today') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && isToday(obj.date));
-		else if (date == 'week') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && obj.date.getTime() < getSaturday(new Date(todaysDate())) && obj.date.getTime() > getSunday(new Date(todaysDate())));
-		else if (date == 'month') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && obj.date.getMonth() == new Date(todaysDate()).getMonth() && obj.date.getFullYear() == new Date(todaysDate()).getFullYear());
+		else if (date == 'week') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && obj.date.getTime() < getSaturday(new Date(formatDate())) && obj.date.getTime() > getSunday(new Date(formatDate())));
+		else if (date == 'month') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && obj.date.getMonth() == new Date(formatDate()).getMonth() && obj.date.getFullYear() == new Date(formatDate()).getFullYear());
 		else return deliveries.filter(obj => (user === false || obj.driver == user === false || obj.partner == user) && obj.date.toDateString() == new Date(date).toDateString());
 	}
 	return false;
@@ -1752,6 +1800,24 @@ function getDetails() {
 		deliveries
 	}
 }
+
+function groupBy(items, key) {
+	return items.reduce(
+		(result, item) => ({
+			...result,
+			[item[key]]: [
+				...(result[item[key]] || []),
+				item,
+			],
+		}),
+		{},
+	)
+}
+
+function getGroupedDeliveries() {
+	return groupBy(deliveries.map(e => { return { ...deliveryInfoPage(e), day: formatDate(e.date) } }), 'day');
+}
+
 
 
 
@@ -1912,8 +1978,8 @@ function inPartnerWorkHours(partnerid) {
 	let p = partners_schedule[partnerid];
 	let now = new Date();
 	if (p) {
-		if (p.schedule == 0 && new Date(todaysDate()).getDay() == 5) return false;
-		if (p.schedule == 1 && (new Date(todaysDate()).getDay() == 5 || new Date(todaysDate()).getDay() == 6)) return false;
+		if (p.schedule == 0 && new Date(formatDate()).getDay() == 5) return false;
+		if (p.schedule == 1 && (new Date(formatDate()).getDay() == 5 || new Date(formatDate()).getDay() == 6)) return false;
 		if (now >= (new Date(p.time[0])) && now <= (new Date(p.time[1]))) return true;
 	}
 	return false;
@@ -1933,8 +1999,8 @@ function makePartnersSchedules() {
 
 function createPartnerScheduleTimes(partnerid) {
 	partners_schedule[partnerid].time = [
-		new Date(`${todaysDate()} ${partners_schedule[partnerid].time[0]}`).getTime(),
-		new Date(`${todaysDate()} ${partners_schedule[partnerid].time[1]}`).getTime()
+		new Date(`${formatDate()} ${partners_schedule[partnerid].time[0]}`).getTime(),
+		new Date(`${formatDate()} ${partners_schedule[partnerid].time[1]}`).getTime()
 	];
 }
 
