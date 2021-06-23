@@ -800,7 +800,7 @@ app.get('/delivery-err', checkAuth, checkUser, (req, res) => {
 	res.render('pages/errors', {
 		title: titles[lang].error + settings.titleSuffix[lang],
 		error: titles[lang].error + settings.titleSuffix[lang],
-		body: titles[lang].a_dlvr_err_hppnd + settings.titleSuffix[lang],
+		body: titles[lang].a_dlvr_err_hppnd,
 		name: user.name,
 		type: user.type,
 		lang: lang
