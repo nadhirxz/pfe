@@ -2049,3 +2049,14 @@ nodeSchedule.scheduleJob({ hour: 12, minute: 29, second: 0 }, () => {
 	loadSchedules();
 	makePartnersSchedules();
 });
+
+// Deleting unconfirmed users
+nodeSchedule.scheduleJob('0 0 3 * * 0,3', () => { // 03:00 every Sunday and Wednesday
+	let unconfirmed_users = users.filter(obj => obj.confirmed == false);
+	unconfirmed_users.forEach(user => {
+		if (Math.abs(Math.ceil((new Date().getTime() - new Date(user.reg_date).getTime()) / (1000 * 60 * 60))) > settings.maxHoursWithoutConfirmation) {
+			users = users.filter(obj => obj.id != user.id);
+			db.query('DELETE FROM users WHERE id=?', [user.id]);
+		}
+	});
+});
