@@ -1488,9 +1488,13 @@ io.on('connection', (socket) => {
 				setTimeout(() => {
 					if (s == user.socket) { // means the socket didn't change since the last time meaning he didn't show up again
 						user.status = 0;
+						user.last_seen = new Date();
+						db.query("UPDATE drivers SET status=?, last_seen=? WHERE id=?", [user.status, user.last_seen, user.id]);
+
 						deliveries.filter(e => e.driver == user.id).forEach(delivery => {
 							sendDeliveryStatus(delivery.id);
 						});
+
 						if (getOnlineDrivers().length == 0) {
 							deliveries.filter(e => e.status == 1).forEach(delivery => {
 								db.query("UPDATE deliveries SET status=0 WHERE id=?", [delivery.id], (err, results) => {
@@ -1499,6 +1503,21 @@ io.on('connection', (socket) => {
 								});
 							});
 						}
+
+						setTimeout(() => {
+							if (calculateMinutesAgo(user.last_seen) + 1 >= settings.timeoutForDriverToComeBackToDelivery) {
+								deliveries.filter(e => e.driver == user.id).forEach(delivery => {
+									delivery.status = getOnlineDrivers().length == 0 ? 0 : 1;
+									delivery.driver = null;
+									delivery.estimated_finish_time = null;
+									db.query("UPDATE deliveries SET status=?, driver=?, estimated_finish_time=?  WHERE id=?", [delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.id], (err, results) => {
+										if (!err) return;
+										sendDeliveryStatus(delivery.id);
+									});
+								});
+							}
+						}, settings.timeoutForDriverToComeBackToDelivery);
+
 					}
 				}, settings.usersSocketTimeout);
 			} else {
@@ -1824,6 +1843,10 @@ function calculateProfit(deliveries) {
 	return p + d;
 }
 
+function calculateMinutesAgo(date) {
+	return Math.abs(Math.ceil((new Date().getTime() - new Date(date).getTime()) / (1000 * 60)));
+}
+
 
 
 // PIN validation
@@ -2054,7 +2077,7 @@ nodeSchedule.scheduleJob({ hour: 12, minute: 29, second: 0 }, () => {
 nodeSchedule.scheduleJob('0 0 3 * * 0,3', () => { // 03:00 every Sunday and Wednesday
 	let unconfirmed_users = users.filter(obj => obj.confirmed == false);
 	unconfirmed_users.forEach(user => {
-		if (Math.abs(Math.ceil((new Date().getTime() - new Date(user.reg_date).getTime()) / (1000 * 60 * 60))) > settings.maxHoursWithoutConfirmation) {
+		if (calculateMinutesAgo(user.reg_date) / 60 > settings.maxHoursWithoutConfirmation) {
 			users = users.filter(obj => obj.id != user.id);
 			db.query('DELETE FROM users WHERE id=?', [user.id]);
 		}

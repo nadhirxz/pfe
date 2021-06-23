@@ -20,6 +20,7 @@ let settings = {
 	driverSpeed: 35, // km/h
 	driverRestTime: 5, // minutes
 	usersSocketTimeout: 20000, // ms
+	timeoutForDriverToComeBackToDelivery: 20, // minutes
 
 	intervalBetweenDeliveries: 5, // minutes
 

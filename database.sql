@@ -25,7 +25,8 @@ CREATE TABLE drivers (
 	pos VARCHAR(50),
 	percentage INT(2),
 	paid INT(10),
-	lang VARCHAR(2)
+	lang VARCHAR(2),
+	last_seen TIMESTAMP NULL
 );
 
 CREATE TABLE secretkeys (
