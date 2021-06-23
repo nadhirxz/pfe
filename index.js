@@ -886,26 +886,13 @@ app.post('/schedule/working', checkAdmin, (req, res) => {
 app.get('/details', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let dailyDeliveries = getDeliveriesByDate('today');
-	let weeklyDeliveries = getDeliveriesByDate('week');
-	let monthlyDeliveries = getDeliveriesByDate('month');
 	res.render('pages/details', {
-		title: titles[lang].details + settings.titleSuffix[lang],
-		name: user.name,
-		type: user.type,
-		lang: lang,
-		daily_deliveries: dailyDeliveries.length,
-		weekly_deliveries: weeklyDeliveries.length,
-		monthly_deliveries: monthlyDeliveries.length,
-		all_time_deliveries: deliveries.length,
-		daily_profit: calculateProfit(dailyDeliveries),
-		weekly_profit: calculateProfit(weeklyDeliveries),
-		monthly_profit: calculateProfit(monthlyDeliveries),
-		all_time_profit: calculateProfit(deliveries),
-		dailyDeliveries,
-		weeklyDeliveries,
-		monthlyDeliveries,
-		deliveries
+		...{
+			title: titles[lang].details + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+		}, ...getDetails()
 	});
 });
 
@@ -940,6 +927,16 @@ app.get('/details/:something', checkAdmin, (req, res) => {
 	today.setHours(23, 59, 59, 999);
 
 	if (!isNaN(date.getTime()) && today.getTime() >= date.getTime()) {
+		if (isToday(date)) {
+			return res.render('pages/details', {
+				...{
+					title: titles[lang].details + settings.titleSuffix[lang],
+					name: user.name,
+					type: user.type,
+					lang: lang,
+				}, ...getDetails()
+			});
+		}
 		let d = getDeliveriesByDate(date);
 		res.render('pages/details', {
 			title: titles[lang].details + settings.titleSuffix[lang],
@@ -1733,6 +1730,26 @@ function getPartnerSettings(partner) {
 		schedule: partner.schedule,
 		startTime: partner.startTime,
 		endTime: partner.endTime
+	}
+}
+
+function getDetails() {
+	let dailyDeliveries = getDeliveriesByDate('today');
+	let weeklyDeliveries = getDeliveriesByDate('week');
+	let monthlyDeliveries = getDeliveriesByDate('month');
+	return {
+		daily_deliveries: dailyDeliveries.length,
+		weekly_deliveries: weeklyDeliveries.length,
+		monthly_deliveries: monthlyDeliveries.length,
+		all_time_deliveries: deliveries.length,
+		daily_profit: calculateProfit(dailyDeliveries),
+		weekly_profit: calculateProfit(weeklyDeliveries),
+		monthly_profit: calculateProfit(monthlyDeliveries),
+		all_time_profit: calculateProfit(deliveries),
+		dailyDeliveries,
+		weeklyDeliveries,
+		monthlyDeliveries,
+		deliveries
 	}
 }
 
