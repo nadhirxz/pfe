@@ -2083,3 +2083,14 @@ nodeSchedule.scheduleJob('0 0 3 * * 0,3', () => { // 03:00 every Sunday and Wedn
 		}
 	});
 });
+
+// Cancelling uncomplete deliveries
+nodeSchedule.scheduleJob('0 0 4 * * *', () => { // 04:00 everyday
+	let d = deliveries.filter(e => [0, 1].includes(e.status));
+	d.forEach(delivery => {
+		delivery.status = 6;
+		delivery.driver = null;
+		delivery.estimated_finish_time = null;
+		db.query("UPDATE deliveries SET status=?, driver=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.id]);
+	});
+});

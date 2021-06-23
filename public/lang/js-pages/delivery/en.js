@@ -4,7 +4,8 @@ buttonTexts = [
     "Accepted",
     "Refused",
     "Success",
-    "Failure"
+    "Failure",
+	"Canceled"
 ];
 texts = [
     "No driver is available at the moment. Please wait.",
@@ -13,4 +14,5 @@ texts = [
     "A driver refused your delivery.",
     "Your delivery has been completed successfully.",
     "Your delivery failed in the process.",
+	"Your delivery has been canceled due to no response from any driver."
 ];

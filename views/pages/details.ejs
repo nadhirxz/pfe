@@ -65,7 +65,8 @@
 			<% locals.deliveries = monthlyDeliveries; %><%- include ('../partials/delivery_status') %>
 			<hr>
             <p class="my-1"><span class="dlv_all"></span> <b><%= all_time_deliveries %></b> (<b><%= all_time_profit %></b> <%= dzd %>)</p>
-			<% locals.deliveries = deliveries; %><%- include ('../partials/delivery_status') %>            <hr class="my-4">
+			<% locals.deliveries = deliveries; %><%- include ('../partials/delivery_status') %>
+			<hr class="my-4">
             <a class="btn btn-info" href="/details/drivers"><span class="drivers"></span></a>
             <a class="btn btn-info" href="/details/partners"><span class="partners"></span></a>
         <% } %>
@@ -80,7 +81,7 @@
 							</button>
 						</div>
 						<div class="modal-body">
-							<div class="input-group">
+							<div class="input-group" dir="ltr">
 								<input type="text" onkeypress="return onlyNumberKey(event)" min="0" class="form-control" id="amount">
 								<div class="input-group-append">
 								  	<span class="input-group-text"><%= dzd %></span>
@@ -88,8 +89,8 @@
 							</div>
 						</div>
 						<div class="modal-footer mx-auto col">
-							<button type="button" class="btn col btn-info text_pay" id="pay-btn"></button>
-							<button type="button" class="btn col btn-secondary text_close" data-dismiss="modal"></button>
+							<button type="button" class="btn col mx-1 btn-info text_pay" id="pay-btn"></button>
+							<button type="button" class="btn col mx-1 btn-secondary text_close" data-dismiss="modal"></button>
 						</div>
 				  	</div>
 				</div>

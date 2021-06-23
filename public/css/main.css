@@ -206,3 +206,7 @@ i {
 b {
 	font-weight: 800;
 }
+
+.border-grey {
+	border: #5A6169 1px solid;
+}

@@ -7,12 +7,13 @@ var statusDiv = document.getElementById('delivery-status');
 var driverInfo = document.getElementById('driver-info');
 
 var classes = [
-	"btn-warning",
+	"btn-light",
 	"btn-info",
 	"btn-primary",
 	"btn-danger",
 	"btn-success",
-	"btn-danger"
+	"btn-danger",
+	"btn-dark"
 ];
 
 $('#delivery-status-info-btn').replaceWith(createTheButton(buttonTexts[status], classes[status]))
@@ -38,6 +39,7 @@ function createTheButton(text, theClass) {
 		button.classList.add(c);
 	});
 	button.classList.add(theClass);
+	if (theClass == 'btn-light') button.classList.add('border-secondary')
 	return button;
 }
 

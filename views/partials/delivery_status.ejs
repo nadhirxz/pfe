@@ -1,9 +1,9 @@
 <% var texts = {
-	en: [ "Waiting", "Pending", "Accepted", "Refused", "Success", "Failure"],
-	fr: ["En attente", "En cours", "Accepté", "Refusé", "Succès", "Échec"],
-	ar: ["انتظار", "قيد الانتظار", "قبول", "رفض", "نجاح", "فشل"]
+	en: [ "Waiting", "Pending", "Accepted", "Refused", "Success", "Failure", "Canceled"],
+	fr: ["En attente", "En cours", "Accepté", "Refusé", "Succès", "Échec", "Annulée"],
+	ar: ["انتظار", "قيد الانتظار", "قبول", "رفض", "نجاح", "فشل", "ملغاة"]
 }; %>
-<% var classes = [ "warning", "info", "primary", "danger", "success", "danger", "warning", "danger"];%>
+<% var classes = [ "light border-grey", "info", "primary", "warning", "success", "danger", "dark"];%>
 <%
 	function groupBy(items, key) {
 		return items.reduce(
