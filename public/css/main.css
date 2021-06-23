@@ -228,3 +228,7 @@ i {
 	line-height: 0px;
 	margin: 0px 8px;
 }
+
+.leaflet-control>a {
+	font-size: 15px !important;
+}
