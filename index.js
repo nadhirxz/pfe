@@ -196,7 +196,7 @@ const checkNotAuth = (req, res, next) => {
 
 const checkConfirmed = (req, res, next) => {
 	let user = getUser('id', req.session.uid);
-	if (user && user.confirmed) {
+	if (user && (user.confirmed || user.type == 3)) {
 		next();
 	} else {
 		res.redirect('/confirm');
