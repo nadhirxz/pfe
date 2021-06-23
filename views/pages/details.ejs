@@ -8,17 +8,7 @@
 <body>
     <%- include ('../partials/navbar') %>
     <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
-        <% if (locals.day) { %>
-            <div class="input-group input-group-lg col-8 my-3 mx-auto">
-                <input type="text" class="form-control text-center" id="datepicker" placeholder="Date" readonly="readonly" style="cursor:pointer" value="<%= day %>">
-            </div>
-            <hr class="my-4">
-            <p class="my-2"><span class="dlv"></span> <b><%= deliveries_count %></b> (<b><%= profit %></b> <%= dzd %>)</p>
-			<%- include ('../partials/delivery_status') %>
-			<div class="my-4 mx-auto col-6">
-				<a type="button" class="btn btn-block btn-info mx-2 all_details" href="/details"></a>
-			</div>
-        <% } else if (locals.drivers) {%>
+        <% if (locals.drivers) {%>
             <h4 class="mt-4"><span class="drivers"></h4>
             <% drivers.forEach(driver => { %>
             <hr class="my-4">
@@ -51,25 +41,34 @@
 				<a type="button" class="btn btn-block btn-info mx-2 all_details" href="/details"></a>
 			</div>
         <% } else { %>
-            <% var today = new Date() %>
-            <div class="input-group input-group-lg col-8 mb-3 mx-auto">
-                <input type="text" class="form-control text-center" id="datepicker" readonly="readonly" style="cursor:pointer" value="<%= new Date() %>">
-            </div>
-            <p class="my-1"><span class="dlv_tdy"></span> <b><%= daily_deliveries %></b> (<b><%= daily_profit %></b> <%= dzd %>)</p>
-			<% locals.deliveries = dailyDeliveries; %><%- include ('../partials/delivery_status') %>
-			<hr>
-            <p class="my-1"><span class="dlv_week"></span> <b><%= weekly_deliveries %></b> (<b><%= weekly_profit %></b> <%= dzd %>)</p>
-			<% locals.deliveries = weeklyDeliveries; %><%- include ('../partials/delivery_status') %>
-			<hr>
-			<p class="my-1"><span class="dlv_mnth"></span> <b><%= monthly_deliveries %></b> (<b><%= monthly_profit %></b> <%= dzd %>)</p>
-			<% locals.deliveries = monthlyDeliveries; %><%- include ('../partials/delivery_status') %>
-			<hr>
-            <p class="my-1"><span class="dlv_all"></span> <b><%= all_time_deliveries %></b> (<b><%= all_time_profit %></b> <%= dzd %>)</p>
-			<% locals.deliveries = deliveries; %><%- include ('../partials/delivery_status') %>
-			<hr class="my-4">
-            <a class="btn btn-info" href="/details/drivers"><span class="drivers"></span></a>
-            <a class="btn btn-info" href="/details/partners"><span class="partners"></span></a>
+		<% if (locals.day) { %>
+		<div class="input-group input-group-lg col-8 my-3 mx-auto">
+			<input type="text" class="form-control text-center" id="datepicker" placeholder="Date" readonly="readonly" style="cursor:pointer" value="<%= day %>">
+		</div>
+		<hr class="my-4">
+		<p class="my-2"><span class="dlv"></span> <b><%= deliveries_count %></b> (<b><%= profit %></b> <%= dzd %>)</p>
+		<%- include ('../partials/delivery_status') %>
+		<% } else { %> 
+		<% var today = new Date() %>
+		<div class="input-group input-group-lg col-8 mb-3 mx-auto">
+			<input type="text" class="form-control text-center" id="datepicker" readonly="readonly" style="cursor:pointer" value="<%= new Date() %>">
+		</div>
+		<p class="my-1"><span class="dlv_tdy"></span> <b><%= daily_deliveries %></b> (<b><%= daily_profit %></b> <%= dzd %>)</p>
+		<% locals.deliveries = dailyDeliveries; %><%- include ('../partials/delivery_status') %>
+		<hr>
+		<p class="my-1"><span class="dlv_week"></span> <b><%= weekly_deliveries %></b> (<b><%= weekly_profit %></b> <%= dzd %>)</p>
+		<% locals.deliveries = weeklyDeliveries; %><%- include ('../partials/delivery_status') %>
+		<hr>
+		<p class="my-1"><span class="dlv_mnth"></span> <b><%= monthly_deliveries %></b> (<b><%= monthly_profit %></b> <%= dzd %>)</p>
+		<% locals.deliveries = monthlyDeliveries; %><%- include ('../partials/delivery_status') %>
+		<hr>
+		<p class="my-1"><span class="dlv_all"></span> <b><%= all_time_deliveries %></b> (<b><%= all_time_profit %></b> <%= dzd %>)</p>
+		<% locals.deliveries = deliveries; %><%- include ('../partials/delivery_status') %>
         <% } %>
+		<hr class="my-4">
+		<a class="btn btn-info" href="/details/drivers"><span class="drivers"></span></a>
+		<a class="btn btn-info" href="/details/partners"><span class="partners"></span></a>
+		<% } %>
 		<% if (locals.partners || locals.drivers ) { %>
 			<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered" role="document">
