@@ -13,6 +13,9 @@
                     <a class="btn btn-info btn-block my-2 buy_text" href="/buy"></a>
                     <a class="btn btn-info btn-block my-2 deliver_text" href="/deliver"></a>
                     <% } %>
+					<% if (locals.name && (type == 0 || type == 1)) {%>
+					<a class="btn btn-info btn-block my-2 dlvs" href="/deliveries"></a>
+					<% } %>
 					<% if (locals.name && type == 3) {%>
 						<a class="btn btn-info btn-block my-2 schedule_text" href="/schedule"></a>
 						<a class="btn btn-info btn-block my-2 partners_text" href="/partners/info"></a>
@@ -22,7 +25,7 @@
 					<% if(locals.name) {%>
 						<a class="btn btn-info btn-block my-2 profile_text" href="/profile"></a>
 					<% } %>
-					<% if (type != 3) { %>
+					<% if (locals.name && type != 3) { %>
 						<a class="btn btn-info btn-block my-2 about_text" href="/about"></a>
 					<% } %>
                     <% if(locals.name) {%>

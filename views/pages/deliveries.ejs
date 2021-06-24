@@ -16,7 +16,7 @@
 		<% } else { %>
 			<h4 class="my-5 no_dlvrs"></h4>
 		<% } %>
-		<a class="btn btn-info col-md-2 col-5" href="/details/deliveries/all"><span class="all_dlv"></span></a>
+		<a class="btn btn-secondary col-md-2 col-5" href="<% if (type == 3) { %>/details/deliveries/all<% } else { %>/deliveries/all<% } %>"><span class="all_dlv"></span></a>
     </div>
 <%- include ('../partials/footer') %>
 </body>
@@ -31,7 +31,7 @@
         todayHighlight: true,
     })<% if(locals.day) { %>.datepicker('setDate', new Date('<%= day %>'));;<% } %>
     $('#datepicker').on('change', (e) => {
-		window.location.href = '/details/deliveries/'+e.target.value;   
+		window.location.href = '<% if (type == 3) { %>/details/deliveries/<% } else { %>/deliveries/<% } %>' + e.target.value;   
     });
 </script>
 

@@ -276,6 +276,19 @@ let checkAdmin = (req, res, next) => {
 	}
 }
 
+let checkNotAdmin = (req, res, next) => {
+	if (!req.session.uid) { // user not authenticated
+		res.redirect('/login');
+	} else {
+		let user = getUser('id', req.session.uid);
+		if (user && user.type != 3) {
+			next();
+		} else {
+			res.redirect('/');
+		}
+	}
+}
+
 let checkPartnerOrAdmin = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/login');
@@ -823,6 +836,68 @@ app.get('/delivery/:did', checkAuth, (req, res) => {
 	return res.render('pages/404', the_return);
 });
 
+app.get('/deliveries', checkAuth, checkNotAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+
+	if (user && user.type != 2) {
+		return res.render('pages/deliveries', {
+			title: titles[lang].deliveries + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+			deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 1 ? e.uid == user.id : e.partner == user.id))[formatDate(new Date())],
+			day: formatDate(new Date())
+		});
+	}
+	return res.render('pages/404', {
+		title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang
+	});
+});
+
+app.get('/deliveries/:date', checkAuth, checkNotAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+
+	if (user && user.type != 2) {
+		if (req.params.date == 'all') {
+			return res.render('pages/deliveries_all', {
+				title: titles[lang].deliveries + settings.titleSuffix[lang],
+				name: user.name,
+				type: user.type,
+				lang: lang,
+				deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : e.partner == user.id))
+			});
+		}
+
+		let date = new Date(req.params.date);
+		let today = new Date(formatDate());
+		date.setHours(0, 0, 0, 0);
+		today.setHours(23, 59, 59, 999);
+
+		if (!isNaN(date.getTime()) && today.getTime() >= date.getTime()) {
+			return res.render('pages/deliveries', {
+				title: titles[lang].deliveries + settings.titleSuffix[lang],
+				name: user.name,
+				type: user.type,
+				lang: lang,
+				deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : e.partner == user.id))[formatDate(new Date(req.params.date))],
+				day: formatDate(new Date(req.params.date))
+			});
+		}
+	}
+	res.render('pages/404', {
+		title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang
+	});
+});
+
+
 app.get('/admin', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
@@ -912,7 +987,7 @@ app.get('/details/:something', checkAdmin, (req, res) => {
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			deliveries: getGroupedDeliveries()[formatDate(new Date())],
+			deliveries: getGroupedDeliveries(deliveries)[formatDate(new Date())],
 			day: formatDate(new Date())
 		});
 	}
@@ -963,7 +1038,7 @@ app.get('/details/deliveries/:date', checkAdmin, (req, res) => {
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			deliveries: getGroupedDeliveries()
+			deliveries: getGroupedDeliveries(deliveries)
 		});
 	}
 
@@ -978,7 +1053,7 @@ app.get('/details/deliveries/:date', checkAdmin, (req, res) => {
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			deliveries: getGroupedDeliveries()[formatDate(new Date(req.params.date))],
+			deliveries: getGroupedDeliveries(deliveries)[formatDate(new Date(req.params.date))],
 			day: formatDate(new Date(req.params.date))
 		});
 	} else {
@@ -1797,7 +1872,7 @@ function groupBy(items, key) {
 	)
 }
 
-function getGroupedDeliveries() {
+function getGroupedDeliveries(deliveries) {
 	return groupBy(deliveries.map(e => { return { ...deliveryInfoPage(e), day: formatDate(e.date) } }), 'day');
 }
 

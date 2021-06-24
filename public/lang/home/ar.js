@@ -20,5 +20,9 @@ lang_text = {
     at_text: "على",
     not_wrkn_now_text: "خدمتنا متوفرة فقط من",
     to_text: "إلى",
-	your_items: "السلعة الخاصة بك"
+	dlvrs_to_clients_text: "توصيلات للعملاء منك :",
+	your_items: "السلعة الخاصة بك",
+	dlv: "طلبات التوصيل",
+	ur_details: "التفاصيل الخاصة بك",
+	back: "عودة"
 }

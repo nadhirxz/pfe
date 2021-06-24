@@ -47,8 +47,11 @@ function pad(n,z) {
 <% if (locals.date) { %><div class="hr-sect col-md-10 col mx-auto"><h3><%= date %><h3></div><% } %>
 <div class="col-lg-7 p-3 m-auto text-center d-flex justify-content-center row">
     <% if(userDeliveries.length) { %>
-		<% if (!locals.date && !locals.noTitle) { %><h3 class="mb-3"><span class="todays_deliveries_text"></span></h3><% } %>
-    <% userDeliveries.forEach(delivery => { %>
+	<% var l = userDeliveries.length; %>
+	<% var i = 0; %>
+	<% if (!locals.date && !locals.noTitle) { %><h3 class="mb-3"><span class="todays_deliveries_text"></span></h3><% } %>
+    <% userDeliveries.forEach((delivery, idx) => { %>
+		<% i = idx; %>
         <div class="jumbotron">
             <div class="text-<% if (lang=='ar') { %>right<% } else { %>left<% } %> container">
                 <div class="row">
@@ -79,10 +82,15 @@ function pad(n,z) {
                     </div>
                 </div>
             </div>
-            <a class="btn btn-info col-md-6 col" href="/delivery/<%= delivery.id %>"><span class="details_text"></span></a>
+            <a class="btn btn-light border-dark col-md-6 col" href="/delivery/<%= delivery.id %>"><span class="details_text"></span></a>
         </div>
+		
     <% }); %>
     <% } else { %>
     <h4><span class="no_dlvrs_today_text"></span></h4>
     <% }%>
 </div>
+<% if (locals.index == locals.length - 1 && i == l - 1 ) { %>
+	<hr class="col-md-9 col mx-auto mt-0">
+	<button class="btn btn-secondary col-4 back" onclick="window.history.back()"></button>
+<% } %>

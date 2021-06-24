@@ -5,18 +5,19 @@
 </head>
 <body>
     <%- include ('../partials/navbar') %> 
-    <div class="col-md-8 col-lg-6 px-5 m-auto text-center pt-5">
+    <div class="col-md-8 col-lg-6 text-center mx-auto mt-5">
         <% if (!working) { %>
         <h4 class="out_of_srvc_text"></h4>
         <% } else if(!work_hours) { %>
         <h4><span class="not_wrkn_now_text"></span> <%= schedule[0]%> <span class="to_text"></span> <%= schedule[1]%></h4>
         <% } else { %>
-        <div class="dropdown pb-3 mx-auto col-md-8">
-            <button class="btn btn-info btn-block dropdown-toggle" role="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="new_delivery_text"></span></button>
+        <div class="dropdown mb-4 mx-auto col-md-8 row">
+            <button class="btn btn-info mx-1 col dropdown-toggle" role="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="new_delivery_text"></span></button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="/buy"><span class="buy_sth_from_shop_text"></span></a>
-                <a class="dropdown-item" href="/deliver"><span class="drliver_from_place_text"></span></a>
+                <a class="dropdown-item buy_sth_from_shop_text" href="/buy"></a>
+                <a class="dropdown-item drliver_from_place_text" href="/deliver"></a>
             </div>
+			<a class="btn btn-light border-dark mx-1 dlv" href="/deliveries"></a>
         </div>
         <% } %>
         <hr class="pt-3">

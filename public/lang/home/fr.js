@@ -20,5 +20,9 @@ lang_text = {
     at_text: "à",
     not_wrkn_now_text: "Notre service est disponible uniquement de",
     to_text: "à",
-	your_items: "Votre Objets"
+	dlvrs_to_clients_text: "Livraisons aux clients de votre part :",
+	your_items: "Votre Objets",
+	dlv: "Livraisons",
+	ur_details: "Votre détails",
+	back: "Revenir"
 }

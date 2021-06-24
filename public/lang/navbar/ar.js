@@ -11,4 +11,5 @@ navbar_lang_text = {
 	partners_text: "الشركاء",
 	new_key: "مفتاح جديد",
 	new_partner: "شريك جديد",
+	dlvs: "طلبات التوصيل"
 }

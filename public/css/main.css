@@ -222,7 +222,7 @@ i {
 .hr-sect:before, .hr-sect:after {
 	content: "";
 	flex-grow: 1;
-	background: rgba(0, 0, 0, 0.35);
+	background: #aaa;
 	height: 1px;
 	font-size: 0px;
 	line-height: 0px;

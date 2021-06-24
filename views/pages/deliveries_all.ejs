@@ -8,9 +8,11 @@
     <%- include ('../partials/navbar') %>
     <div class="mx-3 text-center">
         <% if (locals.deliveries) { %>
+			<h1 class="dlv mt-3 mb-5 font-weight-bold"></h1>
 			<% if (Object.keys(deliveries).length) { %>
-				<% Object.keys(deliveries).forEach(date => { %>
-					<% locals.userDeliveries = deliveries[date]; locals.date = date %>
+				<% locals.length = Object.keys(deliveries).length %>
+				<% Object.keys(deliveries).forEach((date, index) => { %>
+					<% locals.userDeliveries = deliveries[date]; locals.date = date; locals.index = index; %>
 					<%- include ('../partials/user_deliveries') %>
 				<% }); %>
 			<% } else { %>
