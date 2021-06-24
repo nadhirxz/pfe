@@ -1,12 +1,12 @@
-<section class="bg-info">
+<section class="bg-<% if (locals.type && type == 2) { %>dark<% } else { %>info<% } %>">
     <div class="container">
-        <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-info navbar-offcanvas">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-<% if (locals.type && type == 2) { %>dark<% } else { %>info<% } %> navbar-offcanvas">
             <a class="navbar-brand mx-auto" href="/"><img src="/img/banner.png" class="banner-img"></a>
             <button class="navbar-toggler d-block" type="button" id="navToggle">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="navbar-collapse offcanvas-collapse bg-info">
+            <div class="navbar-collapse offcanvas-collapse bg-<% if (locals.type && type == 2) { %>dark<% } else { %>info<% } %>">
                 <ul class="navbar-nav mr-auto mt-3 col-12">
                     <a class="btn btn-info btn-block my-2 home_text" id="navbar-home-btn" href="/"></a>
                     <% if (locals.name && type == 0) {%>
@@ -25,7 +25,7 @@
 					<% if(locals.name) {%>
 						<a class="btn btn-info btn-block my-2 profile_text" href="/profile"></a>
 					<% } %>
-					<% if (locals.name && type != 3) { %>
+					<% if (locals.name && type != 3 && type != 2) { %>
 						<a class="btn btn-info btn-block my-2 about_text" href="/about"></a>
 					<% } %>
                     <% if(locals.name) {%>
@@ -47,7 +47,7 @@
                         <a class="btn btn-info btn-block" id="lang-link-fr" href="/fr">Français</a>
                         <a class="btn btn-info btn-block" id="lang-link-ar" href="/ar">العربية</a>
                     </div>
-                    <div class="position-sticky bg-info fixed-bottom m-auto"><p class="text-light mb-0" style="opacity: 0.8;">Wesselli © <%= new Date().getFullYear() %></p></div>
+                    <div class="position-sticky bg-<% if (locals.type && type == 2) { %>dark<% } else { %>info<% } %> fixed-bottom m-auto"><p class="text-light mb-0" style="opacity: 0.8;">Wesselli © <%= new Date().getFullYear() %></p></div>
                     </div>
                 </ul>
             </div>
