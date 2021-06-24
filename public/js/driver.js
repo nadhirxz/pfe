@@ -125,7 +125,7 @@ async function createNewRequestDiv(delivery, deliveryStatus) {
 		inner_div.style.backgroundColor = '#FECDA0';
 		route_button.innerHTML = js_lang_text.route_text;
 		route_button.classList.add('btn');
-		route_button.classList.add('btn-info');
+		route_button.classList.add('btn-primary');
 		route_button.classList.add('mx-2');
 		inner_div.appendChild(route_button);
 		$(route_button).off();
@@ -259,8 +259,6 @@ socket.on('accepted_delivery_approve', (data) => {
 		inner_div.removeChild(accept_button);
 		inner_div.removeChild(refuse_button);
 	}
-
-	$('#24bf9e831103414992e6 .jumbotron p').html(js_lang_text.text_1_text(delivery.thing, delivery.price, delivery.type, delivery.estimated_finish_time));
 
 	let route_button = document.createElement("button");
 	route_button.innerHTML = js_lang_text.route_text;
