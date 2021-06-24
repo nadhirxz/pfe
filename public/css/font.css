@@ -1,4 +1,4 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto);
-* {
+*:not(i) {
 	font-family: 'Roboto' !important;
 }

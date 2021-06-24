@@ -4,7 +4,7 @@
 	src: url(arabic.woff2) format('woff2');
 }
 
-* {
+*:not(i) {
 	font-family: 'Arabic', normal !important;
 }
 
@@ -16,8 +16,12 @@ p, span:not(.navbar-toggler-icon), h6, a, #datepicker {
 	font-size: 1.6rem !important;
 }
 
-h4 {
-	font-size: 2rem !important;
+.fa:not(.fa-2x, .fa-globe) {
+	font-size: 1.3rem !important;
+}
+
+.fa-globe {
+	font-size: .9rem !important;
 }
 
 h3 {
