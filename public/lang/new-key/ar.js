@@ -6,7 +6,7 @@ lang_text = {
 	partner_text: "شريك",
 	driver_text: "سائق",
 	percentage_text: "النسبة المئوية",
-	save_text: "يحفظ",
+	save_text: "حفظ",
 	placeholders: {
 		"name-field": "الإسم",
 		"phone-field": "رقم الهاتف",
