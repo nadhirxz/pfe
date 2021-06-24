@@ -3,7 +3,7 @@ lang_text = {
     type_text: "Type :",
     l_d_dlvr_text: "Livraison longue distance",
     nrml_dlvr_text: "Livraison normale",
-    buy_frm_text: "Un achat de :",
+    buy_frm_text: "Un achat de",
     user_text: "Utilisateur :",
     thing_text: "Objet :",
     price_text: "Prix de livraison :",
