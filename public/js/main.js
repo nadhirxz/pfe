@@ -2,7 +2,7 @@ if (typeof (Android) != 'undefined') {
     file = "/html/app.html";
     $('#header').removeClass('d-none');
     if (Android.getAppVersion().endsWith('(Driver)')) {
-        $('#loading-img').attr('src', '/img/loading-blue.gif');
+        $('#loading-img').attr('src', '/img/loader.svg');
         $('#navbar-home-btn').remove();
         $('#reg-btn').attr('href', '/staff');
     }

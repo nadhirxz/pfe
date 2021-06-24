@@ -232,3 +232,7 @@ i {
 .leaflet-control>a {
 	font-size: 15px !important;
 }
+
+#loading-img {
+	width: 50%;
+}
