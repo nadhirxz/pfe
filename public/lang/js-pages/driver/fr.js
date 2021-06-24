@@ -26,13 +26,15 @@ texts = [
 	"Êtes-vous sûr de vouloir accepter ?",
 	"Êtes-vous sûr de vouloir refuser ?",
 	"Livraison terminé ?",
-	"Livraison échoué ?"
+	"Livraison échoué ?",
+	"Annuler la livraison ?"
 ];
 buttonTexts = [
 	"Accepter",
 	"Refuser",
 	"Terminé",
-	"Échouer"
+	"Échouer",
+	"Annuler"
 ];
 
 function pad(n, z) {

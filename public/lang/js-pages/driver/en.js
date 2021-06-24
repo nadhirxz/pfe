@@ -27,14 +27,14 @@ texts = [
 	"Are you sure you want to refuse ?",
 	"Complete delivery ?",
 	"Failed delivery ?",
-	"Remove delivery ?"
+	"Cancel delivery ?"
 ];
 buttonTexts = [
 	"Accept",
 	"Refuse",
 	"Complete",
 	"Fail",
-	"Remove"
+	"Cancel"
 ];
 
 function pad(n, z) {
