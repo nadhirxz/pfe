@@ -1227,7 +1227,7 @@ app.post('/partners/desc/:id', checkPartnerOrAdmin, (req, res) => {
 	let p = getPartner('id', req.params.id);
 	if (typeof (desc) && p) {
 		p.description = desc;
-		db.query("UPDATE partners SET description=?", [desc]);
+		db.query("UPDATE partners SET description=? WHERE id=?", [desc, p.id]);
 	}
 	return res.redirect('/partners/' + req.params.id);
 });
@@ -1237,7 +1237,7 @@ app.post('/partners/name/:id', checkPartnerOrAdmin, (req, res) => {
 	let p = getPartner('id', req.params.id);
 	if (typeof (name) && p) {
 		p.name = name;
-		db.query("UPDATE partners SET name=?", [name]);
+		db.query("UPDATE partners SET name=? WHERE id=?", [name, p.id]);
 	}
 	return res.redirect('/partners/' + req.params.id);
 });
@@ -1248,7 +1248,7 @@ app.post('/partners/pay/:id', checkPartnerOrAdmin, (req, res) => {
 	if (typeof (amount) && p) {
 		amount = parseInt(amount) || 0;
 		p.paid = parseInt(isNaN(p.paid) ? amount : p.paid + amount);
-		db.query("UPDATE partners SET paid=?", [p.paid]);
+		db.query("UPDATE partners SET paid=? WHERE id=?", [p.paid, p.id]);
 	}
 	return res.send();
 });
@@ -1272,7 +1272,7 @@ app.post('/drivers/pay/:id', checkPartnerOrAdmin, (req, res) => {
 	if (typeof (amount) && driver && driver.type == 2) {
 		amount = parseInt(amount) || 0;
 		driver.paid = parseInt(isNaN(driver.paid) ? amount : driver.paid + amount);
-		db.query("UPDATE drivers SET paid=?", [driver.paid]);
+		db.query("UPDATE drivers SET paid=? WHERE id=?", [driver.paid, driver.id]);
 	}
 	return res.send();
 });
@@ -1518,7 +1518,7 @@ io.on('connection', (socket) => {
 		user.pos = data;
 		user.status = 1;
 		updateDriverDeliveries(user.id, user.pos, socket);
-		db.query("UPDATE drivers SET status=?, pos=?", [user.status, stringifyPosition(user.pos)]);
+		db.query("UPDATE drivers SET status=?, pos=? WHERE id=?", [user.status, stringifyPosition(user.pos), user.id]);
 		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d, user.pos)));
 	});
 	socket.on('driver_position', (data) => {
@@ -1526,7 +1526,7 @@ io.on('connection', (socket) => {
 			user.pos = data;
 			user.status = 1;
 			updateDriverDeliveries(user.id, user.pos, socket);
-			db.query("UPDATE drivers SET status=?, pos=?", [user.status, stringifyPosition(user.pos)]);
+			db.query("UPDATE drivers SET status=?, pos=? WHERE id=?", [user.status, stringifyPosition(user.pos), user.id]);
 			let delivery = deliveries.filter(e => e.driver == user.id);
 		}
 	});
