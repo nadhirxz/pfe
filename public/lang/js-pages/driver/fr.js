@@ -1,25 +1,31 @@
 deliveryTypes = [
 	"Client vers Place",
 	"Partenaire vers Client",
-	"Shop vers Client",
-	"Partenaire vers Place",
-	"Place vers Partenaire"
+	"Shop vers Client"
 ]
 
-js_lang_text = {
-	new_delivery_request_text: "Nouvelle demande de livraison",
-	rcvr_phone_text: "Tél du destinataire :",
-	route_text: "Route",
-	cancel_text: "Annuler",
-	failed_text: "Échoué",
-	completed_text: "Terminé",
-	refuse_text: "Refuser",
-	accept_text: "Accepter",
+l = {
+	new: "Nouvelle demande de livraison",
+	min: "min",
+	obj: "Objet",
+	rcvr: "Destinataire",
+	from_partner: "Du partenaire",
+	from_place: "Du",
+	price: "Prix",
+	objp: "Prix d'objet",
+	distance: "Distance",
+	dzd: "DZD",
+	km: "km",
+	partner: "Partenaire",
+	fnsh_t: "Heure de finition estimée",
+	route: "Route",
+	cancel: "Annuler",
+	fail: "Échoué",
+	comp: "Terminé",
+	ref: "Refuser",
+	acc: "Accepter",
 	notification_text: (p, d, n) => { return `${p} DZD - ${d} km - ${n}` },
-	text_1_text: (thng, pr, ty, d) => { return `Objet : <b>${thng}</b> - Prix : <b>${pr} DZD</b> - Type : <b>${deliveryTypes[ty]}</b>${d ? ` - Temps : <b>${pad(d.getHours())}:${pad(d.getMinutes())}</b>` : ''}`; },
-	from_partner_text: (p) => { return `Du partenaire : ${p}` },
-	from_place_text: (p) => { return `Du place : ${p}` },
-	no_deliveries: "Pas de Livraisons"
+	no_deliveries: "Pas de livraisons"
 }
 
 texts = [

@@ -236,3 +236,7 @@ i {
 #loading-img {
 	width: 50%;
 }
+
+.jumbotron {
+	padding: 30px;
+}

@@ -196,7 +196,7 @@ const checkNotAuth = (req, res, next) => {
 
 const checkConfirmed = (req, res, next) => {
 	let user = getUser('id', req.session.uid);
-	if (user && (user.confirmed || [2,3].includes(user.type))) {
+	if (user && (user.confirmed || [2, 3].includes(user.type))) {
 		next();
 	} else {
 		res.redirect('/confirm');
@@ -797,10 +797,10 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 app.post('/delivery-request', checkAuth, checkUser, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	if (user && user.hash) {
-		let { type, fromPlace, from, to, distance, price, phone, thing, weight, partner } = req.body;
+		let { type, fromPlace, from, to, distance, price, phone, thing, thingsPrice, weight, partner } = req.body;
 		if (typeof (type) && typeof (from) && typeof (to) && typeof (distance) && typeof (price) && typeof (thing) && typeof (weight) && generateHash(('' + distance).substring(0, 5), '' + price) == user.hash && price == user.last_delivery_price) {
 			let did = randomHash(10);
-			if (submitNewDelivery(req.session.uid, did, type, fromPlace, from, to, distance, price, thing, phone, weight, partner)) return res.redirect('/delivery/' + did);
+			if (submitNewDelivery(req.session.uid, did, type, fromPlace, from, to, distance, price, thing, thingsPrice, phone, weight, partner)) return res.redirect('/delivery/' + did);
 			return res.redirect('/delivery-err');
 		}
 	}
@@ -1505,10 +1505,7 @@ io.on('connection', (socket) => {
 
 	// Driver stuff
 	socket.on('driver_connected', (data) => {
-		if (user.status == 0) { // means he didn't come back back before the ending of that timeout
-			deliveries.filter(e => e.driver == user.id).forEach(delivery => {
-				sendDeliveryStatus(delivery.id);
-			});
+		if (user.status == 0) { // means he didn't come back before the ending of that timeout
 			deliveries.filter(e => e.status == 0).forEach(delivery => {
 				db.query("UPDATE deliveries SET status=1 WHERE id=?", [delivery.id], (err, results) => {
 					if (!err) delivery.status = 1;
@@ -1518,13 +1515,15 @@ io.on('connection', (socket) => {
 		}
 		user.pos = data;
 		user.status = 1;
+		updateDriverDeliveries(user.id, user.pos);
 		db.query("UPDATE drivers SET status=?, pos=?", [user.status, stringifyPosition(user.pos)]);
-		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d)));
+		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d, user.pos)));
 	});
 	socket.on('driver_position', (data) => {
 		if (user) {
 			user.pos = data;
 			user.status = 1;
+			updateDriverDeliveries(user.id, user.pos);
 			db.query("UPDATE drivers SET status=?, pos=?", [user.status, stringifyPosition(user.pos)]);
 		}
 	});
@@ -1541,12 +1540,12 @@ io.on('connection', (socket) => {
 				db.query("UPDATE deliveries SET status=?, driver=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.id]);
 
 				getOnlineDrivers().forEach(driver => {
-					if (driver.id != user.id && driver.socket) io.to(driver.socket).emit('remove_delivery', getDetailsToSendToDriver(delivery));
+					if (driver.id != user.id && driver.socket) io.to(driver.socket).emit('remove_delivery', getDetailsToSendToDriver(delivery, driver.pos));
 				});
 
 				sendDeliveryStatus(delivery.id);
 
-				socket.emit('accepted_delivery_approve', { id: delivery.id, estimated_finish_time: delivery.estimated_finish_time });
+				socket.emit('accepted_delivery_approve', getDetailsToSendToDriver(delivery, user.pos));
 			}
 		}
 	});
@@ -1569,7 +1568,7 @@ io.on('connection', (socket) => {
 			sendDeliveryStatus(delivery.id);
 
 			getOnlineDrivers().forEach(driver => {
-				if (driver.id != user.id && driver.socket) io.to(driver.socket).emit('new_delivery', getDetailsToSendToDriver(delivery));
+				if (driver.id != user.id && driver.socket) io.to(driver.socket).emit('new_delivery', getDetailsToSendToDriver(delivery, driver.pos));
 			});
 
 			db.query("UPDATE deliveries SET status=?, driver=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, null, delivery.id]);
@@ -2065,7 +2064,7 @@ function createPartnerScheduleTimes(partnerid) {
 
 
 // Delivery stuff
-function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price, thing, phone, weight, partner) {
+function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price, thing, thingsPrice, phone, weight, partner) {
 	if (type == 1) {
 		fromPlace = getPartner('id', fromPlace);
 		if (fromPlace) fromPlace = fromPlace.name;
@@ -2081,6 +2080,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		delivery_to: parsePosition(to),
 		price: parseInt(price),
 		thing: thing,
+		thingsPrice: thingsPrice || null,
 		recipients_phone: phone || null,
 		weight: parseInt(weight),
 		distance: parseFloat(distance),
@@ -2104,7 +2104,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.date, delivery.partner, delivery.item, delivery.finish_time], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.date, delivery.partner, delivery.item, delivery.finish_time, delivery.thingsPrice], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {
@@ -2121,7 +2121,11 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 }
 
 function getEstimatedFinishTime(driverPos, deliveryFrom, deliveryDistance) {
-	return new Date(new Date().getTime() + (Math.ceil(((getTravelTime(driverPos, deliveryFrom) + (deliveryDistance / settings.driverSpeed) * 60 + settings.driverRestTime) / settings.nearestMinute) * settings.nearestMinute)) * 60 * 1000);
+	return new Date(new Date().getTime() + (calculateDeliveryDuration(driverPos, deliveryFrom, deliveryDistance) * 60 * 1000));
+}
+
+function calculateDeliveryDuration(driverPos, deliveryFrom, deliveryDistance) {
+	return Math.ceil(((getTravelTime(driverPos, deliveryFrom) + ((deliveryDistance / settings.driverSpeed) + settings.driverRestTime) * 60) / settings.nearestMinute) / settings.nearestMinute);
 }
 
 function sendDeliveryStatus(id) {
@@ -2155,7 +2159,7 @@ function deliveryInfoPage(delivery) {
 }
 
 // Driver stuff
-function getDetailsToSendToDriver(delivery) {
+function getDetailsToSendToDriver(delivery, driverPos) {
 	if (delivery) {
 		let user = getUser('id', delivery.uid);
 		if (user) {
@@ -2164,6 +2168,7 @@ function getDetailsToSendToDriver(delivery) {
 				phone: user.phone,
 				name: user.name,
 				thing: delivery.thing,
+				thingsPrice: delivery.thingsPrice,
 				recipients_phone: delivery.recipients_phone,
 				type: delivery.type,
 				price: delivery.price,
@@ -2172,7 +2177,8 @@ function getDetailsToSendToDriver(delivery) {
 				to: delivery.delivery_to,
 				estimated_finish_time: delivery.estimated_finish_time,
 				date: delivery.date,
-				status: delivery.status
+				status: delivery.status,
+				minutes: calculateDeliveryDuration(driverPos, delivery.delivery_from, delivery.distance)
 			}
 			if (delivery.type == 1) {
 				let partner = getPartner('id', delivery.partner);
@@ -2180,9 +2186,13 @@ function getDetailsToSendToDriver(delivery) {
 					data.partner = partner.name;
 					data.partner_phone = partner.phone;
 				}
+				let item = getItem('id', delivery.item);
+				if (typeof (item) != 'undefined') {
+					data.thingsPrice = item.price;
+				}
 			}
-			if (delivery.type == 2 && delivery.delivery_fromPlace) {
-				data.fromPlace = delivery.delivery_fromPlace;
+			if (delivery.type == 2 && delivery.fromPlace) {
+				data.fromPlace = delivery.fromPlace;
 			}
 			return data;
 		}
@@ -2203,10 +2213,19 @@ function sendDeliveryToDrivers(delivery) {
 	let online = getOnlineDrivers();
 	if (online) {
 		online.forEach(driver => {
-			if (driver && driver.socket) io.to(driver.socket).emit('new_delivery', getDetailsToSendToDriver(delivery));
+			if (driver && driver.socket) io.to(driver.socket).emit('new_delivery', getDetailsToSendToDriver(delivery, driver.pos));
 		});
 	}
 }
+
+function updateDriverDeliveries(driverID, driverPos) {
+	deliveries.filter(e => e.driver == driverID).forEach(delivery => {
+		delivery.estimated_finish_time = getEstimatedFinishTime(driverPos, delivery.delivery_from, delivery.distance);
+		db.query("UPDATE deliveries SET estimated_finish_time=? WHERE id=?", [delivery.estimated_finish_time, delivery.id]);
+		sendDeliveryStatus(delivery.id);
+	});
+}
+
 
 // Scheduling
 nodeSchedule.scheduleJob({ hour: 12, minute: 29, second: 0 }, () => {

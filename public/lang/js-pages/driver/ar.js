@@ -1,25 +1,31 @@
 deliveryTypes = [
-	"زبون إلى مكان",
-	"شريك إلى زبون",
-	"محل إلى زبون",
-	"شريك إلى مكان",
-	"مكان إلى شريك"
+	"من شخص لشخص",
+	"من شريك لشخص",
+	"من محل لشخص"
 ]
 
-js_lang_text = {
-	new_delivery_request_text: "طلب تسليم جديد",
-	rcvr_phone_text: "رقم المستقبل :",
-	route_text: "الطريق",
-	cancel_text: "إلغاء",
-	failed_text: "فشل",
-	completed_text: "اكتمال",
-	refuse_text: "رفض",
-	accept_text: "قبول",
+l = {
+	new: "طلب توصيل جديد",
+	min: "د",
+	obj: "الغرض",
+	rcvr: "المستلم",
+	from_partner: "من الشريك",
+	from_place: "من",
+	price: "السعر",
+	objp: "سعر الغرض",
+	distance: "المسافة",
+	dzd: "دج",
+	km: "كم",
+	partner: "الشريك",
+	fnsh_t: "الوقت المقدر للإنهاء",
+	route: "الطريق",
+	cancel: "إلغاء",
+	fail: "فشل",
+	comp: "اكتمال",
+	ref: "رفض",
+	acc: "قبول",
 	notification_text: (p, d, n) => { return `${p} دج - ${d} كم - ${n}` },
-	text_1_text: (thng, pr, ty, d) => { return `الغرض : <b>${thng}</b> - السعر : <b>${pr} دج</b> - نوع : <b>${deliveryTypes[ty]}</b>${d ? ` - الوقت : <b>${pad(d.getHours())}:${pad(d.getMinutes())}</b>` : ''}`; },
-	from_partner_text: (p) => { return `من الشريك : ${p}` },
-	from_place_text: (p) => { return `من المكان : ${p}` },
-	no_deliveries: "لا توجد طلبات"
+	no_deliveries: "لا يوجد أي طلب توصيل"
 }
 
 texts = [

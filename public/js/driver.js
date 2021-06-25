@@ -1,9 +1,6 @@
 var deliveries = [];
 
-var requests = document.getElementById('requests');
-
-var modalTitle = document.getElementById('modal-title');
-var modalButton = document.getElementById('modal-button');
+var acceptedDelivery = false;
 
 sendPosition("driver_connected");
 
@@ -11,45 +8,33 @@ setInterval(() => {
 	sendPosition("driver_position")
 }, 1000 * 60 * 3); // 3 minutes
 
-socket.on("deliveries", async (data) => {
+socket.on("deliveries", (data) => {
 	if (data && data.length) {
 		deliveries = [...data.filter(e => e.status == 2).sort((a, b) => (a.date > b.date) ? 1 : -1), ...data.filter(e => e.status != 2).sort((a, b) => (a.date > b.date) ? 1 : -1)];
-		for (const delivery of deliveries) {
-			let d = await createNewRequestDiv(delivery, delivery.status == 2);
-			requests.appendChild(d);
-			if (document.getElementById('loading-img')) requests.removeChild(document.getElementById('loading-img'));
-		}
+		deliveries.forEach(delivery => createDiv(delivery, delivery.status == 2));
 	} else {
-		requests.innerHTML = `<h4 id="no-dlv" class="my-5"> ${js_lang_text.no_deliveries}</h4 >`;
+		$('#requests').html(`<h4 id="no-dlv" class="my-5"> ${l.no_deliveries}</h4 >`);
 	}
-	if (document.getElementById('loading-img')) requests.removeChild(document.getElementById('loading-img'));
+	$('#loading-img').remove();
 });
 
 socket.on('new_delivery', (data) => {
 	let delivery = getDelivery(data.id);
 	if (typeof (delivery) == 'undefined') deliveries.push(data);
-	createNewRequestDiv(data, 'new').then(d => {
-		$('#no-dlv').remove();
-		requests.appendChild(d);
-	});
+	createDiv(data, 'new');
+	$('#no-dlv').remove();
 });
 
 socket.on('remove_delivery', (delivery) => {
-	let d = getDelivery(delivery.id);
-	if (typeof (d) != 'undefined') {
+	if (getDelivery(delivery.id)) {
 		deliveries = deliveries.filter(e => e.id != delivery.id);
-		let div = document.getElementById(delivery.id);
-		if (div) {
-			requests.removeChild(div);
-			checkEmpty();
-		}
-
+		$('#' + delivery.id).remove
+		checkEmpty();
 	}
 });
 
 socket.on('canceled_delivery', (data) => {
-	let the_div = document.getElementById(data);
-	requests.removeChild(the_div);
+	$('#' + data).remove();
 	checkEmpty();
 });
 
@@ -65,180 +50,110 @@ function getPosition() {
 	});
 }
 
-
-async function createNewRequestDiv(delivery, deliveryStatus) {
-	let request_div = document.createElement("div");
-	request_div.setAttribute('id', delivery.id);
-	request_div.classList.add('d-flex');
-	request_div.classList.add('justify-content-center');
-	request_div.classList.add('py-2');
-
-	let inner_div = document.createElement("div");
-	inner_div.classList.add('jumbotron');
-	if (deliveryStatus === 'new') {
-		inner_div.style.backgroundColor = '#FF7373';
-		if (typeof (Android) !== 'undefined') {
-			let notification_text = js_lang_text.notification_text(delivery.price, delivery.distance, delivery.name);
-			if (typeof (delivery.partner) != 'undefined') notification_text += ` - ${delivery.name}`;
-			Android.showNotification(js_lang_text.new_delivery_request_text, notification_text);
-		}
-	}
-
-	request_div.appendChild(inner_div);
-
-	let title = document.createElement("h4");
-	title.innerHTML = `<a href="tel:${delivery.phone}">${delivery.phone}</a> - ${delivery.name}`;
-	inner_div.appendChild(title);
-
-	let text1 = document.createElement("p");
+async function createDiv(delivery, status, r) {
 	if (delivery.estimated_finish_time) delivery.estimated_finish_time = new Date(delivery.estimated_finish_time)
-	text1.innerHTML = js_lang_text.text_1_text(delivery.thing, delivery.price, delivery.type, delivery.estimated_finish_time);
-	inner_div.appendChild(text1);
-	if (typeof (delivery.recipients_phone) != 'undefined' && delivery.recipients_phone != null) {
-		let text = document.createElement("p");
-		text.innerHTML = `${js_lang_text.rcvr_phone_text} <a href="tel:${delivery.recipients_phone}">${delivery.recipients_phone}</a>`;
-		inner_div.appendChild(text);
-	}
-	if (delivery.type == 1 && typeof (delivery.partner) != 'undefined') {
-		let text = document.createElement("p");
-		text.innerHTML = js_lang_text.from_partner_text(delivery.partner);
-		if (typeof (delivery.partner_phone) != 'undefined') text.innerHTML += ` - <a href="tel:${delivery.partner_phone}">${delivery.partner_phone}</a>`
-		inner_div.appendChild(text);
-	}
-	if (delivery.type == 2 && typeof (delivery.fromPlace) != 'undefined') {
-		let text = document.createElement("p");
-		text.innerHTML = js_lang_text.from_place_text(delivery.fromPlace);
-		inner_div.appendChild(text);
-	}
 
-	let pos = await getPosition();
-	let link = `https://www.google.com/maps/dir/?api=1&travelmode=driving&layer=traffic&origin=${pos.coords.latitude},${pos.coords.longitude}&destination=${delivery.to[0]},${delivery.to[1]}`;
+	let div = `
+	<div id="${delivery.id}" class="my-2">
+		<div class="jumbotron border${status === 'new' ? ' border-info' : status === true ? ' border-danger' : ''}">
+			<h4${lng == 'ar' ? ' class="h1"' : ''}>${delivery.name}</h4>
+			<h4><a href="tel:${delivery.phone}">${delivery.phone}</a></h4>
+			<div class="hr-sect">${deliveryTypes[delivery.type]} (${delivery.minutes} ${l.min})</div>
+			<div class="row mx-4">
+				<div class="col-md-7 p-0 text-${lng == 'ar' ? 'right' : 'left'}">
+					<p class="my-0">${l.obj} : <b>${delivery.thing}</b></p>
+					<p class="my-0">${delivery.type == 0 && delivery.recipients_phone ? `${l.rcvr} : <a href="tel:${delivery.recipients_phone}">${delivery.recipients_phone}</a>` : delivery.type == 1 ? `${l.from_partner} : <b>${delivery.partner}</b>` : `${l.from_place} : <b>${delivery.fromPlace}</b>`}</p>
+					${typeof (delivery.thingsPrice) != 'undefined' ? `<p class="my-0">${l.objp} : <b>${delivery.thingsPrice} ${l.dzd}</b></p>` : ''}
+				</div>
+				<div class="text-${lng == 'ar' ? 'right' : 'left'}">
+					<p class="my-0">${l.price} : <b>${delivery.price} ${l.dzd}</b></p>
+					<p class="my-0">${l.distance} : <b>${delivery.distance} ${l.km}</b></p>
+					${delivery.type == 1 ? `<p class="my-0">${l.partner} : <b><a href="tel:${delivery.partner_phone}">${delivery.partner_phone}</a></b></p>` : ''}
+				</div>
+			</div>
+			${status === true ? `<div class="hr-sect text-dark"><p class="my-1">${l.fnsh_t} : <b>${pad(delivery.estimated_finish_time.getHours())}:${pad(delivery.estimated_finish_time.getMinutes())}</b></div>` : '<hr class="mt-2" style="background-color: #aaa;">'}
 
-	if (delivery.type == 2) {
-		delivery.link = link + `&waypoints=${delivery.to[0]},${delivery.to[1]}|${delivery.from[0]},${delivery.from[1]}`;
-	} else {
-		delivery.link = link + `&waypoints=${delivery.from[0]},${delivery.from[1]}`;
-	}
+			${status === true
+			? `
+				<div class="row mx-2 mt-4">
+					<button class="btn col btn-primary mx-1" id="${delivery.id}-r">${l.route}</button>
+					<button class="btn col btn-warning mx-1" data-toggle="modal" data-target="#modal" id="${delivery.id}-c">${l.cancel}</button>
+				</div>
+				<div class="row mx-2 mt-2">
+					<button class="btn col btn-success mx-1" data-toggle="modal" data-target="#modal" id="${delivery.id}-comp">${l.comp}</button>
+					<button class="btn col btn-danger mx-1" data-toggle="modal" data-target="#modal" id="${delivery.id}-fail">${l.fail}</button>
+				</div>
+				`
+			: `
+				<div class="row mx-2 mt-4">
+					<button class="btn col btn-danger mx-1" data-toggle="modal" data-target="#modal" id="${delivery.id}-ref">${l.ref}</button>
+					<button class="btn col btn-info mx-1" data-toggle="modal" data-target="#modal" id="${delivery.id}-acc"${acceptedDelivery ? ' disabled' : ''}>${l.acc}</button>
+				</div>
+				`
+		}
+		</div>
+	</div>
+	`;
+	if (r) $('#requests').prepend($(div));
+	else $('#requests').append($(div));
 
-	if (deliveryStatus === true) {
-		let route_button = document.createElement("button");
-		inner_div.style.backgroundColor = '#FECDA0';
-		route_button.innerHTML = js_lang_text.route_text;
-		route_button.classList.add('btn');
-		route_button.classList.add('btn-primary');
-		route_button.classList.add('mx-2');
-		inner_div.appendChild(route_button);
-		$(route_button).off();
-		$(route_button).on('click', () => {
-			window.open(delivery.link);
-		});
+	if (status === true) {
 
-		let cancel_button = document.createElement("button");
-		cancel_button.innerHTML = js_lang_text.cancel_text;
-		cancel_button.classList.add('btn');
-		cancel_button.classList.add('btn-warning');
-		cancel_button.classList.add('m-2');
-		cancel_button.setAttribute('data-toggle', 'modal');
-		cancel_button.setAttribute('data-target', '#modal');
-		cancel_button.setAttribute('id', 'failed-button');
-		inner_div.appendChild(cancel_button);
+		acceptedDelivery = true;
 
+		let pos = await getPosition();
+		delivery.link = `https://www.google.com/maps/dir/?api=1&travelmode=driving&layer=traffic&origin=${pos.coords.latitude},${pos.coords.longitude}&destination=${delivery.to[0]},${delivery.to[1]}${delivery.type == 2 ? `&waypoints=${delivery.to[0]},${delivery.to[1]}|${delivery.from[0]},${delivery.from[1]}` : `&waypoints=${delivery.from[0]},${delivery.from[1]}`}`;
 
-		let failed_button = document.createElement("button");
-		failed_button.innerHTML = js_lang_text.failed_text;
-		failed_button.classList.add('btn');
-		failed_button.classList.add('btn-danger');
-		failed_button.classList.add('m-2');
-		failed_button.setAttribute('data-toggle', 'modal');
-		failed_button.setAttribute('data-target', '#modal');
-		failed_button.setAttribute('id', 'failed-button');
-		inner_div.appendChild(failed_button);
+		$(`#${delivery.id}-r`).on('click', () => window.open(delivery.link));
 
-		let completed_button = document.createElement("button");
-		completed_button.innerHTML = js_lang_text.completed_text;
-		completed_button.classList.add('btn');
-		completed_button.classList.add('btn-success');
-		completed_button.classList.add('m-2');
-		completed_button.setAttribute('data-toggle', 'modal');
-		completed_button.setAttribute('data-target', '#modal');
-		completed_button.setAttribute('id', 'completed-button');
-		inner_div.appendChild(completed_button);
-
-		$(completed_button).off();
-		$(completed_button).on('click', () => {
-			$('#modal-button').off();
-			$('#modal-button').on('click', () => completedDelivery(delivery.id));
-			modalTitle.innerHTML = texts[2];
-			modalButton.innerHTML = buttonTexts[2];
-			modalButton.className = "";
-			modalButton.classList.add('btn');
-			modalButton.classList.add('btn-success');
-		});
-		$(failed_button).off();
-		$(failed_button).on('click', () => {
-			$('#modal-button').off();
-			$('#modal-button').on('click', () => failedDelivery(delivery.id));
-			modalTitle.innerHTML = texts[3];
-			modalButton.innerHTML = buttonTexts[3];
-			modalButton.className = "";
-			modalButton.classList.add('btn');
-			modalButton.classList.add('btn-danger');
-		});
-		$(cancel_button).off();
-		$(cancel_button).on('click', () => {
+		$(`#${delivery.id}-c`).on('click', () => {
 			$('#modal-button').off();
 			$('#modal-button').on('click', () => cancelDelivery(delivery.id));
-			modalTitle.innerHTML = texts[4];
-			modalButton.innerHTML = buttonTexts[4];
-			modalButton.className = "";
-			modalButton.classList.add('btn');
-			modalButton.classList.add('btn-warning');
+			$('#modal-button').html(buttonTexts[4]);
+			$('#modal-title').html(texts[4]);
+			$('#modal-button').attr('class', 'btn btn-warning');
 		});
+
+		$(`#${delivery.id}-fail`).on('click', () => {
+			$('#modal-button').off();
+			$('#modal-button').on('click', () => failedDelivery(delivery.id));
+			$('#modal-button').html(buttonTexts[3]);
+			$('#modal-title').html(texts[3]);
+			$('#modal-button').attr('class', 'btn btn-danger');
+		});
+
+		$(`#${delivery.id}-comp`).on('click', () => {
+			$('#modal-button').off();
+			$('#modal-button').on('click', () => completedDelivery(delivery.id));
+			$('#modal-button').html(buttonTexts[2]);
+			$('#modal-title').html(texts[2]);
+			$('#modal-button').attr('class', 'btn btn-success');
+		});
+
 	} else {
-		let refuse_button = document.createElement("button");
-		refuse_button.innerHTML = js_lang_text.refuse_text;
-		refuse_button.classList.add('btn');
-		refuse_button.classList.add('btn-danger');
-		refuse_button.classList.add('mx-2');
-		refuse_button.setAttribute('data-toggle', 'modal');
-		refuse_button.setAttribute('data-target', '#modal');
-		refuse_button.setAttribute('id', 'refuse-button');
-		inner_div.appendChild(refuse_button);
 
-		let accept_button = document.createElement("button");
-		accept_button.innerHTML = js_lang_text.accept_text;
-		accept_button.classList.add('btn');
-		accept_button.classList.add('btn-info');
-		accept_button.classList.add('mx-2');
-		accept_button.setAttribute('data-toggle', 'modal');
-		accept_button.setAttribute('data-target', '#modal');
-		accept_button.setAttribute('id', 'accept-button');
-		inner_div.appendChild(accept_button);
-
-		$(accept_button).off();
-		$(accept_button).on('click', () => {
+		$(`#${delivery.id}-acc`).on('click', () => {
 			$('#modal-button').off();
 			$('#modal-button').on('click', () => acceptDelivery(delivery.id));
-			modalTitle.innerHTML = texts[0];
-			modalButton.innerHTML = buttonTexts[0];
-			modalButton.className = "";
-			modalButton.classList.add('btn');
-			modalButton.classList.add('btn-success');
+			$('#modal-button').html(buttonTexts[0]);
+			$('#modal-title').html(texts[0]);
+			$('#modal-button').attr('class', 'btn btn-info');
 		});
-		$(refuse_button).off();
-		$(refuse_button).on('click', () => {
+
+		$(`#${delivery.id}-ref`).on('click', () => {
 			$('#modal-button').off();
 			$('#modal-button').on('click', () => refuseDelivery(delivery.id));
-			modalTitle.innerHTML = texts[1];
-			modalButton.innerHTML = buttonTexts[1];
-			modalButton.className = "";
-			modalButton.classList.add('btn');
-			modalButton.classList.add('btn-danger');
+			$('#modal-button').html(buttonTexts[1]);
+			$('#modal-title').html(texts[1]);
+			$('#modal-button').attr('class', 'btn btn-danger');
 		});
 	}
 
-	request_div.appendChild(document.createElement('hr'));
-	return request_div;
+	if (status === 'new' && typeof (Android) !== 'undefined') {
+		let notification_text = l.notification_text(delivery.price, delivery.distance, delivery.name);
+		if (typeof (delivery.partner) != 'undefined') notification_text += ` - ${delivery.name}`;
+		Android.showNotification(l.new, notification_text);
+	}
 }
 
 function acceptDelivery(id) {
@@ -248,126 +163,58 @@ function acceptDelivery(id) {
 socket.on('accepted_delivery_approve', (data) => {
 	let id = data.id;
 	let delivery = getDelivery(id);
-	delivery.estimated_finish_time = new Date(data.estimated_finish_time);
-	let inner_div = document.getElementById(id).getElementsByClassName('jumbotron')[0];
-	inner_div.style.backgroundColor = '#FECDA0';
-
-	let accept_button = inner_div.querySelector('#accept-button');
-	let refuse_button = inner_div.querySelector('#refuse-button');
-
-	if (accept_button && refuse_button) {
-		inner_div.removeChild(accept_button);
-		inner_div.removeChild(refuse_button);
-	}
-
-	let route_button = document.createElement("button");
-	route_button.innerHTML = js_lang_text.route_text;
-	route_button.classList.add('btn');
-	route_button.classList.add('btn-primary');
-	route_button.classList.add('m-2');
-	inner_div.appendChild(route_button);
-
-	let cancel_button = document.createElement("button");
-	cancel_button.innerHTML = js_lang_text.cancel_text;
-	cancel_button.classList.add('btn');
-	cancel_button.classList.add('btn-warning');
-	cancel_button.classList.add('m-2');
-	cancel_button.setAttribute('data-toggle', 'modal');
-	cancel_button.setAttribute('data-target', '#modal');
-	cancel_button.setAttribute('id', 'failed-button');
-	inner_div.appendChild(cancel_button);
-
-	let failed_button = document.createElement("button");
-	failed_button.innerHTML = js_lang_text.failed_text;
-	failed_button.classList.add('btn');
-	failed_button.classList.add('btn-danger');
-	failed_button.classList.add('m-2');
-	failed_button.setAttribute('data-toggle', 'modal');
-	failed_button.setAttribute('data-target', '#modal');
-	failed_button.setAttribute('id', 'failed-button');
-	inner_div.appendChild(failed_button);
-
-	let completed_button = document.createElement("button");
-	completed_button.innerHTML = js_lang_text.completed_text;
-	completed_button.classList.add('btn');
-	completed_button.classList.add('btn-success');
-	completed_button.classList.add('m-2');
-	completed_button.setAttribute('data-toggle', 'modal');
-	completed_button.setAttribute('data-target', '#modal');
-	completed_button.setAttribute('id', 'completed-button');
-	inner_div.appendChild(completed_button);
-
-	$(route_button).off();
-	$(route_button).on('click', () => {
-		window.open(delivery.link);
-	});
-	$(completed_button).off();
-	$(completed_button).on('click', () => {
-		$('#modal-button').off();
-		$('#modal-button').on('click', () => completedDelivery(delivery.id));
-		modalTitle.innerHTML = texts[2];
-		modalButton.innerHTML = buttonTexts[2];
-		modalButton.className = "";
-		modalButton.classList.add('btn');
-		modalButton.classList.add('btn-success');
-	});
-	$(failed_button).off();
-	$(failed_button).on('click', () => {
-		$('#modal-button').off();
-		$('#modal-button').on('click', () => failedDelivery(delivery.id));
-		modalTitle.innerHTML = texts[3];
-		modalButton.innerHTML = buttonTexts[3];
-		modalButton.className = "";
-		modalButton.classList.add('btn');
-		modalButton.classList.add('btn-danger');
-	});
-	$(cancel_button).off();
-	$(cancel_button).on('click', () => {
-		$('#modal-button').off();
-		$('#modal-button').on('click', () => cancelDelivery(delivery.id));
-		modalTitle.innerHTML = texts[4];
-		modalButton.innerHTML = buttonTexts[4];
-		modalButton.className = "";
-		modalButton.classList.add('btn');
-		modalButton.classList.add('btn-warning');
-	});
+	delivery = data;
+	$('#' + delivery.id).remove();
+	$('.jumbotron .btn-info').each((i, e) => $(e).attr('disabled', true));
+	createDiv(delivery, true, true);
+	window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 
 function refuseDelivery(id) {
 	let delivery = getDelivery(id);
 	socket.emit("refused_delivery", delivery.id);
-	let div = document.getElementById(id);
-	requests.removeChild(div);
-	checkEmpty();
+	$('#' + id).fadeOut(400, () => {
+		$(this).remove();
+		acceptedDelivery = false;
+		$('.jumbotron .btn-info').each((i, e) => $(e).attr('disabled', false));
+		checkEmpty();
+	});
 }
 
 function completedDelivery(id) {
 	let delivery = getDelivery(id);
 	socket.emit("completed_delivery", delivery.id);
-	let div = document.getElementById(id);
-	requests.removeChild(div);
-	checkEmpty();
+	$('#' + id).fadeOut(400, () => {
+		$(this).remove();
+		acceptedDelivery = false;
+		$('.jumbotron .btn-info').each((i, e) => $(e).attr('disabled', false));
+		checkEmpty();
+	});;
 }
 
 function failedDelivery(id) {
 	let delivery = getDelivery(id);
 	socket.emit("failed_delivery", delivery.id);
-	let div = document.getElementById(id);
-	requests.removeChild(div);
-	checkEmpty();
+	$('#' + id).fadeOut(400, () => {
+		$(this).remove();
+		acceptedDelivery = false;
+		$('.jumbotron .btn-info').each((i, e) => $(e).attr('disabled', false));
+		checkEmpty();
+	});
 }
 
 function cancelDelivery(id) {
 	let delivery = getDelivery(id);
 	delete delivery.estimated_finish_time;
 	socket.emit("cancel_delivery", delivery.id);
-	let div = document.getElementById(id);
-	requests.removeChild(div);
-	createNewRequestDiv(delivery).then(d => {
-		$('#no-dlv').remove();
-		requests.appendChild(d);
+	$('#' + id).fadeOut(400, () => {
+		$(this).remove();
+		acceptedDelivery = false;
+		$('.jumbotron .btn-info').each((i, e) => $(e).attr('disabled', false));
+		createDiv(delivery);
 	});
+	$('#no-dlv').remove();
 }
 
 function getDelivery(id) {
@@ -376,6 +223,12 @@ function getDelivery(id) {
 
 function checkEmpty() {
 	if (!$.trim($('#requests').html()).length) {
-		$('#requests').html(`<h4 id="no-dlv" class="my-5">${js_lang_text.no_deliveries}</h4>`);
+		$('#requests').html(`<h4 id="no-dlv" class="my-5">${l.no_deliveries}</h4>`);
 	}
+}
+
+function pad(n, z) {
+	z = z || '0';
+	n = n + '';
+	return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
 }
