@@ -5,7 +5,6 @@ $('#save-btn').on('click', () => {
 	let schedule = $('#select').val() || 0;
 	let startTime = $('#from').val();
 	let endTime = $('#to').val();
-	console.log(Boolean())
 	if (pos) {
 		let r = /^([01]\d|2[0-3]):?([0-5]\d)$/;
 		let save = true;
