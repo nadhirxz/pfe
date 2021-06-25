@@ -43,15 +43,13 @@ CREATE TABLE partners (
 	password VARCHAR(64),
 	pos VARCHAR(50),
 	confirmed BIT NOT NULL,
-	secret VARCHAR(8),
 	description VARCHAR(100),
 	schedule INT(2),
 	startTime VARCHAR(5),
 	endTime VARCHAR(5),
 	percentage INT(2),
 	paid INT(10),
-	lang VARCHAR(2),
-	FOREIGN KEY (secret) REFERENCES secretkeys(id)
+	lang VARCHAR(2)
 );
 
 CREATE TABLE items (
