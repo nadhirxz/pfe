@@ -82,6 +82,7 @@ CREATE TABLE deliveries (
 	partner VARCHAR(8),
 	item VARCHAR(8),
 	finish_time TIMESTAMP NULL,
+	thingsPrice INT(10),
 	FOREIGN KEY (uid) REFERENCES users(id),
 	FOREIGN KEY (driver) REFERENCES drivers(id),
 	FOREIGN KEY (partner) REFERENCES partners(id),
