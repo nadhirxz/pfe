@@ -52,7 +52,7 @@ function pad(n,z) {
 	<% if (!locals.date && !locals.noTitle) { %><h3 class="mb-3"><span class="todays_deliveries_text"></span></h3><% } %>
     <% userDeliveries.forEach((delivery, idx) => { %>
 		<% i = idx; %>
-        <div class="jumbotron">
+        <div class="jumbotron border pt-5">
             <div class="text-<% if (lang=='ar') { %>right<% } else { %>left<% } %> container">
                 <div class="row">
                     <div class="col-sm">
