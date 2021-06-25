@@ -1515,7 +1515,7 @@ io.on('connection', (socket) => {
 		}
 		user.pos = data;
 		user.status = 1;
-		updateDriverDeliveries(user.id, user.pos);
+		updateDriverDeliveries(user.id, user.pos, socket);
 		db.query("UPDATE drivers SET status=?, pos=?", [user.status, stringifyPosition(user.pos)]);
 		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d, user.pos)));
 	});
@@ -1523,8 +1523,9 @@ io.on('connection', (socket) => {
 		if (user) {
 			user.pos = data;
 			user.status = 1;
-			updateDriverDeliveries(user.id, user.pos);
+			updateDriverDeliveries(user.id, user.pos, socket);
 			db.query("UPDATE drivers SET status=?, pos=?", [user.status, stringifyPosition(user.pos)]);
+			let delivery = deliveries.filter(e => e.driver == user.id);
 		}
 	});
 
@@ -2218,9 +2219,10 @@ function sendDeliveryToDrivers(delivery) {
 	}
 }
 
-function updateDriverDeliveries(driverID, driverPos) {
+function updateDriverDeliveries(driverID, driverPos, socket) {
 	deliveries.filter(e => e.driver == driverID).forEach(delivery => {
 		delivery.estimated_finish_time = getEstimatedFinishTime(driverPos, delivery.delivery_from, delivery.distance);
+		socket.emit('update_delivery', { id: delivery.id, time: delivery.estimated_finish_time });
 		db.query("UPDATE deliveries SET estimated_finish_time=? WHERE id=?", [delivery.estimated_finish_time, delivery.id]);
 		sendDeliveryStatus(delivery.id);
 	});

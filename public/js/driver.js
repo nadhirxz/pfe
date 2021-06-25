@@ -28,7 +28,7 @@ socket.on('new_delivery', (data) => {
 socket.on('remove_delivery', (delivery) => {
 	if (getDelivery(delivery.id)) {
 		deliveries = deliveries.filter(e => e.id != delivery.id);
-		$('#' + delivery.id).remove
+		$('#' + delivery.id).remove()
 		checkEmpty();
 	}
 });
@@ -36,6 +36,10 @@ socket.on('remove_delivery', (delivery) => {
 socket.on('canceled_delivery', (data) => {
 	$('#' + data).remove();
 	checkEmpty();
+});
+
+socket.on('update_delivery', (data) => {
+	if (getDelivery(data.id)) $(`#${data.id}-time`).html(getTime(data.time));
 });
 
 async function sendPosition(socketmsg) {
@@ -71,7 +75,7 @@ async function createDiv(delivery, status, r) {
 					${delivery.type == 1 ? `<p class="my-0">${l.partner} : <b><a href="tel:${delivery.partner_phone}">${delivery.partner_phone}</a></b></p>` : ''}
 				</div>
 			</div>
-			${status === true ? `<div class="hr-sect text-dark"><p class="my-1">${l.fnsh_t} : <b>${pad(delivery.estimated_finish_time.getHours())}:${pad(delivery.estimated_finish_time.getMinutes())}</b></div>` : '<hr class="mt-2" style="background-color: #aaa;">'}
+			${status === true ? `<div class="hr-sect text-dark"><p class="my-1">${l.fnsh_t} : <b id="${delivery.id}-time">${getTime(delivery.estimated_finish_time)}</b></div>` : '<hr class="mt-2" style="background-color: #aaa;">'}
 
 			${status === true
 			? `
@@ -231,4 +235,9 @@ function pad(n, z) {
 	z = z || '0';
 	n = n + '';
 	return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
+}
+
+function getTime(t) {
+	t = new Date(t);
+	return `${pad(t.getHours())}:${pad(t.getMinutes())}`;
 }
