@@ -1,7 +1,7 @@
 deliveryTypes = [
-	"Client vers Place",
-	"Partenaire vers Client",
-	"Shop vers Client"
+	"Personne à personne",
+	"Partenaire à personne",
+	"Magasin à personne"
 ]
 
 l = {
