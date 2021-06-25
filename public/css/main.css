@@ -240,3 +240,7 @@ i {
 .jumbotron {
 	padding: 30px;
 }
+
+.partner-map {
+	min-height: 70vh;
+}

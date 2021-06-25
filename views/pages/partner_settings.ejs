@@ -77,7 +77,7 @@
 					<div class="w-100">
 						<div class="form-group">
 							<label for="desc"><%= l[lang].desc %></label>
-							<textarea class="form-control" name="desc" id="desc" rows="2" dir="<% if (/[\u0600-\u06FF]/.test(partner.desc[0])) { %>rtl<% } else { %>ltr<% } %>"><%= partner.desc %></textarea>
+							<textarea class="form-control" name="desc" id="desc" rows="2" dir="<% if (partner.desc && /[\u0600-\u06FF]/.test(partner.desc[0])) { %>rtl<% } else { %>ltr<% } %>"><%= partner.desc %></textarea>
 						</div>
 						<button type="submit" class="btn btn-info my-2 col-5"><%= l[lang].save %></button>
 					</div>

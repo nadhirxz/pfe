@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+
+<head>
+    <%- include ('../partials/head') %>
+	<%- include ('../partials/leaflet') %>
+	<% l = {
+		en: {
+			working_days: "Working Days",
+			from: "From",
+			to: "To",
+			evrdy_excpt_fri: "Everyday except Friday",
+			evrdy_excpt_fri_sat: "Everyday except Friday and Saturday",
+			evrdy: "Everyday",
+			eg9: "eg. 09:00",
+			eg5: "eg. 18:00",
+			save: "Save"
+		},
+		fr: {
+			working_days: "Jours de travail",
+			from: "De",
+			to: "À",
+			evrdy_excpt_fri: "Tous les jours sauf vendredi",
+			evrdy_excpt_fri_sat: "Tous les jours sauf vendredi et samedi",
+			evrdy: "Tous les jours",
+			eg9: "ex. 09:00",
+			eg5: "ex. 18:00",
+			save: "Sauvegarder"
+		},
+		ar: {
+			working_days: "أيام العمل",
+			from: "من عند",
+			to: "ل",
+			evrdy_excpt_fri: "كل يوم ما عدا الجمعة",
+			evrdy_excpt_fri_sat: "كل يوم ما عدا الجمعة والسبت",
+			evrdy: "كل يوم",
+			eg9: "مثال: 09:00",
+			eg5: "مثال: 18:00",
+			save: "حفظ"
+		}
+	}
+	%>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="px-5 pt-2 text-center">
+		<div class="row">
+			<div class="col-12 col-lg-5 mx-auto my-auto">
+				<h5>Position</h5>
+				<div id="map" class="partner-map"></div>
+			</div>
+			<div class="col-12 col-lg-5 mx-auto my-lg-auto my-3">
+				<div class="form-group"> 
+					<label><%= l[lang].working_days %>
+					</label> 
+					<select class="custom-select" id="select"> 
+						<option value="0" selected=""><%= l[lang].evrdy_excpt_fri %></option>
+						<option value="1"><%= l[lang].evrdy_excpt_fri_sat %></option> 
+						<option value="2"><%= l[lang].evrdy %>
+						</option> 
+					</select> 
+				</div> 
+				<div class="row"> 
+					<div class="form-group col-sm"> 
+						<label for="from"><%= l[lang].from %></label>
+						<input type="text" maxlength="5" class="form-control" id="from" placeholder="<%= l[lang].eg9 %>" required> 
+					</div> 
+					<div class="form-group col-sm"> 
+						<label for="to"><%= l[lang].to %></label> 
+						<input type="text" maxlength="5" class="form-control" id="to" placeholder="<%= l[lang].eg5 %>" required> 
+					</div> 
+				</div> 
+				<button class="btn btn-info col-lg-4 mt-4" id="save-btn"><%= l[lang].save %></button>
+			</div>
+		</div>
+    </div>
+    <%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+<script>
+    var at = "<%= at %>";
+    var gh = "<%= gh %>";
+</script>
+<script src="/js/partner_set.js"></script>
+
+</html>

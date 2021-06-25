@@ -201,7 +201,7 @@ const checkConfirmed = (req, res, next) => {
 	if (user && (user.confirmed || [2, 3].includes(user.type))) {
 		next();
 	} else {
-		res.redirect('/confirm');
+		res.redirect(user.type == 0 ? '/confirm' : '/partner');
 	}
 }
 
@@ -371,12 +371,42 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 			dataToSend.client_deliveries = d.length;
 			dataToSend.client_deliveries_amount = d.reduce((acc, b) => acc += b.price, 0);
 			dataToSend.percentage = user.percentage;
-			dataToSend.amount_to_pay_us = normalizePrice(((user.percentage / 100) * (dataToSend.client_deliveries_amount || 0)), 50);
+			dataToSend.amount_to_pay_us = normalizePrice(((user.percentage / 100) * (dataToSend.client_deliveries_amount || 0)), 50) || 0;
 		}
 		res.render('pages/' + page, dataToSend);
 	} else {
 		res.redirect('/');
 	}
+});
+
+app.get('/partner', checkAuth, checkPartner, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/partner_set', {
+		title: titles[lang].home + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
+		at: MAPBOX_API,
+		gh: GRAPHHOPPER_API
+	});
+});
+
+app.post('/partner', checkAuth, checkPartner, (req, res) => {
+	let { pos, schedule, startTime, endTime } = req.body;
+	let p = getPartner('id', req.session.uid);
+	let r = /^([01]\d|2[0-3]):?([0-5]\d)$/;
+	if (p && r.test(startTime) && r.test(endTime) && new Date('1/1/1 ' + startTime).getTime() < new Date('1/1/1 ' + endTime)) {
+		p.confirmed = true;
+		p.schedule = parseInt(schedule);
+		p.startTime = startTime;
+		p.endTime = endTime;
+		p.pos = parsePosition(pos);
+		makePartnersSchedules();
+		db.query("UPDATE partners SET confirmed=?, schedule=?, startTime=?, endTime=?, pos=? WHERE id=?", [p.confirmed ? 1 : 0, p.schedule, p.startTime, p.endTime, stringifyPosition(p.pos), p.id]);
+		return res.redirect('/home');
+	}
+	return res.redirect('/partner');
 });
 
 app.get('/drivers', checkNotAuth, (req, res) => {
@@ -501,6 +531,7 @@ app.post('/register', checkNotAuth, (req, res) => {
 
 app.post('/partners/register', checkNotAuth, (req, res) => {
 	let { phone, name, password, secret } = req.body;
+	let lang = getAndSetPageLanguage(req, res);
 	if (phone && name && password && secret) {
 		if (phoneValid(phone)) {
 			let user = getUser('phone', phone);
@@ -509,26 +540,29 @@ app.post('/partners/register', checkNotAuth, (req, res) => {
 			} else {
 				let secretkey = getSecretKey('secretKey', generateKey(secret, phone, 1));
 				if (secretkey) {
-					let partner = getPartner('secret', secretkey.id);
-					if (partner) {
-						partner.phone = phone;
-						partner.name = name;
-						partner.password = generateHash(password, partner.id);
-						partner.percentage = secretkey.percentage || settings.partnerPercentage;
-						partner.confirmed = true;
-
-						db.query("UPDATE partners SET name=?, phone=?, password=?, percentage=?, secret=?, confirmed=?", [partner.name, partner.phone, partner.password, partner.percentage, null, 1], (err, results) => {
-							if (err) {
-								res.redirect('/partners?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
-							} else {
-								req.session.uid = partner.id;
-								destroySecretKey(secretkey.id);
-								return res.redirect('/home');
-							}
-						});
-					} else {
-						return res.redirect('/partners?err=' + errors.generalErr);
+					let id = randomHash(4);
+					let partner = {
+						id,
+						name,
+						phone,
+						password: generateHash(password, id),
+						pos: null,
+						confirmed: false,
+						description: null,
+						schedule: null,
+						startTime: null,
+						endTime: null,
+						percentage: secretkey.percentage,
+						paid: 0,
+						lang
 					}
+					db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [partner.id, partner.name, partner.phone, partner.password, partner.pos, partner.confirmed, partner.description, partner.schedule, partner.startTime, partner.endTime, partner.percentage, partner.paid, partner.lang], (err, results) => {
+						if (err) return res.redirect('/partners?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
+						partners.push(partner);
+						destroySecretKey(secretkey.id);
+						req.session.uid = id;
+						return res.redirect('/');
+					});
 				} else {
 					return res.redirect('/partners?err=' + errors.invalidSecret + '&name=' + name + '&phone=' + phone);
 				}
@@ -838,7 +872,7 @@ app.get('/delivery/:did', checkAuth, (req, res) => {
 	return res.render('pages/404', the_return);
 });
 
-app.get('/deliveries', checkAuth, checkNotAdmin, (req, res) => {
+app.get('/deliveries', checkAuth, checkNotAdmin, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
@@ -1091,47 +1125,6 @@ app.post('/admin/new-key', checkAdmin, (req, res) => {
 		secretkeys.push(key);
 	});
 	res.redirect('/admin');
-});
-
-app.get('/admin/new-partner', checkAdmin, (req, res) => {
-	let user = getUser('id', req.session.uid);
-	let lang = getAndSetPageLanguage(req, res);
-	res.render('pages/admin_add_place', {
-		title: titles[lang].add_partner + settings.titleSuffix[lang],
-		name: user.name,
-		type: user.type,
-		lang: lang,
-		at: MAPBOX_API,
-		gh: GRAPHHOPPER_API
-	});
-});
-
-app.post('/admin/new-partner', checkAdmin, (req, res) => {
-	let { name, secret, place, schedule, startTime, endTime } = req.body;
-	let secretKey = secretkeys.find(e => e.secretText == secret);
-	let lang = getAndSetPageLanguage(req, res);
-	if (secretKey) {
-		let id = randomHash(4);
-		let newPartner = {
-			id,
-			name,
-			phone: null,
-			password: null,
-			pos: parsePosition(place),
-			confirmed: false,
-			secret: secretKey.id,
-			description: null,
-			schedule,
-			startTime,
-			endTime,
-			paid: 0,
-			lang
-		}
-		partners.push(newPartner);
-		db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [newPartner.id, name, newPartner.phone, newPartner.password, stringifyPosition(newPartner.pos), newPartner.confirmed, newPartner.secret, newPartner.description, schedule, startTime, endTime, newPartner.percentage, newPartner.paid, newPartner.lang]);
-		return res.redirect('/partners/' + id);
-	}
-	return res.redirect('/admin/new-partner/?sec=' + secret + '&err=' + errors.invalidSecret);
 });
 
 app.get('/partners/info', checkAdmin, (req, res) => {
