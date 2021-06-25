@@ -87,19 +87,6 @@ CREATE TABLE deliveries (
 	FOREIGN KEY (item) REFERENCES items(id)
 );
 
-CREATE TABLE finance (
-	id VARCHAR(10) NOT NULL,
-	deliveires INT(4) NOT NULL,
-	profit INT(10) NOT NULL
-);
-
-CREATE TABLE finance_drivers (
-	driver VARCHAR(8),
-	deliveries INT(4) NOT NULL,
-	profit INT(10) NOT NULL,
-	FOREIGN KEY (driver) REFERENCES drivers(id)
-);
-
 CREATE TABLE schedule (
 	id VARCHAR(8) PRIMARY KEY,
 	s_from VARCHAR(5) NOT NULL,
