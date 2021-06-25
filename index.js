@@ -77,6 +77,8 @@ db.query("SELECT * FROM users", (err, results) => {
 				result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
 				result.status = result.status.readIntBE(0, 1);
 				result.pos = parsePosition(result.pos);
+				result.status = 0;
+				db.query("UPDATE drivers SET status=? WHERE id=?", [result.status, result.id]);
 				drivers.push(Object.assign({}, result));
 			});
 
