@@ -1149,7 +1149,8 @@ app.get('/partners/:id', checkAdmin, (req, res) => {
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			partner: getPartnerSettings(partner)
+			partner: getPartnerSettings(partner),
+			at: MAPBOX_API
 		});
 	}
 	let name, type;
@@ -1175,7 +1176,8 @@ app.get('/partner/details', checkPartner, (req, res) => {
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			partner: getPartnerSettings(user)
+			partner: getPartnerSettings(user),
+			at: MAPBOX_API
 		});
 	}
 	let name, type;
@@ -1191,7 +1193,16 @@ app.get('/partner/details', checkPartner, (req, res) => {
 	});
 });
 
-
+app.post('/partners/pos/:id', checkPartnerOrAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let { pos } = req.body;
+	let p = getPartner('id', req.params.id);
+	if (p && pos) {
+		p.pos = parsePosition(pos);
+		db.query("UPDATE partners SET pos=? WHERE id=?", [stringifyPosition(p.pos), p.id]);
+	}
+	return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#pos`);
+});
 
 app.post('/partners/img/:id', checkPartnerOrAdmin, upload.single('img'), (req, res) => {
 	let user = getUser('id', req.session.uid);
