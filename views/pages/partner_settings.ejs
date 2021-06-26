@@ -3,6 +3,7 @@
 
 <head>
     <%- include ('../partials/head') %>
+	<%- include ('../partials/leaflet') %>
 	<% l = {
 		en: {
 			choose_file: "Choose file...",
@@ -12,7 +13,11 @@
 			working_days: "Working Days",
 			evrdy_excpt_fri: "Everyday except Friday",
 			evrdy_excpt_fri_sat: "Everyday except Friday and Saturday",
-			evrdy: "Everyday"
+			evrdy: "Everyday",
+			home: "Home",
+			img: "Image",
+			sch: "Schedule",
+			pos: "Position"
 		},
 		fr: {
 			choose_file: "Choisir un fichier...",
@@ -22,7 +27,11 @@
 			working_days: "Jours de travail",
 			evrdy_excpt_fri: "Tous les jours sauf vendredi",
 			evrdy_excpt_fri_sat: "Tous les jours sauf vendredi et samedi",
-			evrdy: "Tous les jours"
+			evrdy: "Tous les jours",
+			home: "Acceuil",
+			img: "Image",
+			sch: "Horaire",
+			pos: "Position"
 		},
 		ar: {
 			choose_file: "اختر ملفًا...",
@@ -32,7 +41,11 @@
 			working_days: "أيام العمل",
 			evrdy_excpt_fri: "كل يوم ما عدا الجمعة",
 			evrdy_excpt_fri_sat: "كل يوم ما عدا الجمعة والسبت",
-			evrdy: "كل يوم"
+			evrdy: "كل يوم",
+			home: "الرئيسية",
+			img: "الصورة",
+			sch: "الجدول",
+			pos: "المكان"
 		},
 	}
 	%>
@@ -40,72 +53,93 @@
 
 <body>
     <%- include ('../partials/navbar') %>
-    <div class="px-5 m-auto text-center pt-2">
-        <% if (partner) { %>
-        <h4><%= partner.name %></h4>
-		<hr class="mb-4 col-10 col-md-4">
-		<div class="row w-100">
-			<div class="col-12 col-md-6">
-				<img src="<%= partner.img %>" class="rounded m-auto border">
-				<form method="post" enctype="multipart/form-data" action="/partners/img/<%= partner.id %>" class="mt-3">
-					<div class="custom-file col-md-9 col-lg-6">
-						<label class="custom-file-label" for="partner-image"><%= l[lang].choose_file %></label>
-						<input type="file" class="custom-file-input" name="img" id="partner-image" accept="image/*" required>
-						<button type="submit" class="btn btn-info my-2 col-8"><%= l[lang].save %></button>
-						<hr class="my-4 d-block d-md-none">
-					</div>
-				</form>
+    <div class="px-5 m-auto text-center">
+		<% if (partner) { %>
+		<div class="hr-sect"><h4 class="m-auto"><%= partner.name %></h4></div>
+
+		<div class="row">
+
+			<div class="nav flex-md-column flex-row col-12 col-md-2 mx-auto" id="tablist" role="tablist" aria-orientation="vertical">
+				<a class="btn btn-outline-info active flex-md-grow-0 flex-grow-1 m-1" id="pill-home-tab" data-toggle="pill" href="#home" role="tab" aria-controls="pill-home" aria-selected="true"><%= l[lang].home %></a>
+				<a class="btn btn-outline-info flex-md-grow-0 flex-grow-1 m-1" id="pill-img-tab" data-toggle="pill" href="#img" role="tab" aria-controls="pill-img" aria-selected="false"><%= l[lang].img %></a>
+				<a class="btn btn-outline-info flex-md-grow-0 flex-grow-1 m-1" id="pill-sch-tab" data-toggle="pill" href="#sch" role="tab" aria-controls="pill-sch" aria-selected="false"><%= l[lang].sch %></a>
+				<a class="btn btn-outline-info flex-md-grow-0 flex-grow-1 m-1" id="pill-pos-tab" data-toggle="pill" href="#pos" role="tab" aria-controls="pill-pos" aria-selected="false"><%= l[lang].pos %></a>
 			</div>
 
 
-			<div class="col-12 col-md-6 pl-md-5 mt-md-0 mt-4">
-				<form method="post" action="/partners/name/<%= partner.id %>">
-					<label for="name"><%= l[lang].name %></label>
-					<div class="row mx-auto">
-						<div class="form-group col-8">
-							<input class="form-control text-center" maxlength="40" name="name" id="name" value="<%= partner.name %>">
+			<div class="tab-content col col-md-6 mx-auto my-3">
+
+
+				<div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="pill-home-tab">
+					<form method="post" action="/partners/name/<%= partner.id %>">
+						<label for="name"><%= l[lang].name %></label>
+						<div class="row mx-auto">
+							<div class="form-group col-8">
+								<input class="form-control text-center" maxlength="40" name="name" id="name" placeholder="<%= l[lang].name %>" value="<%= partner.name %>" required>
+							</div>
+							<div class="flex-grow-1">
+								<button type="submit" class="btn btn-block btn-info"><%= l[lang].save %></button>
+							</div>
 						</div>
-						<div class="flex-grow-1">
-							<button type="submit" class="btn btn-block btn-info"><%= l[lang].save %></button>
+					</form>
+					<hr class="my-4">
+					<form method="post" action="/partners/desc/<%= partner.id %>">
+						<div class="w-100">
+							<div class="form-group">
+								<label for="desc"><%= l[lang].desc %></label>
+								<textarea class="form-control" name="desc" id="desc" rows="2" placeholder="<%= l[lang].desc %>" dir="<% if (!partner.desc) {%><% if (lang == 'ar') { %>rtl<% } else { %>ltr<% } %><% } else if (/[\u0600-\u06FF]/.test(partner.desc[0])) { %>rtl<% } else { %>ltr<% } %>"><%= partner.desc %></textarea>
+							</div>
+							<button type="submit" class="btn btn-info my-2 col-5"><%= l[lang].save %></button>
 						</div>
-					</div>
-				</form>
-
-				<hr class="my-4">
-
-				<form method="post" action="/partners/desc/<%= partner.id %>">
-					<div class="w-100">
-						<div class="form-group">
-							<label for="desc"><%= l[lang].desc %></label>
-							<textarea class="form-control" name="desc" id="desc" rows="2" dir="<% if (partner.desc && /[\u0600-\u06FF]/.test(partner.desc[0])) { %>rtl<% } else { %>ltr<% } %>"><%= partner.desc %></textarea>
-						</div>
-						<button type="submit" class="btn btn-info my-2 col-5"><%= l[lang].save %></button>
-					</div>
-				</form>
-
-				<hr class="my-4">
-
-				<div class="form-group col-10 mx-auto">
-					<label for="select"><%= l[lang].working_days %></label> 
-					<select class="custom-select" id="select">
-						<option value="0"<% if (partner.schedule == 0) { %>selected<% } %>><%= l[lang].evrdy_excpt_fri %></option>
-						<option value="1"<% if (partner.schedule == 1) { %>selected<% } %>><%= l[lang].evrdy_excpt_fri_sat %></option>
-						<option value="2"<% if (partner.schedule == 2) { %>selected<% } %>><%= l[lang].evrdy %></option>
-					</select>
-					</div>
-				<div class="row justify-content-center">
-					<input type="text" class="form-control form-control-lg text-center mx-2 col-4" maxlength="5" id="from" name="from" placeholder="09:00" value="<%= partner.startTime %>">
-					<input type="text" class="form-control form-control-lg text-center mx-2 col-4" maxlength="5" id="to" name="to" placeholder="18:00" value="<%= partner.endTime %>">
+					</form>
 				</div>
-				<button class="btn btn-info col-4 my-4" id="save-sc"><%= l[lang].save %></button>
+
+
+				<div class="tab-pane fade" id="img" role="tabpanel" aria-labelledby="pill-img-tab">
+					<img src="<%= partner.img %>" class="rounded m-auto border">
+					<form method="post" enctype="multipart/form-data" action="/partners/img/<%= partner.id %>" class="mt-3">
+						<div class="custom-file col-md-8">
+							<label class="custom-file-label text-center" for="partner-image"><%= l[lang].choose_file %></label>
+							<input type="file" class="custom-file-input" name="img" id="partner-image" accept="image/*" required>
+							<button type="submit" class="btn btn-info my-2 col-8"><%= l[lang].save %></button>
+							<hr class="my-4 d-block d-md-none">
+						</div>
+					</form>
+				</div>
+
+				
+				<div class="tab-pane fade" id="sch" role="tabpanel" aria-labelledby="pill-sch-tab">
+					<div class="form-group col-10 mx-auto">
+						<label for="select"><%= l[lang].working_days %></label> 
+						<select class="custom-select" id="select">
+							<option value="0"<% if (partner.schedule == 0) { %>selected<% } %>><%= l[lang].evrdy_excpt_fri %></option>
+							<option value="1"<% if (partner.schedule == 1) { %>selected<% } %>><%= l[lang].evrdy_excpt_fri_sat %></option>
+							<option value="2"<% if (partner.schedule == 2) { %>selected<% } %>><%= l[lang].evrdy %></option>
+						</select>
+						</div>
+					<div class="row justify-content-center">
+						<input type="text" class="form-control form-control-lg text-center mx-2 col-4" maxlength="5" id="from" name="from" placeholder="09:00" value="<%= partner.startTime %>">
+						<input type="text" class="form-control form-control-lg text-center mx-2 col-4" maxlength="5" id="to" name="to" placeholder="18:00" value="<%= partner.endTime %>">
+					</div>
+					<button class="btn btn-info col-4 my-4" id="save-sc"><%= l[lang].save %></button>
+				</div>
+				<div class="tab-pane fade" id="pos" role="tabpanel" aria-labelledby="pill-pos-tab">
+					<h5><%= l[lang].pos %></h5>
+					<div id="map" class="partner-map"></div>
+					<button class="btn btn-info col-4 my-4" id="save-pos"><%= l[lang].save %></button>
+
+				</div>
 			</div>
 		</div>
-        <% } %>
+		<% } %>
     </div>
     <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
-<script>var id = '<%= partner.id %>' ;</script>
+<script>
+	var id = "<%= partner.id %>" ;
+	var at = "<%= at %>" ;
+</script>
 <script src="/js/partner_settings.js"></script>
 
 </html>
