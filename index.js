@@ -1194,45 +1194,41 @@ app.get('/partner/details', checkPartner, (req, res) => {
 
 
 app.post('/partners/img/:id', checkPartnerOrAdmin, upload.single('img'), (req, res) => {
+	let user = getUser('id', req.session.uid);
 	let tempPath = req.file.path;
 	let ext = path.extname(req.file.originalname).toLowerCase()
 	let targetPath = path.join(__dirname, `./public/img/partners/${req.params.id}.png`);
 
 	if (settings.allowedImgExt.includes(ext.substr(1))) {
-		fs.rename(tempPath, targetPath, err => {
-			if (err) return false;
-
-			jimp.read(targetPath, (err, img) => {
-				if (err) throw err;
-				img.resize(settings.partnerImgSize, jimp.AUTO).write(targetPath);
-			});
+		fs.rename(tempPath, targetPath, (err) => {
+			jimp.read(targetPath, (err, img) => img.resize(settings.partnerImgSize, jimp.AUTO).write(targetPath));
 		});
-		return res.redirect('/partners/' + req.params.id);
+		return res.redirect(user.type == 1 ? '/partner/details':'/partners/' + req.params.id);
 	}
-	fs.unlink(tempPath, err => {
-		if (err) return false;
-	});
-	return res.redirect('/partner/' + req.params.id);
+	fs.unlink(tempPath);
+	return res.redirect(user.type == 1 ? '/partner/details':'/partners/' + req.params.id);
 });
 
 app.post('/partners/desc/:id', checkPartnerOrAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
 	let { desc } = req.body;
 	let p = getPartner('id', req.params.id);
 	if (typeof (desc) && p) {
 		p.description = desc;
 		db.query("UPDATE partners SET description=? WHERE id=?", [desc, p.id]);
 	}
-	return res.redirect('/partners/' + req.params.id);
+	return res.redirect(user.type == 1 ? '/partner/details':'/partners/' + req.params.id);
 });
 
 app.post('/partners/name/:id', checkPartnerOrAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
 	let { name } = req.body;
 	let p = getPartner('id', req.params.id);
 	if (typeof (name) && p) {
 		p.name = name;
 		db.query("UPDATE partners SET name=? WHERE id=?", [name, p.id]);
 	}
-	return res.redirect('/partners/' + req.params.id);
+	return res.redirect(user.type == 1 ? '/partner/details':'/partners/' + req.params.id);
 });
 
 app.post('/partners/pay/:id', checkPartnerOrAdmin, (req, res) => {
@@ -1247,6 +1243,7 @@ app.post('/partners/pay/:id', checkPartnerOrAdmin, (req, res) => {
 });
 
 app.post('/partners/schedule/:id', checkPartnerOrAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
 	let { from, to, schedule } = req.body;
 	let p = getPartner('id', req.params.id);
 	let r = /^([01]\d|2[0-3]):?([0-5]\d)$/;
@@ -1256,7 +1253,7 @@ app.post('/partners/schedule/:id', checkPartnerOrAdmin, (req, res) => {
 		p.endTime = to;
 		db.query("UPDATE partners SET schedule=?, startTime=?, endTime=? WHERE id=?", [p.schedule, p.startTime, p.endTime, p.id]);
 	}
-	return res.redirect('/partners/' + req.params.id);
+	return res.redirect(user.type == 1 ? '/partner/details':'/partners/' + req.params.id);
 });
 
 app.post('/drivers/pay/:id', checkPartnerOrAdmin, (req, res) => {
