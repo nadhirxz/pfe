@@ -42,15 +42,16 @@ socket.on('update_delivery', (data) => {
 	if (getDelivery(data.id)) $(`#${data.id}-time`).html(getTime(data.time));
 });
 
-async function sendPosition(socketmsg) {
-	let pos = await getPosition();
-	socket.emit(socketmsg, [pos.coords.latitude, pos.coords.longitude]);
+function sendPosition(socketmsg) {
+	getPosition()
+	.then(pos => socket.emit(socketmsg, [pos.coords.latitude, pos.coords.longitude]))
+	.catch(err => $('#requests').html(`<h4 id="no-dlv" class="my-5"> ${l.no_pos}</h4 >`));
 }
 
 
 function getPosition() {
 	return new Promise((res, rej) => {
-		navigator.geolocation.getCurrentPosition(res);
+		navigator.geolocation.getCurrentPosition(res, rej);
 	});
 }
 

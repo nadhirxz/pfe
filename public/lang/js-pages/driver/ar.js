@@ -25,7 +25,8 @@ l = {
 	ref: "رفض",
 	acc: "قبول",
 	notification_text: (p, d, n) => { return `${p} دج - ${d} كم - ${n}` },
-	no_deliveries: "لا يوجد أي طلب توصيل"
+	no_deliveries: "لا يوجد أي طلب توصيل",
+	no_pos: "لا يمكن الحصول على مكانك الحالي"
 }
 
 texts = [

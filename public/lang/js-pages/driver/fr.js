@@ -25,7 +25,8 @@ l = {
 	ref: "Refuser",
 	acc: "Accepter",
 	notification_text: (p, d, n) => { return `${p} DZD - ${d} km - ${n}` },
-	no_deliveries: "Pas de livraisons"
+	no_deliveries: "Pas de livraisons",
+	no_pos: "Impossible d'obtenir votre position actuelle"
 }
 
 texts = [
