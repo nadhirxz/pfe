@@ -244,3 +244,22 @@ i {
 .partner-map {
 	min-height: 70vh;
 }
+
+.bg-c {
+	background-color: #1E343B;
+}
+
+.btn-c {
+	color: #fff;
+	background-color: #1E343B;
+	transition: all 250ms cubic-bezier(.27,.01,.38,1.06);
+    transition-property: all;
+    transition-duration: 250ms;
+    transition-timing-function: cubic-bezier(0.27, 0.01, 0.38, 1.06);
+    transition-delay: 0s;
+}
+
+.btn-c:hover {
+	color: #fff;
+	background-color: #1b2f36;
+}

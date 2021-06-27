@@ -1,52 +1,52 @@
-<section class="bg-<% if (locals.type && type == 2) { %>dark<% } else { %>info<% } %>">
+<section>
     <div class="container">
-        <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-<% if (locals.type && type == 2) { %>dark<% } else { %>info<% } %> navbar-offcanvas">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-dark <% if (locals.type && type == 2) { %>bg-dark<% } else { %>bg-c<% } %> navbar-offcanvas">
             <a class="navbar-brand mx-auto" href="/"><img src="/img/banner.svg" class="banner-img"></a>
             <button class="navbar-toggler d-block" type="button" id="navToggle">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="navbar-collapse offcanvas-collapse bg-<% if (locals.type && type == 2) { %>dark<% } else { %>info<% } %>">
+            <div class="navbar-collapse offcanvas-collapse <% if (locals.type && type == 2) { %>bg-dark<% } else { %>bg-c<% } %>">
                 <ul class="navbar-nav mr-auto mt-3 col-12">
-                    <a class="btn btn-info btn-block my-2 home_text" id="navbar-home-btn" href="/"></a>
+                    <a class="btn btn-c btn-block my-2 home_text" id="navbar-home-btn" href="/"></a>
                     <% if (locals.name && type == 0) {%>
-                    <a class="btn btn-info btn-block my-2 buy_text" href="/buy"></a>
-                    <a class="btn btn-info btn-block my-2 deliver_text" href="/deliver"></a>
+                    <a class="btn btn-c btn-block my-2 buy_text" href="/buy"></a>
+                    <a class="btn btn-c btn-block my-2 deliver_text" href="/deliver"></a>
                     <% } %>
 					<% if (locals.name && (type == 0 || type == 1)) {%>
-					<a class="btn btn-info btn-block my-2 dlvs" href="/deliveries"></a>
+					<a class="btn btn-c btn-block my-2 dlvs" href="/deliveries"></a>
 					<% } %>
 					<% if (locals.name && type == 3) {%>
-						<a class="btn btn-info btn-block my-2 schedule_text" href="/schedule"></a>
-						<a class="btn btn-info btn-block my-2 partners_text" href="/partners/info"></a>
-						<a class="btn btn-info btn-block my-2 new_key" href="/admin/new-key"></a>
+						<a class="btn btn-c btn-block my-2 schedule_text" href="/schedule"></a>
+						<a class="btn btn-c btn-block my-2 partners_text" href="/partners/info"></a>
+						<a class="btn btn-c btn-block my-2 new_key" href="/admin/new-key"></a>
 					<% } %>
 					<% if(locals.name) {%>
-						<a class="btn btn-info btn-block my-2 profile_text" href="/profile"></a>
+						<a class="btn btn-c btn-block my-2 profile_text" href="/profile"></a>
 					<% } %>
 					<% if (locals.name && type != 3 && type != 2) { %>
-						<a class="btn btn-info btn-block my-2 about_text" href="/about"></a>
+						<a class="btn btn-c btn-block my-2 about_text" href="/about"></a>
 					<% } %>
                     <% if(locals.name) {%>
                     <div class="row m-auto">
-                        <button class="btn btn-info my-2" type="button" data-toggle="collapse" data-target="#lang-collapse" aria-expanded="false" aria-controls="lang-collapse">
+                        <button class="btn btn-c my-2" type="button" data-toggle="collapse" data-target="#lang-collapse" aria-expanded="false" aria-controls="lang-collapse">
                             <%= lang.toUpperCase() %> <i class="fa fa-globe" aria-hidden="true"></i>
                         </button>
-                        <a class="btn btn-info my-2 logout_text" href="/logout"></a>
+                        <a class="btn btn-c my-2 logout_text" href="/logout"></a>
                     </div>
                     <% } else { %>
-                    <a class="btn btn btn-info btn-block my-2 login_text" href="/login"></a>
-                    <a class="btn btn btn-info btn-block my-2 register_text" id="nav-reg-btn" href="/register"></a>
-                    <button class="btn btn-info btn-block my-2" type="button" data-toggle="collapse" data-target="#lang-collapse" aria-expanded="false" aria-controls="lang-collapse">
+                    <a class="btn btn btn-c btn-block my-2 login_text" href="/login"></a>
+                    <a class="btn btn btn-c btn-block my-2 register_text" id="nav-reg-btn" href="/register"></a>
+                    <button class="btn btn-c btn-block my-2" type="button" data-toggle="collapse" data-target="#lang-collapse" aria-expanded="false" aria-controls="lang-collapse">
                         <%= lang.toUpperCase() %> <i class="fa fa-globe" aria-hidden="true"></i>
                     </button>
                     <% } %>
                     <div class="collapse m-auto mb-2" id="lang-collapse">
-                        <a class="btn btn-info btn-block" id="lang-link-en" href="/en">English</a>
-                        <a class="btn btn-info btn-block" id="lang-link-fr" href="/fr">Français</a>
-                        <a class="btn btn-info btn-block" id="lang-link-ar" href="/ar">العربية</a>
+                        <a class="btn btn-c btn-block" id="lang-link-en" href="/en">English</a>
+                        <a class="btn btn-c btn-block" id="lang-link-fr" href="/fr">Français</a>
+                        <a class="btn btn-c btn-block" id="lang-link-ar" href="/ar">العربية</a>
                     </div>
-                    <div class="position-sticky bg-<% if (locals.type && type == 2) { %>dark<% } else { %>info<% } %> fixed-bottom m-auto"><p class="text-light mb-0" style="opacity: 0.8;">DELIVERY © <%= new Date().getFullYear() %></p></div>
+                    <div class="position-sticky <% if (locals.type && type == 2) { %>bg-dark<% } else { %>bg-c<% } %> fixed-bottom m-auto"><p class="text-light mb-0" style="opacity: 0.8;">DELIVERY © <%= new Date().getFullYear() %></p></div>
                     </div>
                 </ul>
             </div>
