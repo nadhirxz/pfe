@@ -1,6 +1,8 @@
 lang_text = {
     home_text: "الرئيسية",
-    services_text: "الخدمات",
+    join: "انضم إلينا",
+	part: "كن سائقا",
+	driv: "كن شريكا",
     contact_text: "تواصل معنا",
     description_text: "العــالـم يـأتــي<br>إلــــيـــك",
     register_text: "تسجيل",

@@ -1,29 +1,49 @@
 .banner-img {
-    display: block;
-    max-height: 54px;
-    width: auto;
-    height: auto;
+	display: block;
+	max-height: 60px;
+	width: auto;
+	height: auto;
+}
+
+.welcome {
+	min-height: auto !important;
+	height: auto !important;
+}
+
+.section-title:after {
+	background: #00B8D8 !important;
+}
+
+a {
+	text-decoration: none !important;
+}
+
+.jumbotron {
+	-webkit-transition: all 1s ease;
+	-moz-transition: all 1s ease;
+	-o-transition: all 1s ease;
+	transition: all 1s ease;
 }
 
 @media (orientation: landscape) {
-    .logo-main-page {
-        display: block;
-        max-width: 30vw;
-        width: auto;
-        height: auto;
-        margin: auto;
-    }
+	.logo-main-page {
+		display: block;
+		max-width: 30vw;
+		width: auto;
+		height: auto;
+		margin: auto;
+	}
 }
-  
+
 @media (orientation: portrait) {
-    .logo-main-page {
-        display: block;
-        max-width: 70%;
-        width: auto;
-        height: auto;
-        margin: auto;
-    }
-    .main-info-img {
-        width: 90%;
-    }
+	.logo-main-page {
+		display: block;
+		max-width: 70%;
+		width: auto;
+		height: auto;
+		margin: auto;
+	}
+	.main-info-img {
+		width: 90%;
+	}
 }

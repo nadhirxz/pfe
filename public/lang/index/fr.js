@@ -1,6 +1,8 @@
 lang_text = {
     home_text: "Accueil",
-    services_text: "Services",
+	join: "Rejoignez-nous",
+	part: "Devenir livreur",
+	driv: "Devenir un partenaire",
     contact_text: "Contact",
     description_text: "Le monde vient à vous",
     register_text: "S'inscrire",

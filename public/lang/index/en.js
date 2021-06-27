@@ -1,6 +1,8 @@
 lang_text = {
     home_text: "Home",
-    services_text: "Services",
+	join: "Join Us",
+	part: "Become a Driver",
+	driv: "Become a Partner",
     contact_text: "Contact",
     description_text: "The world comes to you",
     register_text: "Register",
