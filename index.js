@@ -1206,7 +1206,7 @@ app.post('/partners/img/:id', checkPartnerOrAdmin, upload.single('img'), (req, r
 			img.crop(c(img.getWidth()), c(img.getHeight()), wh, wh).resize(settings.partnerImgSize, settings.partnerImgSize).write(targetPath);
 		});
 	}
-	
+
 	fs.unlink(tempPath, () => res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#img`));
 });
 
@@ -1387,15 +1387,15 @@ app.get('/privacy', (req, res) => {
 
 app.get('/en(/*)?', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
-	return res.redirect((req.url.slice(3) + '/').replace(/\/(\/)+/, '/').replace(/\/$/, ''))
+	return res.redirect((req.url.slice(3) + '/').replace(/\/(\/)+/, '/').replace(/\/$/, '') || '/')
 });
 app.get('/fr/*', (req, res) => {
 	getAndSetPageLanguage(req, res, 'fr');
-	return res.redirect((req.url.slice(3) + '/').replace(/\/(\/)+/, '/').replace(/\/$/, ''))
+	return res.redirect((req.url.slice(3) + '/').replace(/\/(\/)+/, '/').replace(/\/$/, '') || '/')
 });
 app.get('/ar/*', (req, res) => {
 	getAndSetPageLanguage(req, res, 'ar');
-	return res.redirect((req.url.slice(3) + '/').replace(/\/(\/)+/, '/').replace(/\/$/, ''))
+	return res.redirect((req.url.slice(3) + '/').replace(/\/(\/)+/, '/').replace(/\/$/, '') || '/')
 });
 
 app.get('/logout', checkAuth, (req, res) => {
