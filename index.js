@@ -1201,12 +1201,14 @@ app.post('/partners/img/:id', checkPartnerOrAdmin, upload.single('img'), (req, r
 
 	if (settings.allowedImgExt.includes(ext.substr(1))) {
 		fs.rename(tempPath, targetPath, (err) => {
-			jimp.read(targetPath, (err, img) => img.resize(settings.partnerImgSize, jimp.AUTO).write(targetPath));
+			jimp.read(targetPath, (err, img) => {
+				let wh = Math.min(img.getWidth(), img.getHeight())
+				let c = (x) => Math.max((x / 2) - (wh / 2), 0);
+				img.crop(c(img.getWidth()), c(img.getHeight()), wh, wh).resize(settings.partnerImgSize, settings.partnerImgSize).write(targetPath)
+			});
 		});
-		return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#img`);
 	}
-	fs.unlink(tempPath);
-	return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#img`);
+	fs.unlink(tempPath, () => res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#img`));
 });
 
 app.post('/partners/desc/:id', checkPartnerOrAdmin, (req, res) => {
