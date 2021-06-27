@@ -1200,14 +1200,13 @@ app.post('/partners/img/:id', checkPartnerOrAdmin, upload.single('img'), (req, r
 	let targetPath = path.join(__dirname, `./public/img/partners/${req.params.id}.png`);
 
 	if (settings.allowedImgExt.includes(ext.substr(1))) {
-		fs.rename(tempPath, targetPath, (err) => {
-			jimp.read(targetPath, (err, img) => {
-				let wh = Math.min(img.getWidth(), img.getHeight())
-				let c = (x) => Math.max((x / 2) - (wh / 2), 0);
-				img.crop(c(img.getWidth()), c(img.getHeight()), wh, wh).resize(settings.partnerImgSize, settings.partnerImgSize).write(targetPath)
-			});
+		jimp.read(tempPath, (err, img) => {
+			let wh = Math.min(img.getWidth(), img.getHeight())
+			let c = (x) => Math.max((x / 2) - (wh / 2), 0);
+			img.crop(c(img.getWidth()), c(img.getHeight()), wh, wh).resize(settings.partnerImgSize, settings.partnerImgSize).write(targetPath);
 		});
 	}
+	
 	fs.unlink(tempPath, () => res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#img`));
 });
 
