@@ -507,7 +507,7 @@ app.post('/register', checkNotAuth, (req, res) => {
 							reg_date: new Date(),
 							lang
 						}
-						db.query("INSERT INTO users VALUES (?,?,?,?,?,?,?)", [newUser.id, newUser.name, newUser.phone, newUser.password, newUser.confirmed ? 1 : 0, newUser.reg_date, user.lang], (err, results) => {
+						db.query("INSERT INTO users VALUES (?,?,?,?,?,?,?)", [newUser.id, newUser.name, newUser.phone, newUser.password, newUser.confirmed ? 1 : 0, newUser.reg_date, newUser.lang], (err, results) => {
 							if (err) return res.redirect('/register?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 							users.push(newUser);
 							sendPin(phone, getAndSetPageLanguage(req, res));
