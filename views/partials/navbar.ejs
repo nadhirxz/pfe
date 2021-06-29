@@ -13,6 +13,10 @@
                     <a class="btn btn-c btn-block my-2 buy_text" href="/buy"></a>
                     <a class="btn btn-c btn-block my-2 deliver_text" href="/deliver"></a>
                     <% } %>
+					<% if (locals.name && type == 1) {%>
+					<a class="btn btn-c btn-block my-2 items" href="/partner/items"></a>
+					<a class="btn btn-c btn-block my-2 details" href="/partner/details"></a>
+					<% } %>
 					<% if (locals.name && (type == 0 || type == 1)) {%>
 					<a class="btn btn-c btn-block my-2 dlvs" href="/deliveries"></a>
 					<% } %>

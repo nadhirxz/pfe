@@ -11,5 +11,7 @@ navbar_lang_text = {
 	partners_text: "Partners",
 	new_key: "New Key",
 	new_partner: "New Partner",
-	dlvs: "Deliveries"
+	dlvs: "Deliveries",
+	items: "Items",
+	details: "Details"
 }
