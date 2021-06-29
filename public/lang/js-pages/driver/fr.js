@@ -1,16 +1,15 @@
 deliveryTypes = [
-	"Client à personne",
-	"Personne à client",
-	"Partenaire à personne"
+	"Client à Personne",
+	"Personne à Client",
+	"Partenaire à Personne"
 ]
 
 l = {
 	new: "Nouvelle demande de livraison",
 	min: "min",
 	obj: "Objet",
-	rcvr: "Destinataire",
-	from_partner: "Du partenaire",
-	from_place: "Du",
+	rcvr: ["Destinataire", "Expéditeur"],
+	from: "Du",
 	price: "Prix",
 	objp: "Prix d'objet",
 	distance: "Distance",

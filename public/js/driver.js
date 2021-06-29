@@ -67,13 +67,14 @@ async function createDiv(delivery, status, r) {
 			<div class="row mx-4">
 				<div class="col-md-7 p-0 text-${lng == 'ar' ? 'right' : 'left'}">
 					<p class="my-0">${l.obj} : <b>${delivery.thing}</b></p>
-					<p class="my-0">${delivery.type == 0 && delivery.recipients_phone ? `${l.rcvr} : <a href="tel:${delivery.recipients_phone}">${delivery.recipients_phone}</a>` : delivery.type == 1 ? `${l.from_partner} : <b>${delivery.partner}</b>` : `${l.from_place} : <b>${delivery.fromPlace}</b>`}</p>
 					${typeof (delivery.thingsPrice) != 'undefined' ? `<p class="my-0">${l.objp} : <b>${delivery.thingsPrice} ${l.dzd}</b></p>` : ''}
+					${delivery.type == 2 ? `<p class="my-0">${l.from} : <b>${delivery.fromPlace}</b></p>` : ''}
+					${delivery.type < 2 && delivery.recipients_phone ? `${l.rcvr[delivery.type]} : <a href="tel:${delivery.recipients_phone}"><b>${delivery.recipients_phone}</b></a>` : ''}
 				</div>
 				<div class="text-${lng == 'ar' ? 'right' : 'left'}">
 					<p class="my-0">${l.price} : <b>${delivery.price} ${l.dzd}</b></p>
 					<p class="my-0">${l.distance} : <b>${delivery.distance} ${l.km}</b></p>
-					${delivery.type == 1 ? `<p class="my-0">${l.partner} : <b><a href="tel:${delivery.partner_phone}">${delivery.partner_phone}</a></b></p>` : ''}
+					${delivery.type == 2 ? `<p class="my-0">${l.partner} : <b><a href="tel:${delivery.partner_phone}">${delivery.partner_phone}</a></b></p>` : ''}
 				</div>
 			</div>
 			${status === true ? `<div class="hr-sect text-dark"><p class="my-1">${l.fnsh_t} : <b id="${delivery.id}-time">${getTime(delivery.estimated_finish_time)}</b></div>` : '<hr class="mt-2" style="background-color: #aaa;">'}
@@ -107,7 +108,7 @@ async function createDiv(delivery, status, r) {
 		acceptedDelivery = true;
 
 		let pos = await getPosition();
-		delivery.link = `https://www.google.com/maps/dir/?api=1&travelmode=driving&layer=traffic&origin=${pos.coords.latitude},${pos.coords.longitude}&destination=${delivery.to[0]},${delivery.to[1]}${delivery.type == 2 ? `&waypoints=${delivery.to[0]},${delivery.to[1]}|${delivery.from[0]},${delivery.from[1]}` : `&waypoints=${delivery.from[0]},${delivery.from[1]}`}`;
+		delivery.link = `https://www.google.com/maps/dir/?api=1&travelmode=driving&layer=traffic&origin=${pos.coords.latitude},${pos.coords.longitude}&destination=${delivery.to[0]},${delivery.to[1]}&waypoints=${delivery.from[0]},${delivery.from[1]}`;
 
 		$(`#${delivery.id}-r`).on('click', () => window.open(delivery.link));
 
