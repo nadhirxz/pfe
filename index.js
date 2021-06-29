@@ -118,6 +118,12 @@ db.query("SELECT * FROM users", (err, results) => {
 								schedule = [results.s_from, results.s_to]
 								working_status = Boolean(results.working.readIntBE(0, 1));
 								loadSchedules();
+
+
+								// Starting the server
+								const port = PORT || 3000;
+								http.listen(port, () => console.log('Server started on port ' + port));
+
 							});
 
 						});
@@ -174,9 +180,7 @@ app.use('/css', express.static(path.join(__dirname, 'public/css')));
 app.use('/html', express.static(path.join(__dirname, 'public/html')));
 app.use('/lang', express.static(path.join(__dirname, 'public/lang')));
 
-// Starting the server
-const port = PORT || 3000;
-http.listen(port, () => console.log('Server started on port ' + port));
+
 
 
 // Authentication check
