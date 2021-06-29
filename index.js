@@ -1848,7 +1848,7 @@ function groupBy(items, key) {
 }
 
 function getGroupedDeliveries(deliveries) {
-	return groupBy(deliveries.map(e => { return { ...deliveryInfoPage(e), day: formatDate(e.date) } }), 'day');
+	return groupBy(deliveries.sort((a, b) => b.date.getTime() - a.date.getTime()).map(e => { return { ...deliveryInfoPage(e), day: formatDate(e.date) } }), 'day');
 }
 
 
