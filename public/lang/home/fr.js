@@ -12,6 +12,7 @@ lang_text = {
     status_text: "Statut:",
     from_text: "De :",
     date_submitted_text: "Date de soumission :",
+	date_finished: "Date de fin :",
     details_text: "Détails",
     no_dlvrs_today_text: "Aucune livraison aujourd'hui",
 	no_dlvrs: "Aucune livraison",

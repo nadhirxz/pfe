@@ -12,6 +12,7 @@ lang_text = {
     status_text: "الحالة :",
     from_text: "من :",
     date_submitted_text: "تاريخ الطلب :",
+	date_finished: "تاريخ الإنهاء :",
     details_text: "تفاصيل",
     no_dlvrs_today_text: "لا يوجد طلبات توصيل اليوم",
 	no_dlvrs: "لا يوجد طلبات توصيل",
