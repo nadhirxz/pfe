@@ -14,7 +14,7 @@
 			<div class="row justify-content-center">
 			<% if (partners.length) { %>
 				<% partners.forEach(partner => { %>
-					<div class="col-lg-3 col-md-5 col-10 mx-3 my-3" style="cursor: pointer;" onclick="window.location.href='/<% if (locals.buy) { %>buy<% } else { %>partners<% } %>/<%= partner.id %>'">
+					<div class="col-lg-3 col-md-5 col-10 mx-3 my-3" style="cursor: pointer;" onclick="window.location.href='/<% if (type == 3) { %>partners<% } else { %>buy<% } %>/<%= partner.id %>'">
 						<div class="card h-100">
 							<div class="card-header">
 								<h4 class="card-title my-auto"><%= partner.name %></h4>
@@ -30,16 +30,6 @@
 				<% }); %>
 			<% } else if (type == 3) { %>
 				<h3 class="m-4"><%= no_partners[lang] %></h3>
-			<% } %>
-			<% if (type != 3) { %>
-			<div class="col-lg-3 col-md-5 col-10 mx-3 my-3" style="cursor: pointer;" onclick="window.location.href='/buy/other'">
-				<div class="card h-100">
-					<div class="card-header">
-						<h4 class="card-title my-auto"><%= other[lang] %></h4>
-					</div>
-					<img class="my-auto" src="/img/partners/default.png">
-				</div>
-			</div>
 			<% } %>
 			</div>
 		</div>

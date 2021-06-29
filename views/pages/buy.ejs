@@ -5,6 +5,7 @@
     <%- include ('../partials/leaflet') %>
     <%- include ('../partials/lrm') %>
     <% var other = {en: "Other",fr: "Autre",ar: "أخرى"} %>
+	<% var dzd = {en: "DZD",fr: "DZD",ar: "دج"} %>
 </head>
 
 <body>
@@ -14,27 +15,19 @@
             <div class="form-group">
                 <div class="form-group">
                     <label class="deliver_from_text"></label>
-                    <input type="text" class="form-control" value="<% if(partner == 'other') { %><%= other[lang] %><%} else { %><%= partner %><% } %>" disabled>
+                    <input type="text" class="form-control" value="<%= partner %>" disabled>
                 </div>
-				<% if (partner == 'other') { %>
-					<div class="form-group" id="another-shop">
-						<label for="delivery-thing" class="shop_name_text"></label>
-						<input type="text" class="form-control" id="name" onkeyup="trackInput()">
-					</div>
-					<% } %>
-				<% if (partner != 'other') { %>
 				<div class="form-group">
 					<label class="thing_text"></label>
 					<select id="object-select" class="custom-select" id="delivery-weight">
 						<% if (locals.items && items.length) { %>
 						<% items.forEach(item => { %>
-						<option value="<%= item.id %>"><%= item.name %> (<%= item.price %> DZD)</option>		
+						<option value="<%= item.id %>"><%= item.name %> (<%= item.price %> <%= dzd[lang] %>)</option>		
 						<% }); %>
 						<% } %>
 						<option value="other" class="other_text" selected></option>
 					</select>
 				</div>
-				<% } %>
                 <div class="form-group" id="delivery-thing-div">
                     <label for="delivery-thing" class="object_name"></label>
                     <input type="text" class="form-control" id="thing" onkeyup="trackInput()">

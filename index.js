@@ -740,24 +740,20 @@ app.get('/buy', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 app.get('/buy/:id', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let p, place, pid, it;
-	if (req.params.id == 'other') {
-		p = 'other';
+	let place, pid, it;
+	let p = getPartner('id', req.params.id);
+	if (p) {
+		place = p.pos;
+		p = p.name;
+		pid = req.params.id;
+		it = getItems('owner', req.params.id);
 	} else {
-		p = getPartner('id', req.params.id);
-		if (p) {
-			place = p.pos;
-			p = p.name;
-			pid = req.params.id;
-			it = getItems('owner', req.params.id);
-		} else {
-			return res.render('pages/404', {
-				title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
-				name: user.name,
-				type: user.type,
-				lang: lang,
-			});
-		}
+		return res.render('pages/404', {
+			title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+			name: user.name,
+			type: user.type,
+			lang: lang,
+		});
 	}
 
 	if (typeof (user.last_delivery) == 'undefined' || (((new Date().getTime() - new Date(user.last_delivery).getTime()) / 1000) / 60 > settings.intervalBetweenDeliveries)) {
@@ -2045,7 +2041,7 @@ function createPartnerScheduleTimes(partnerid) {
 
 // Delivery stuff
 function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price, thing, thingsPrice, phone, weight, partner) {
-	if (type == 1) {
+	if (type == 2) {
 		fromPlace = getPartner('id', fromPlace);
 		if (fromPlace) fromPlace = fromPlace.name;
 		else fromPlace = null;
@@ -2073,18 +2069,19 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		finish_time: null
 	}
 
-	if (type == 1) {
+	if (type == 2) {
 		delivery.partner = partner;
 		let item = getItem('id', thing);
 		if (item) {
 			delivery.item = thing;
-			delivery.thing = null;
+			delivery.thing = item.name;
+			delivery.thingsPrice = item.price;
 		}
 	}
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.date, delivery.partner, delivery.item, delivery.finish_time, delivery.thingsPrice], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, delivery.fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, delivery.thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.date, delivery.partner, delivery.item, delivery.finish_time, delivery.thingsPrice], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {
@@ -2160,7 +2157,7 @@ function getDetailsToSendToDriver(delivery, driverPos) {
 				status: delivery.status,
 				minutes: calculateDeliveryDuration(driverPos, delivery.delivery_from, delivery.distance)
 			}
-			if (delivery.type == 1) {
+			if (delivery.type == 2) {
 				let partner = getPartner('id', delivery.partner);
 				if (typeof (partner) != 'undefined') {
 					data.partner = partner.name;
@@ -2171,9 +2168,7 @@ function getDetailsToSendToDriver(delivery, driverPos) {
 					data.thingsPrice = item.price;
 				}
 			}
-			if (delivery.type == 2 && delivery.fromPlace) {
-				data.fromPlace = delivery.fromPlace;
-			}
+			data.fromPlace = delivery.fromPlace;
 			return data;
 		}
 	}

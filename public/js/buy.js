@@ -1,5 +1,4 @@
 var delivery = {};
-var deliverFromPartner = true;
 var position;
 var fromPos;
 var toPos;
@@ -20,10 +19,6 @@ $('#object-select').on('change', (e) => {
 
 var formGroupDiv = document.getElementById('delivery');
 
-var anotherShopDiv = document.getElementById('another-shop');
-
-if (anotherShopDiv) deliverFromPartner = false;
-
 var nameInput = document.getElementById('name');
 var thingInput = document.getElementById('thing');
 var thingsPriceInput = document.getElementById('delivery-thing-price');
@@ -37,37 +32,24 @@ var nextButton = document.getElementById('next-button');
 nextButton.addEventListener('click', () => {
 	if (!nextButton.classList.contains('disabled')) {
 		weight = parseInt(document.getElementById('delivery-weight').value) || 0;
-		delivery.fromPartner = deliverFromPartner;
 		if (!$('#object-select').val() || $('#object-select').val() == 'other') delivery.thing = thingInput.value;
 		else delivery.thing = $('#object-select').val();
-		if (deliverFromPartner) {
-			delivery.fromPlace = selectedPlace;
-			if ($('#object-select').val() == 'other') thingsPrice = parseInt(thingsPriceInput.value) || 0;
-			else thingsPrice = parseInt($('#object-select').html().split('">')[2].split('(')[1].split(' DZD'));
-		} else {
-			delivery.fromPlace = nameInput.value;
-			thingsPrice = parseInt(document.getElementById('delivery-thing-price').value) || 0;
-		}
 
-		getNextDiv(deliverFromPartner, delivery.fromPlace);
+		delivery.fromPlace = selectedPlace;
+		if ($('#object-select').val() == 'other') thingsPrice = parseInt(thingsPriceInput.value) || 0;
+		else thingsPrice = parseInt($('#object-select').html().split('">')[2].split('(')[1].split(' DZD'));
+
+		getNextDiv(delivery.fromPlace);
 	}
 });
 
 
 
 function trackInput() {
-	if (deliverFromPartner) {
-		if ((thingInput.value && thingsPriceInput.value || $('#object-select').val() != 'other')) {
-			toggleButton(true);
-		} else {
-			toggleButton(false);
-		}
+	if ((thingInput.value && thingsPriceInput.value || $('#object-select').val() != 'other')) {
+		toggleButton(true);
 	} else {
-		if (nameInput.value && (thingInput.value || $('#object-select').val() != 'other') && thingsPriceInput.value) {
-			toggleButton(true);
-		} else {
-			toggleButton(false);
-		}
+		toggleButton(false);
 	}
 }
 
@@ -94,7 +76,7 @@ function createButton(text, id, classes) {
 	return button;
 }
 
-function getNextDiv(deliverFromPartner, fromPlace) {
+function getNextDiv(fromPlace) {
 	formGroupDiv.innerHTML = '';
 
 	var buttons = document.createElement('div');
@@ -126,51 +108,16 @@ function getNextDiv(deliverFromPartner, fromPlace) {
 	invalidInput.classList.add('text-danger');
 	formGroupDiv.appendChild(invalidInput);
 
-	if (deliverFromPartner) {
-		title.innerHTML = js_lang_text.to_text;
-		nextButton.innerHTML = js_lang_text.submit_text;
-		nextButton.addEventListener("click", (e) => {
-			submitButtonClick(map, invalidInput, formGroupDiv, title, buttons, nextButton);
-		});
-	} else {
-		title.innerHTML = js_lang_text.shops_place(fromPlace);
-		nextButton.addEventListener("click", (e) => {
-			nextButtonClick(map, invalidInput, formGroupDiv, title, buttons, nextButton);
-		});
-	}
+	title.innerHTML = js_lang_text.to_text;
+	nextButton.innerHTML = js_lang_text.submit_text;
+	nextButton.addEventListener("click", (e) => {
+		submitButtonClick(map, invalidInput, formGroupDiv, title, buttons, nextButton);
+	});
 
 
 	formGroupDiv.appendChild(buttons);
 	formGroupDiv.appendChild(document.createElement('br'));
 }
-
-function nextButtonClick(map, invalidInput, deliveryDiv, title, buttons, nextButton) {
-	if (marker) {
-		map.removeLayer(marker);
-		marker = false;
-		invalidInput.innerHTML = '';
-
-		deliveryDiv.style.opacity = 0;
-		setTimeout(() => {
-			fromPos = position;
-
-			title.innerHTML = js_lang_text.to_text;
-
-			nextButton.parentElement.removeChild(nextButton);
-
-			let submitButton = createButton(js_lang_text.submit_text, "submit", "btn btn-info col-4");
-
-			submitButton.addEventListener("click", (e) => {
-				submitButtonClick(map, invalidInput, deliveryDiv, title, buttons, submitButton);
-			});
-			buttons.appendChild(submitButton);
-			deliveryDiv.style.opacity = 1;
-		}, 700);
-	} else {
-		invalidInput.innerHTML = js_lang_text.choose_a_pos_text;
-	}
-}
-
 
 
 function submitButtonClick(map, invalidInput, deliveryDiv, title, buttons, submitButton) {
@@ -229,17 +176,9 @@ function submitButtonClick(map, invalidInput, deliveryDiv, title, buttons, submi
 						if (data.status == 0 || data.status == 1) {
 							let submit = createButton(js_lang_text.submit_text, "submit", "btn btn-info col-4 mx-2 my-2");
 							submit.addEventListener("click", (e) => {
-								let type;
-								let partner;
-								if (delivery.fromPartner) {
-									type = 1;
-									partner = selectedPlace;
-								} else {
-									type = 2;
-								};
 
 								post('/delivery-request/', {
-									type: type,
+									type: 2,
 									fromPlace: delivery.fromPlace,
 									from: fromPos,
 									to: toPos,
@@ -247,7 +186,7 @@ function submitButtonClick(map, invalidInput, deliveryDiv, title, buttons, submi
 									price: data.price,
 									thing: delivery.thing,
 									weight: weight,
-									partner: partner
+									partner: selectedPlace
 								});
 							});
 							document.getElementById('confirmDeliveryButtonDiv').appendChild(submit);
