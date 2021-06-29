@@ -7,28 +7,21 @@
 <body>
     <%- include ('../partials/navbar') %>
     <div class="m-auto py-2 px-4 text-center">
-        <div class="jumbotron text-center">
-            <h2 class="font-weight-bold mb-5 desc_0_text"></h2>
-            <div class="text-<% if (lang == 'ar') { %>right<% } else { %>left<% } %> m-auto col-lg-7">
-                <h6 class="padded desc_1_text"></h6>
-                <h6 class="padded desc_2_text"></h6>
-            </div>
-        </div>
-        <div class="jumbotron">
+        <div class="jumbotron border">
             <h3 class="card-title mb-4 font-weight-bold conatct_text"></h3>
             <div class="container text-center">
-                <ul class="navbar-nav">
+				<h5 class="about-text"><a href="mailto:mail@gmail.com">mail@gmail.com</a></h5>
+                <h5 class="about-text"><a href="tel:0XXXXXXXXX">0XXXXXXXXX</a></h5>
+                <ul class="navbar-nav p-2">
                     <div class="row m-auto mb-3">
                         <li class="nav-item mx-4"><a class="nav-link" href="#" target="_blank"><i class="fa fa-2x fa-facebook"></i></a></li>
                         <li class="nav-item mx-4"><a class="nav-link" href="#" target="_blank"><i class="fa fa-2x fa-instagram"></i></a></li>
                     </div>
                 </ul>
-                <h5 class="about-text mb-3"><a href="mailto:mail@gmail.com">mail@gmail.com</a></h5>
-                <h5 class="about-text"><a href="tel:0XXXXXXXXX">0XXXXXXXXX</a></h5>
             </div>
         </div>
 
-        <a href="/terms" class="terms_text"></a> | <a href="/privacy" class="privacy_text"></a>
+        <a href="/terms" class="terms_text mx-2"></a>|<a href="/privacy" class="privacy_text mx-2"></a>
     </div>
 <%- include ('../partials/footer') %>
 </body>
