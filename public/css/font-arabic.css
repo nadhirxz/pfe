@@ -4,7 +4,7 @@
 	src: url(arabic.woff2) format('woff2');
 }
 
-*:not(i) {
+*:not(i, .fa) {
 	font-family: 'Arabic', normal !important;
 }
 
