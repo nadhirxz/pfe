@@ -106,14 +106,14 @@ firstNextButton.addEventListener('click', () => {
 								let routeControl = createRouter(gh, map, fromPos, toPos);
 								map.off('click'); // disable adding markers after
 
-								document.getElementById("result").innerHTML = `<img src="/img/loader.gif" id="#loading-img"></img><br><h4>${js_lang_text.clc_route_text}</h4>`;
+								document.getElementById("result").innerHTML = `<img src="/img/loader.svg" id="#loading-img"></img><br><h4>${js_lang_text.clc_route_text}</h4>`;
 
 								document.getElementsByClassName("leaflet-control-container")[0].style.display = "none";
 								routeControl.on('routesfound', function (e) {
 									let routes = e.routes;
 									let summary = routes[0].summary;
 									distance = Math.round(((summary.totalDistance / 1000) + Number.EPSILON) * 1000) / 1000;
-									document.getElementById("result").innerHTML = `<img src="/img/loader.gif" id="#loading-img"></img><br><h4>${js_lang_text.clc_price_text}</h4>`;
+									document.getElementById("result").innerHTML = `<img src="/img/loader.svg" id="#loading-img"></img><br><h4>${js_lang_text.clc_price_text}</h4>`;
 									$.post('price-request', { distance, weight, from: fromPos, to: toPos }, (data) => {
 										let resultText = "";
 										switch (data.status) {
