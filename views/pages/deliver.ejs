@@ -11,6 +11,13 @@
     <div class="col-md-8 col-lg-5 m-auto text-center pt-2">
         <img src="/img/loading.gif" id="loading-img">
         <div id="delivery" class="d-none">
+			<div class="form-group">
+                <label class="ur"></label>
+                <select class="custom-select" id="delivery-type">
+                  <option value="0" class="sndr" selected></option>
+                  <option value="1" class="rcvr"></option>
+                </select>
+            </div>
             <div class="form-group">
                 <label for="delivery-thing" class="thing_text"></label>
                 <input type="text" class="form-control" onkeyup="trackInput()" id="delivery-thing">
@@ -20,9 +27,9 @@
                 <input type="tel" onkeypress="return onlyNumberKey(event)" onkeyup="trackInput()" maxlength="10" class="form-control" id="phone-field" name="phone">
             </div>
             <div class="form-group">
-                <label><span class="weight_text"></span></label>
+                <label class="weight_text"></label>
                 <select class="custom-select" id="delivery-weight">
-                  <option value="0" selected="" class="less_than_5_text"></option>
+                  <option value="0" class="less_than_5_text" selected></option>
                   <option value="1" class="not_less_than_5_text"></option>
                 </select>
             </div>

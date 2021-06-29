@@ -140,7 +140,7 @@ firstNextButton.addEventListener('click', () => {
 											let submit = createButton(js_lang_text.submit_text, "submit", "btn btn-info col-4 mx-2 my-2");
 											submit.addEventListener("click", (e) => {
 												post('/delivery-request/', {
-													type: 0,
+													type: parseInt($('#delivery-type').val()) || 0,
 													fromPlace: "",
 													from: fromPos,
 													to: toPos,

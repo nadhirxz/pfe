@@ -6,6 +6,9 @@ var lang_text = {
     not_less_than_5_text: "5KG - 10KG",
     cancel_text: "Cancel",
     next_text: "Next",
+	ur: "You Are",
+	sndr: "Sender",
+	rcvr: "Receiver",
     placeholders: {
         "delivery-thing": "Enter something",
         "phone-field": "Enter something"
