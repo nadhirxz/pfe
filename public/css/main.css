@@ -52,12 +52,12 @@ img {
 }
 
 ::-webkit-scrollbar {
-	width: 10px;
+	width: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-	border-radius: 10px;
-	background-color: #444;
+	border-radius: 20px;
+	background-color: #1E343B;
 }
 
 .driver-map {
