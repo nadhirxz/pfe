@@ -696,7 +696,6 @@ app.post('/partner/add-item', checkPartner, checkConfirmed, (req, res) => {
 });
 
 app.post('/partner/delete-item/:id', checkPartner, checkConfirmed, (req, res) => {
-	let user = getUser('id', req.session.uid);
 	let item = getItem('id', req.params.id);
 	if (item) {
 		db.query("DELETE FROM items WHERE id=?", [item.id], (err, results) => {
@@ -1694,7 +1693,7 @@ function getDriver(key, value) {
 }
 
 function getPartner(key, value) {
-	return partners.find(obj => obj[key] == value);
+	return partners.find(obj => obj[key] == value && obj.disabled == false);
 }
 
 function getItem(key, value) {
@@ -1773,7 +1772,7 @@ function getOnlineDrivers() {
 }
 
 function getPartnersInfo(forAdmin) {
-	return partners.filter(e => e.confirmed || forAdmin).map(e => {
+	return partners.filter(e => e.confirmed && !e.disabled || forAdmin).map(e => {
 		return {
 			id: e.id,
 			name: e.name,
