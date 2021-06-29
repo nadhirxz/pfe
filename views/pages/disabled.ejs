@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="px-5 my-2 m-auto text-center">
+        <p id="terms">
+            <% if (lang == 'en') { %>
+			<h2 class="my-5 text-danger">This account has been disabled</h2>
+			<form action="/enable" method="post">
+				<button type="submit" class="btn btn-c col-md-4 col-lg-2 col-8">Enable</button>
+			</form>
+			<% } else if (lang == 'fr') { %>
+			<h2 class="my-5 text-danger">Ce compte a été désactivé</h2>
+			<form action="/enable" method="post">
+				<button type="submit" class="btn btn-c col-md-4 col-lg-2 col-8">Réactiver</button>
+			</form>
+			<% } else  { %>
+			<h2 class="my-5 text-danger">تم تعطيل هذا الحساب</h2>
+			<form action="/enable" method="post">
+				<button type="submit" class="btn btn-c col-md-4 col-lg-2 col-8">إعادة تفعيل</button>
+			</form>
+			<% } %>
+        </p>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+
+</html>

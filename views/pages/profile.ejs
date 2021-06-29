@@ -27,11 +27,46 @@
             <input type="tel" maxlength="10" class="form-control text-center" id="phone-field" name="phone" value="<%= phone %>" disabled>
         </div>
         <a class="btn btn-info col my-2 chng_pwd_text" href="/profile/password"></a>
+
+        <button class="btn btn-outline-danger col my-2 dis" data-toggle="modal" data-target="#modal" href="/profile/password"></button>
+
+		<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered w-100" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title dis"></h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="password-field" class="password"></label>
+							<div class="input-group input-group-seamless">
+								<input type="password" data-toggle="password" class="form-control" id="password-field" name="password" required>
+								<span class="input-group-append">
+									<span class="input-group-text" id="toggle">
+										<i id="toggle-icon" class="fa fa-eye-slash"></i>
+									</span>
+								</span>
+							</div>
+							<div class="invalid-feedback wrong_p" id="password-feed"></div>
+							<div class="invalid-feedback err" id="err-feed"></div>
+						</div>
+					</div>
+					<div class="modal-footer mx-auto col">
+						<button type="button" class="btn col btn-secondary cancel mx-2" data-dismiss="modal"></button>
+						<button type="button" class="btn col btn-danger disable mx-2" id="disable-btn"></button>
+					</div>
+				  </div>
+			</div>
+		</div>
         <br>
     </div>
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
 <script src="/js/profile.js"></script>
+<script src="/js/toggle_password.js"></script>
 
 </html>

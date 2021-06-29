@@ -5,7 +5,8 @@ CREATE TABLE users (
 	password VARCHAR(64) NOT NULL,
 	confirmed BIT NOT NULL,
 	reg_date TIMESTAMP,
-	lang VARCHAR(2)
+	lang VARCHAR(2),
+	disabled BIT
 );
 
 CREATE TABLE admins (
@@ -26,7 +27,8 @@ CREATE TABLE drivers (
 	percentage INT(2),
 	paid INT(10),
 	lang VARCHAR(2),
-	last_seen TIMESTAMP NULL
+	last_seen TIMESTAMP NULL,
+	disabled BIT
 );
 
 CREATE TABLE secretkeys (
@@ -49,7 +51,8 @@ CREATE TABLE partners (
 	endTime VARCHAR(5),
 	percentage INT(2),
 	paid INT(10),
-	lang VARCHAR(2)
+	lang VARCHAR(2),
+	disabled BIT
 );
 
 CREATE TABLE items (

@@ -65,7 +65,8 @@ let titles = {
 		edit_password: "Edit Password",
 		partners: "Partners",
 		your_items: "Your Items",
-		deliveries: "Deliveries"
+		deliveries: "Deliveries",
+		disabled: "Deactivated Account"
 	},
 	fr: {
 		out_of_srvc: "Hors service",
@@ -99,7 +100,8 @@ let titles = {
 		edit_password: "Modifier le Mot de Passe",
 		partners: "Partenaires",
 		your_items: "Votre Objets",
-		deliveries: "Livraisons"
+		deliveries: "Livraisons",
+		disabled: "Compte Désactivé"
 	},
 	ar: {
 		out_of_srvc: "خارج الخدمة",
@@ -133,7 +135,8 @@ let titles = {
 		edit_password: "تغيير كلمة السر",
 		partners: "الشركاء",
 		your_items: "السلعة الخاصة بك",
-		deliveries: "طلبات التوصيل"
+		deliveries: "طلبات التوصيل",
+		disabled: "تم تعطيل الحساب"
 	}
 }
 

@@ -64,6 +64,7 @@ db.query("SELECT * FROM users", (err, results) => {
 	results.forEach(result => {
 		result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
 		result.confirmed = Boolean(result.confirmed.readIntBE(0, 1));
+		result.disabled = Boolean(result.disabled.readIntBE(0, 1));
 		users.push(Object.assign({}, result));
 	});
 	db.query("SELECT * FROM admins", (err, results) => {
@@ -75,9 +76,9 @@ db.query("SELECT * FROM users", (err, results) => {
 		db.query("SELECT * FROM drivers", (err, results) => {
 			results.forEach(result => {
 				result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
-				result.status = result.status.readIntBE(0, 1);
 				result.pos = parsePosition(result.pos);
 				result.status = 0;
+				result.disabled = Boolean(result.disabled.readIntBE(0, 1));
 				db.query("UPDATE drivers SET status=? WHERE id=?", [result.status, result.id]);
 				drivers.push(Object.assign({}, result));
 			});
@@ -87,6 +88,7 @@ db.query("SELECT * FROM users", (err, results) => {
 					result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
 					result.pos = parsePosition(result.pos);
 					result.confirmed = Boolean(result.confirmed.readIntBE(0, 1));
+					result.disabled = Boolean(result.disabled.readIntBE(0, 1));
 					partners.push(Object.assign({}, result));
 				});
 				makePartnersSchedules();
@@ -202,10 +204,10 @@ const checkNotAuth = (req, res, next) => {
 
 const checkConfirmed = (req, res, next) => {
 	let user = getUser('id', req.session.uid);
-	if (user && (user.confirmed || [2, 3].includes(user.type))) {
+	if (user && (user.confirmed || [2, 3].includes(user.type)) && !user.disabled) {
 		next();
 	} else {
-		res.redirect(user.type == 0 ? '/confirm' : '/partner');
+		res.redirect(user.disabled ? '/disabled' : user.type == 0 ? '/confirm' : '/partner');
 	}
 }
 
@@ -326,6 +328,15 @@ let checkInWorkHours = (req, res, next) => {
 	}
 }
 
+let checkDisabled = (req, res, next) => {
+	let user = getUser('id', req.session.uid);
+	if (user && user.disabled) {
+		next();
+	} else {
+		res.redirect('/');
+	}
+}
+
 // Routes
 
 app.get('/', (req, res) => {
@@ -421,7 +432,7 @@ app.get('/drivers', checkNotAuth, (req, res) => {
 	});
 });
 
-app.get('/driver', checkDriver, (req, res) => {
+app.get('/driver', checkDriver, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/driver', {
@@ -509,9 +520,10 @@ app.post('/register', checkNotAuth, (req, res) => {
 							confirmed: false,
 							last_delivery: 0,
 							reg_date: new Date(),
-							lang
+							lang,
+							disabled: false
 						}
-						db.query("INSERT INTO users VALUES (?,?,?,?,?,?,?)", [newUser.id, newUser.name, newUser.phone, newUser.password, newUser.confirmed ? 1 : 0, newUser.reg_date, newUser.lang], (err, results) => {
+						db.query("INSERT INTO users VALUES (?,?,?,?,?,?,?,?)", [newUser.id, newUser.name, newUser.phone, newUser.password, newUser.confirmed ? 1 : 0, newUser.reg_date, newUser.lang, newUser.disabled ? 1 : 0], (err, results) => {
 							if (err) return res.redirect('/register?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 							users.push(newUser);
 							sendPin(phone, getAndSetPageLanguage(req, res));
@@ -558,9 +570,10 @@ app.post('/partners/register', checkNotAuth, (req, res) => {
 						endTime: null,
 						percentage: secretkey.percentage,
 						paid: 0,
-						lang
+						lang,
+						disabled: false
 					}
-					db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", [partner.id, partner.name, partner.phone, partner.password, partner.pos, partner.confirmed, partner.description, partner.schedule, partner.startTime, partner.endTime, partner.percentage, partner.paid, partner.lang], (err, results) => {
+					db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [partner.id, partner.name, partner.phone, partner.password, partner.pos, partner.confirmed, partner.description, partner.schedule, partner.startTime, partner.endTime, partner.percentage, partner.paid, partner.lang, partner.disabled ? 1 : 0], (err, results) => {
 						if (err) return res.redirect('/partners?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 						partners.push(partner);
 						destroySecretKey(secretkey.id);
@@ -600,10 +613,12 @@ app.post('/drivers/register', checkNotAuth, (req, res) => {
 						pos: null,
 						percentage: secretkey.percentage || settings.driverPercentage,
 						paid: null,
-						lang
+						lang,
+						last_seen: null,
+						disabled: false
 					}
 
-					db.query("INSERT INTO drivers VALUES (?,?,?,?,?,?,?,?,?)", [driver.id, driver.name, driver.phone, driver.password, driver.status, driver.pos, driver.percentage, driver.paid, driver.lang], (err, results) => {
+					db.query("INSERT INTO drivers VALUES (?,?,?,?,?,?,?,?,?,?,?)", [driver.id, driver.name, driver.phone, driver.password, driver.status, driver.pos, driver.percentage, driver.paid, driver.lang, driver.last_seen, driver.disabled ? 1 : 0], (err, results) => {
 						if (err) {
 							res.redirect('/drivers?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 						} else {
@@ -625,7 +640,7 @@ app.post('/drivers/register', checkNotAuth, (req, res) => {
 	}
 });
 
-app.get('/partner/items', checkPartner, (req, res) => {
+app.get('/partner/items', checkPartner, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
@@ -638,7 +653,7 @@ app.get('/partner/items', checkPartner, (req, res) => {
 	});
 });
 
-app.post('/partner/edit-item/:id', checkPartner, (req, res) => {
+app.post('/partner/edit-item/:id', checkPartner, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { name, price, inStock } = req.body;
 	let item = getItem('id', req.params.id);
@@ -657,7 +672,7 @@ app.post('/partner/edit-item/:id', checkPartner, (req, res) => {
 	}
 });
 
-app.post('/partner/add-item', checkPartner, (req, res) => {
+app.post('/partner/add-item', checkPartner, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { name, price, inStock } = req.body;
 
@@ -680,7 +695,7 @@ app.post('/partner/add-item', checkPartner, (req, res) => {
 	}
 });
 
-app.post('/partner/delete-item/:id', checkPartner, (req, res) => {
+app.post('/partner/delete-item/:id', checkPartner, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let item = getItem('id', req.params.id);
 	if (item) {
@@ -695,7 +710,7 @@ app.post('/partner/delete-item/:id', checkPartner, (req, res) => {
 });
 
 
-app.get('/deliver', checkAuth, checkUser, checkInWorkHours, (req, res) => {
+app.get('/deliver', checkAuth, checkConfirmed, checkUser, checkInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	if (typeof (user.last_delivery) == 'undefined' || (((Date.now() - user.last_delivery) / 1000) / 60 > settings.intervalBetweenDeliveries)) {
@@ -719,7 +734,7 @@ app.get('/deliver', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	}
 });
 
-app.get('/buy', checkAuth, checkUser, checkInWorkHours, (req, res) => {
+app.get('/buy', checkAuth, checkConfirmed, checkUser, checkInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	if (typeof (user.last_delivery) == 'undefined' || (((new Date().getTime() - new Date(user.last_delivery).getTime()) / 1000) / 60 > settings.intervalBetweenDeliveries)) {
@@ -741,7 +756,7 @@ app.get('/buy', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	});
 });
 
-app.get('/buy/:id', checkAuth, checkUser, checkInWorkHours, (req, res) => {
+app.get('/buy/:id', checkAuth, checkConfirmed, checkUser, checkInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let place, pid, it;
@@ -784,7 +799,7 @@ app.get('/buy/:id', checkAuth, checkUser, checkInWorkHours, (req, res) => {
 	});
 });
 
-app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) => {
+app.post('/price-request', checkAuth, checkConfirmed, checkUser, checkInWorkHours, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	if (!user) res.status(403).send();
 
@@ -830,7 +845,7 @@ app.post('/price-request', checkAuth, checkUser, checkInWorkHours, (req, res) =>
 	res.send(dataToSend);
 });
 
-app.post('/delivery-request', checkAuth, checkUser, (req, res) => {
+app.post('/delivery-request', checkAuth, checkConfirmed, checkUser, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	if (user && user.hash) {
 		let { type, fromPlace, from, to, distance, price, phone, thing, thingsPrice, weight, partner } = req.body;
@@ -843,7 +858,7 @@ app.post('/delivery-request', checkAuth, checkUser, (req, res) => {
 	return res.redirect('/');
 });
 
-app.get('/delivery-err', checkAuth, checkUser, (req, res) => {
+app.get('/delivery-err', checkAuth, checkConfirmed, checkUser, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/errors', {
@@ -856,7 +871,7 @@ app.get('/delivery-err', checkAuth, checkUser, (req, res) => {
 	})
 });
 
-app.get('/delivery/:did', checkAuth, (req, res) => {
+app.get('/delivery/:did', checkAuth, checkConfirmed, (req, res) => {
 	let delivery = getDelivery('id', req.params.did);
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
@@ -872,7 +887,7 @@ app.get('/delivery/:did', checkAuth, (req, res) => {
 	return res.render('pages/404', the_return);
 });
 
-app.get('/deliveries', checkAuth, checkNotAdmin, checkConfirmed, (req, res) => {
+app.get('/deliveries', checkAuth, checkConfirmed, checkNotAdmin, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
@@ -894,7 +909,7 @@ app.get('/deliveries', checkAuth, checkNotAdmin, checkConfirmed, (req, res) => {
 	});
 });
 
-app.get('/deliveries/:date', checkAuth, checkNotAdmin, (req, res) => {
+app.get('/deliveries/:date', checkAuth, checkConfirmed, checkNotAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
@@ -1166,7 +1181,7 @@ app.get('/partners/:id', checkAdmin, (req, res) => {
 	});
 });
 
-app.get('/partner/details', checkPartner, (req, res) => {
+app.get('/partner/details', checkPartner, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
@@ -1193,7 +1208,7 @@ app.get('/partner/details', checkPartner, (req, res) => {
 	});
 });
 
-app.post('/partners/img/:id', checkPartnerOrAdmin, upload.single('img'), (req, res) => {
+app.post('/partners/img/:id', checkPartnerOrAdmin, checkConfirmed, upload.single('img'), (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let tempPath = req.file.path;
 	let ext = path.extname(req.file.originalname).toLowerCase()
@@ -1210,7 +1225,7 @@ app.post('/partners/img/:id', checkPartnerOrAdmin, upload.single('img'), (req, r
 	fs.unlink(tempPath, () => res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#img`));
 });
 
-app.post('/partners/desc/:id', checkPartnerOrAdmin, (req, res) => {
+app.post('/partners/desc/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { desc } = req.body;
 	let p = getPartner('id', req.params.id);
@@ -1221,7 +1236,7 @@ app.post('/partners/desc/:id', checkPartnerOrAdmin, (req, res) => {
 	return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#home`);
 });
 
-app.post('/partners/name/:id', checkPartnerOrAdmin, (req, res) => {
+app.post('/partners/name/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { name } = req.body;
 	let p = getPartner('id', req.params.id);
@@ -1232,7 +1247,7 @@ app.post('/partners/name/:id', checkPartnerOrAdmin, (req, res) => {
 	return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#home`);
 });
 
-app.post('/partners/pay/:id', checkPartnerOrAdmin, (req, res) => {
+app.post('/partners/pay/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
 	let amount = req.body.amount;
 	let p = getPartner('id', req.params.id);
 	if (typeof (amount) && p) {
@@ -1243,7 +1258,7 @@ app.post('/partners/pay/:id', checkPartnerOrAdmin, (req, res) => {
 	return res.send();
 });
 
-app.post('/partners/schedule/:id', checkPartnerOrAdmin, (req, res) => {
+app.post('/partners/schedule/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { from, to, schedule } = req.body;
 	let p = getPartner('id', req.params.id);
@@ -1257,7 +1272,7 @@ app.post('/partners/schedule/:id', checkPartnerOrAdmin, (req, res) => {
 	return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#sch`);
 });
 
-app.post('/partners/pos/:id', checkPartnerOrAdmin, (req, res) => {
+app.post('/partners/pos/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { pos } = req.body;
 	let p = getPartner('id', req.params.id);
@@ -1268,7 +1283,7 @@ app.post('/partners/pos/:id', checkPartnerOrAdmin, (req, res) => {
 	return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#pos`);
 });
 
-app.post('/drivers/pay/:id', checkPartnerOrAdmin, (req, res) => {
+app.post('/drivers/pay/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
 	let amount = req.body.amount;
 	let driver = getUser('id', req.params.id);
 	if (typeof (amount) && driver && driver.type == 2) {
@@ -1383,6 +1398,44 @@ app.get('/privacy', (req, res) => {
 		type: type,
 		lang: lang,
 	});
+});
+
+app.get('/disabled', checkAuth, checkDisabled, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/disabled', {
+		title: titles[lang].disabled + settings.titleSuffix[lang],
+		lang: lang,
+		disabled: true
+	});
+});
+
+app.post('/disable', checkAuth, checkConfirmed, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let { password } = req.body;
+
+	if (user) {
+		if (password && generateHash(password, user.id) == user.password) {
+			db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'partners' : 'drivers'} SET disabled=? WHERE id=?`, [1, user.id], (err, results) => {
+				if (err) return res.send({ success: false });
+				user.disabled = true;
+				res.send({ success: true });
+			});
+		} else {
+			res.send({ password: true });
+		}
+	} else {
+		res.status(403).send();
+	}
+});
+
+app.post('/enable', checkDisabled, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	if (user) {
+		user.disabled = false;
+		db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'partners' : 'drivers'} SET disabled=? WHERE id=?`, [user.disabled ? 1 : 0, user.id]);
+	}
+	return res.redirect('/');
 });
 
 app.get('/en(/*)?', (req, res) => {
