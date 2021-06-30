@@ -13,7 +13,7 @@ let settings = {
 	maxNameLength: 40, // 40 characters
 	maxHoursWithoutConfirmation: 48, // hours
 
-	partnerPercentage: 10,
+	shopPercentage: 10,
 	driverPercentage: 25,
 
 	maxDeliveryDistance: 60, // km
@@ -29,7 +29,7 @@ let settings = {
 	nearestMinute: 5,
 
 	allowedImgExt: ['png', 'jpg', 'jpeg', 'gif'],
-	partnerImgSize: 500
+	shopImgSize: 500
 }
 
 let titles = {
@@ -45,13 +45,13 @@ let titles = {
 		new_buy: "New Buy",
 		login: "Login",
 		register: "Register",
-		partners_reg: "Partners Registration",
+		shops_reg: "Shops Registration",
 		confirm: "Confirm",
 		terms: "Terms of Service",
 		driver: "Driver",
 		drivers: "Drivers",
 		admin: "Admin",
-		add_partner: "Add Partner",
+		add_shop: "Add Shop",
 		add_key: "Add Key",
 		schedule: "Schedule",
 		details: "Details",
@@ -63,7 +63,7 @@ let titles = {
 		profile: "Profile",
 		privacy: "Privacy Policy",
 		edit_password: "Edit Password",
-		partners: "Partners",
+		shops: "Shops",
 		your_items: "Your Items",
 		deliveries: "Deliveries",
 		disabled: "Deactivated Account"
@@ -80,13 +80,13 @@ let titles = {
 		new_buy: "Nouvel achat",
 		login: "S'identifier",
 		register: "S'inscrire",
-		partners_reg: "Inscription des partenaires",
+		shops_reg: "Inscription des magasins",
 		confirm: "Confirmer",
 		terms: "Conditions d'utilisation",
 		driver: "Livreur",
 		drivers: "Livreurs",
 		admin: "Administrateur",
-		add_partner: "Ajouter un partenaire",
+		add_shop: "Ajouter un magasin",
 		add_key: "Ajouter une clé",
 		schedule: "Programme",
 		details: "Détails",
@@ -98,7 +98,7 @@ let titles = {
 		profile: "Profil",
 		privacy: "Politique de confidentialité",
 		edit_password: "Modifier le Mot de Passe",
-		partners: "Partenaires",
+		shops: "Partenaires",
 		your_items: "Votre Objets",
 		deliveries: "Livraisons",
 		disabled: "Compte Désactivé"
@@ -115,13 +115,13 @@ let titles = {
 		new_buy: "طلب شراء",
 		login: "تسجيل الدخول",
 		register: "تسجيل",
-		partners_reg: "تسجيل الشركاء",
+		shops_reg: "تسجيل الشركاء",
 		confirm: "تأكيد",
 		terms: "شروط الخدمة",
 		driver: "سائق",
 		drivers: "السائقون",
 		admin: "مشرف",
-		add_partner: "إضافة شريك",
+		add_shop: "إضافة متجر",
 		add_key: "إضافة مفتاح",
 		schedule: "الجدول",
 		details: "تفاصيل",
@@ -133,7 +133,7 @@ let titles = {
 		profile: "الملف الشخصي",
 		privacy: "سياسة الخصوصية",
 		edit_password: "تغيير كلمة السر",
-		partners: "الشركاء",
+		shops: "المتاجر",
 		your_items: "السلعة الخاصة بك",
 		deliveries: "طلبات التوصيل",
 		disabled: "تم تعطيل الحساب"

@@ -12,7 +12,7 @@ lang_text = {
 	percentage: "النسبة :",
 	left_text: "باقي",
 	drivers: "السائقون",
-	partners: "الشركاء",
+	shops: "المتاجر",
 	placeholders: {
 		"amount": "كمية"
 	}

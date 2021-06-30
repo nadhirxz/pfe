@@ -12,7 +12,7 @@ lang_text = {
 	percentage: "Percentage :",
 	left_text: "left",
 	drivers: "Drivers",
-	partners: "Partners",
+	shops: "Shops",
 	placeholders: {
 		"amount": "Amount"
 	}

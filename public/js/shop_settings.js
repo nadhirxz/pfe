@@ -1,7 +1,7 @@
 createMap(at);
 
-$("#partner-image").change(() => {
-	$('.custom-file-label').html($('#partner-image')[0].files[0].name);
+$("#shop-image").change(() => {
+	$('.custom-file-label').html($('#shop-image')[0].files[0].name);
 });
 
 let r = /^([01]\d|2[0-3]):?([0-5]\d)$/;
@@ -18,7 +18,7 @@ $('#to').on('input', (e) => {
 
 $('#save-sc').on('click', () => {
 	if (r.test($('#from').val()) && r.test($('#to').val())) {
-		$.post('/partners/schedule/' + id, { schedule: $('#select').val(), from: $('#from').val(), to: $('#to').val() }, () => window.location.reload());
+		$.post('/shops/schedule/' + id, { schedule: $('#select').val(), from: $('#from').val(), to: $('#to').val() }, () => window.location.reload());
 	}
 });
 
@@ -30,7 +30,7 @@ $('#tablist a').on('shown.bs.tab', e => window.location.hash = e.target.hash);
 
 $('#save-pos').on('click', () => {
 	let pos = [marker.getLatLng().lat, marker.getLatLng().lng];
-	if (pos) post('/partners/pos/' + id, { pos });
+	if (pos) post('/shops/pos/' + id, { pos });
 });
 
 function post(path, params, method = 'post') {

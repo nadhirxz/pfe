@@ -1,7 +1,7 @@
 deliveryTypes = [
 	"Client to Person",
 	"Person to Client",
-	"Partner to Client",
+	"Shop to Client",
 ]
 
 l = {
@@ -15,7 +15,7 @@ l = {
 	distance: "Distance",
 	dzd: "DZD",
 	km: "km",
-	partner: "Partner",
+	shop: "Shop",
 	fnsh_t: "Estimated Finish Time",
 	route: "Route",
 	cancel: "Cancel",

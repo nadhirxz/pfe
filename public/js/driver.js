@@ -74,7 +74,7 @@ async function createDiv(delivery, status, r) {
 				<div class="text-${lng == 'ar' ? 'right' : 'left'}">
 					<p class="my-0">${l.price} : <b>${delivery.price} ${l.dzd}</b></p>
 					<p class="my-0">${l.distance} : <b>${delivery.distance} ${l.km}</b></p>
-					${delivery.type == 2 ? `<p class="my-0">${l.partner} : <b><a href="tel:${delivery.partner_phone}">${delivery.partner_phone}</a></b></p>` : ''}
+					${delivery.type == 2 ? `<p class="my-0">${l.shop} : <b><a href="tel:${delivery.shop_phone}">${delivery.shop_phone}</a></b></p>` : ''}
 				</div>
 			</div>
 			${status === true ? `<div class="hr-sect text-dark"><p class="my-1">${l.fnsh_t} : <b id="${delivery.id}-time">${getTime(delivery.estimated_finish_time)}</b></div>` : '<hr class="mt-2" style="background-color: #aaa;">'}
@@ -157,7 +157,7 @@ async function createDiv(delivery, status, r) {
 
 	if (status === 'new' && typeof (Android) !== 'undefined') {
 		let notification_text = l.notification_text(delivery.price, delivery.distance, delivery.name);
-		if (typeof (delivery.partner) != 'undefined') notification_text += ` - ${delivery.name}`;
+		if (typeof (delivery.shop) != 'undefined') notification_text += ` - ${delivery.name}`;
 		Android.showNotification(l.new, notification_text);
 	}
 }

@@ -5,7 +5,7 @@ function pay(type, id, name, amount) {
 	$('#pay-btn').off();
 	$('#pay-btn').on('click', () => {
 		if ($('#amount').val() && $('#amount').val() != 0) {
-			$.post(`/${type == 'd' ? 'drivers' : 'partners'}/pay/${id}`, { amount: parseInt($('#amount').val()) }, () => window.location.reload())
+			$.post(`/${type == 'd' ? 'drivers' : 'shops'}/pay/${id}`, { amount: parseInt($('#amount').val()) }, () => window.location.reload())
 		}
 	});
 }

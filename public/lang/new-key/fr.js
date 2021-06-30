@@ -3,7 +3,7 @@ lang_text = {
 	sec_key_text: "Code secret",
 	phone_text: "Numéro de téléphone",
 	user_type_text: "Type d'utilisateur",
-	partner_text: "Partenaire",
+	shop_text: "Magasin",
 	driver_text: "Livreur",
 	percentage_text: "Pourcentage",
 	save_text: "Sauvegarder",

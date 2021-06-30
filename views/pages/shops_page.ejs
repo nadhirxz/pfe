@@ -4,7 +4,7 @@
 <head>
     <%- include ('../partials/head') %>
     <% var other = {en: "Other", fr: "Autre", ar: "أخرى"} %>
-	<% var no_partners = {en: "No partners", fr: "Aucun partenaire", ar: "لا يوجد شركاء"} %>
+	<% var no_shops = {en: "No shops available right now", fr: "Aucun magasin disponible pour le moment", ar: "لا يوجد أي متجر متوفر حاليا"} %>
 </head>
 
 <body>
@@ -12,24 +12,24 @@
     <div class="col m-auto text-center pt-2" id="delivery-from">
 		<div class="container">
 			<div class="row justify-content-center">
-			<% if (partners.length) { %>
-				<% partners.forEach(partner => { %>
-					<div class="col-lg-3 col-md-5 col-10 mx-3 my-3" style="cursor: pointer;" onclick="window.location.href='/<% if (type == 3) { %>partners<% } else { %>buy<% } %>/<%= partner.id %>'">
+			<% if (shops.length) { %>
+				<% shops.forEach(shop => { %>
+					<div class="col-lg-3 col-md-5 col-10 mx-3 my-3" style="cursor: pointer;" onclick="window.location.href='/<% if (type == 3) { %>shops<% } else { %>buy<% } %>/<%= shop.id %>'">
 						<div class="card h-100">
 							<div class="card-header">
-								<h4 class="card-title my-auto"><%= partner.name %></h4>
+								<h4 class="card-title my-auto"><%= shop.name %></h4>
 							</div>
-							<img class="my-auto" src="<%= partner.img %>">
-							<% if (partner.desc) { %>
+							<img class="my-auto" src="<%= shop.img %>">
+							<% if (shop.desc) { %>
 							<div class="card-body">
-								<p class="card-text"><%= partner.desc %></p>
+								<p class="card-text"><%= shop.desc %></p>
 							</div>
 							<% } %>
 						</div>
 					</div>
 				<% }); %>
 			<% } else if (type == 3) { %>
-				<h3 class="m-4"><%= no_partners[lang] %></h3>
+				<h3 class="m-4"><%= no_shops[lang] %></h3>
 			<% } %>
 			</div>
 		</div>

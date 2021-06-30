@@ -8,9 +8,8 @@ navbar_lang_text = {
     register_text: "S'inscrire",
     profile_text: "Profile",
 	schedule_text: "Programme",
-	partners_text: "Partenaires",
+	shops_text: "Magasins",
 	new_key: "Nouvelle clé",
-	new_partner: "Nouveau partenaire",
 	dlvs: "Livraisons",
 	items: "Objets",
 	details: "Détails"

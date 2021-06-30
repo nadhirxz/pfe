@@ -65,7 +65,7 @@ function click(id, add = false) {
 		item.name = $('#item-name').val() || item.name;
 		let price = parseInt($('#item-price').val());
 		item.price = (price || price == 0) && price > -1 ? price : item.price;
-		post(`/partner/${add ? 'add' : 'edit'}-item${add ? '' : '/' + item.id}`, item);
+		post(`/shop/${add ? 'add' : 'edit'}-item${add ? '' : '/' + item.id}`, item);
 	});
 }
 
@@ -75,7 +75,7 @@ function deleteClick(id) {
 		$('#modal-body').html(`Are you sure you want to delete <span class="font-weight-bold">${item.name}</span> ?`);
 		$('#delete-btn').off();
 		$('#delete-btn').on('click', () => {
-			post('/partner/delete-item/' + item.id);
+			post('/shop/delete-item/' + item.id);
 		});
 	}
 }

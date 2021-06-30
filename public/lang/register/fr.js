@@ -3,7 +3,7 @@ lang_text = {
     name_text: "Nom",
     phone_text: "Numéro de téléphone",
     password_text: "Mot de passe",
-    are_you_a_partner_text: "Êtes-vous partenaire ?",
+    are_you_a_shop_text: "Êtes-vous partenaire ?",
     click_here_text: "Cliquez ici",
     placeholders: {
         "name-field": "Votre Nom",

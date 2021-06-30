@@ -8,9 +8,8 @@ navbar_lang_text = {
     register_text: "تسجيل",
     profile_text: "الملف الشخصي",
 	schedule_text: "الجدول",
-	partners_text: "الشركاء",
+	shops_text: "المتاجر",
 	new_key: "مفتاح جديد",
-	new_partner: "شريك جديد",
 	dlvs: "طلبات التوصيل",
 	items: "السلعة",
 	details: "التفاصيل"

@@ -38,7 +38,7 @@ CREATE TABLE secretkeys (
 	percentage INT(2)
 );
 
-CREATE TABLE partners (
+CREATE TABLE shops (
 	id VARCHAR(8) PRIMARY KEY,
 	name VARCHAR(40) NOT NULL,
 	phone VARCHAR(10),
@@ -61,7 +61,7 @@ CREATE TABLE items (
 	price INT(10) NOT NULL,
 	owner VARCHAR(8) NOT NULL,
 	inStock BIT NOT NULL,
-	FOREIGN KEY (owner) REFERENCES partners(id)
+	FOREIGN KEY (owner) REFERENCES shops(id)
 );
 
 CREATE TABLE deliveries (
@@ -80,13 +80,13 @@ CREATE TABLE deliveries (
 	driver VARCHAR(8),
 	estimated_finish_time TIMESTAMP NULL,
 	date TIMESTAMP,
-	partner VARCHAR(8),
+	shop VARCHAR(8),
 	item VARCHAR(8),
 	finish_time TIMESTAMP NULL,
 	thingsPrice INT(10),
 	FOREIGN KEY (uid) REFERENCES users(id),
 	FOREIGN KEY (driver) REFERENCES drivers(id),
-	FOREIGN KEY (partner) REFERENCES partners(id),
+	FOREIGN KEY (shop) REFERENCES shops(id),
 	FOREIGN KEY (item) REFERENCES items(id)
 );
 

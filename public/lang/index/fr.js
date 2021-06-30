@@ -2,7 +2,7 @@ lang_text = {
     home_text: "Accueil",
 	join: "Rejoignez-nous",
 	part: "Devenir livreur",
-	driv: "Devenir un partenaire",
+	driv: "Devenir un magasin partenaire",
     contact_text: "Contact",
     description_text: "Le monde vient à vous",
     register_text: "S'inscrire",

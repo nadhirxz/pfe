@@ -45,14 +45,14 @@ const upload = multer({ dest: './public/img' });
 // Variables
 var users = [];
 var deliveries = [];
-var partners = [];
+var shops = [];
 var items = [];
 var drivers = [];
 var admins = [];
 var working_status = true;
 var schedule = ['08:00', '18:00'];
 var todays_schedule = [];
-var partners_schedule = [];
+var shops_schedule = [];
 var secretkeys = [];
 
 // Database connection
@@ -83,15 +83,15 @@ db.query("SELECT * FROM users", (err, results) => {
 				drivers.push(Object.assign({}, result));
 			});
 
-			db.query("SELECT * FROM partners", (err, results) => {
+			db.query("SELECT * FROM shops", (err, results) => {
 				results.forEach(result => {
 					result = Object.fromEntries(Object.entries(result).filter(([_, v]) => v != null));
 					result.pos = parsePosition(result.pos);
 					result.confirmed = Boolean(result.confirmed.readIntBE(0, 1));
 					result.disabled = Boolean(result.disabled.readIntBE(0, 1));
-					partners.push(Object.assign({}, result));
+					shops.push(Object.assign({}, result));
 				});
-				makePartnersSchedules();
+				makeShopsSchedules();
 
 				db.query("SELECT * FROM items", (err, results) => {
 					results.forEach(result => {
@@ -207,7 +207,7 @@ const checkConfirmed = (req, res, next) => {
 	if (user && (user.confirmed || [2, 3].includes(user.type)) && !user.disabled) {
 		next();
 	} else {
-		res.redirect(user.disabled ? '/disabled' : user.type == 0 ? '/confirm' : '/partner');
+		res.redirect(user.disabled ? '/disabled' : user.type == 0 ? '/confirm' : '/shop');
 	}
 }
 
@@ -233,7 +233,7 @@ let checkUser = (req, res, next) => {
 	}
 }
 
-let checkPartner = (req, res, next) => {
+let checkShop = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/login');
 	} else {
@@ -245,7 +245,7 @@ let checkPartner = (req, res, next) => {
 		}
 	}
 }
-let checkNotPartner = (req, res, next) => {
+let checkNotShop = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/login');
 	} else {
@@ -297,7 +297,7 @@ let checkNotAdmin = (req, res, next) => {
 	}
 }
 
-let checkPartnerOrAdmin = (req, res, next) => {
+let checkShopOrAdmin = (req, res, next) => {
 	if (!req.session.uid) { // user not authenticated
 		res.redirect('/login');
 	} else {
@@ -345,7 +345,7 @@ app.get('/', (req, res) => {
 		if (user) {
 			switch (user.type) {
 				case 0: return res.redirect('/home'); // normal user
-				case 1: return res.redirect('/home'); // partner
+				case 1: return res.redirect('/home'); // shop
 				case 2: return res.redirect('/driver');
 				case 3: return res.redirect('/admin');
 			}
@@ -381,8 +381,8 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 
 		let page = 'home';
 		if (user.type == 1) {
-			page = 'home_partner';
-			let d = deliveries.filter(e => e.partner == user.id && e.status == 4);
+			page = 'home_shop';
+			let d = deliveries.filter(e => e.shop == user.id && e.status == 4);
 			dataToSend.client_deliveries = d.length;
 			dataToSend.client_deliveries_amount = d.reduce((acc, b) => acc += b.price, 0);
 			dataToSend.percentage = user.percentage;
@@ -394,10 +394,10 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 	}
 });
 
-app.get('/partner', checkAuth, checkPartner, (req, res) => {
+app.get('/shop', checkAuth, checkShop, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	res.render('pages/partner_set', {
+	res.render('pages/shop_set', {
 		title: titles[lang].home + settings.titleSuffix[lang],
 		name: user.name,
 		type: user.type,
@@ -407,9 +407,9 @@ app.get('/partner', checkAuth, checkPartner, (req, res) => {
 	});
 });
 
-app.post('/partner', checkAuth, checkPartner, (req, res) => {
+app.post('/shop', checkAuth, checkShop, (req, res) => {
 	let { pos, schedule, startTime, endTime } = req.body;
-	let p = getPartner('id', req.session.uid);
+	let p = getShop('id', req.session.uid);
 	let r = /^([01]\d|2[0-3]):?([0-5]\d)$/;
 	if (p && r.test(startTime) && r.test(endTime) && new Date('1/1/1 ' + startTime).getTime() < new Date('1/1/1 ' + endTime)) {
 		p.confirmed = true;
@@ -417,11 +417,11 @@ app.post('/partner', checkAuth, checkPartner, (req, res) => {
 		p.startTime = startTime;
 		p.endTime = endTime;
 		p.pos = parsePosition(pos);
-		makePartnersSchedules();
-		db.query("UPDATE partners SET confirmed=?, schedule=?, startTime=?, endTime=?, pos=? WHERE id=?", [p.confirmed ? 1 : 0, p.schedule, p.startTime, p.endTime, stringifyPosition(p.pos), p.id]);
+		makeShopsSchedules();
+		db.query("UPDATE shops SET confirmed=?, schedule=?, startTime=?, endTime=?, pos=? WHERE id=?", [p.confirmed ? 1 : 0, p.schedule, p.startTime, p.endTime, stringifyPosition(p.pos), p.id]);
 		return res.redirect('/home');
 	}
-	return res.redirect('/partner');
+	return res.redirect('/shop');
 });
 
 app.get('/drivers', checkNotAuth, (req, res) => {
@@ -459,10 +459,10 @@ app.get('/register', checkNotAuth, (req, res) => {
 	});
 });
 
-app.get('/partners', checkNotAuth, (req, res) => {
+app.get('/shops', checkNotAuth, (req, res) => {
 	let lang = getAndSetPageLanguage(req, res);
-	res.render('pages/partners', {
-		title: titles[lang].partners_reg + settings.titleSuffix[lang],
+	res.render('pages/shops', {
+		title: titles[lang].shops_reg + settings.titleSuffix[lang],
 		lang: lang
 	});
 });
@@ -545,19 +545,19 @@ app.post('/register', checkNotAuth, (req, res) => {
 	}
 });
 
-app.post('/partners/register', checkNotAuth, (req, res) => {
+app.post('/shops/register', checkNotAuth, (req, res) => {
 	let { phone, name, password, secret } = req.body;
 	let lang = getAndSetPageLanguage(req, res);
 	if (phone && name && password && secret) {
 		if (phoneValid(phone)) {
 			let user = getUser('phone', phone);
 			if (user) {
-				return res.redirect('/partners?err=' + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
+				return res.redirect('/shops?err=' + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
 			} else {
 				let secretkey = getSecretKey('secretKey', generateKey(secret, phone, 1));
 				if (secretkey) {
 					let id = randomHash(4);
-					let partner = {
+					let shop = {
 						id,
 						name,
 						phone,
@@ -573,22 +573,22 @@ app.post('/partners/register', checkNotAuth, (req, res) => {
 						lang,
 						disabled: false
 					}
-					db.query("INSERT INTO partners VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [partner.id, partner.name, partner.phone, partner.password, partner.pos, partner.confirmed, partner.description, partner.schedule, partner.startTime, partner.endTime, partner.percentage, partner.paid, partner.lang, partner.disabled ? 1 : 0], (err, results) => {
-						if (err) return res.redirect('/partners?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
-						partners.push(partner);
+					db.query("INSERT INTO shops VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [shop.id, shop.name, shop.phone, shop.password, shop.pos, shop.confirmed, shop.description, shop.schedule, shop.startTime, shop.endTime, shop.percentage, shop.paid, shop.lang, shop.disabled ? 1 : 0], (err, results) => {
+						if (err) return res.redirect('/shops?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
+						shops.push(shop);
 						destroySecretKey(secretkey.id);
 						req.session.uid = id;
 						return res.redirect('/');
 					});
 				} else {
-					return res.redirect('/partners?err=' + errors.invalidSecret + '&name=' + name + '&phone=' + phone);
+					return res.redirect('/shops?err=' + errors.invalidSecret + '&name=' + name + '&phone=' + phone);
 				}
 			}
 		} else {
-			return res.redirect('/partners?err=' + errors.invalidPhoneErr + '&name=' + name + '&phone=' + phone);
+			return res.redirect('/shops?err=' + errors.invalidPhoneErr + '&name=' + name + '&phone=' + phone);
 		}
 	} else {
-		return res.redirect('/partners?err=' + errors.generalErr);
+		return res.redirect('/shops?err=' + errors.generalErr);
 	}
 });
 
@@ -640,7 +640,7 @@ app.post('/drivers/register', checkNotAuth, (req, res) => {
 	}
 });
 
-app.get('/partner/items', checkPartner, checkConfirmed, (req, res) => {
+app.get('/shop/items', checkShop, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
@@ -653,7 +653,7 @@ app.get('/partner/items', checkPartner, checkConfirmed, (req, res) => {
 	});
 });
 
-app.post('/partner/edit-item/:id', checkPartner, checkConfirmed, (req, res) => {
+app.post('/shop/edit-item/:id', checkShop, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { name, price, inStock } = req.body;
 	let item = getItem('id', req.params.id);
@@ -664,15 +664,15 @@ app.post('/partner/edit-item/:id', checkPartner, checkConfirmed, (req, res) => {
 		item.inStock = inStock == 'true' ? true : false;
 
 		db.query("UPDATE items SET name=?, price=?, inStock=? WHERE id=?", [item.name, item.price, item.inStock, item.id], (err, results) => {
-			if (err) return res.redirect('/partner/items/?success=false');
-			else return res.redirect('/partner/items/?success=edit');
+			if (err) return res.redirect('/shop/items/?success=false');
+			else return res.redirect('/shop/items/?success=edit');
 		});
 	} else {
-		return res.redirect('/partner/items/?err=error');
+		return res.redirect('/shop/items/?err=error');
 	}
 });
 
-app.post('/partner/add-item', checkPartner, checkConfirmed, (req, res) => {
+app.post('/shop/add-item', checkShop, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { name, price, inStock } = req.body;
 
@@ -686,25 +686,25 @@ app.post('/partner/add-item', checkPartner, checkConfirmed, (req, res) => {
 		}
 
 		db.query("INSERT INTO items VALUES (?,?,?,?,?)", [item.id, item.name, item.price, item.owner, item.inStock], (err, results) => {
-			if (err) return res.redirect('/partner/items/?success=false');
+			if (err) return res.redirect('/shop/items/?success=false');
 			items.push(item);
-			return res.redirect('/partner/items/?success=add');
+			return res.redirect('/shop/items/?success=add');
 		});
 	} else {
-		return res.redirect('/partner/items/?err=error');
+		return res.redirect('/shop/items/?err=error');
 	}
 });
 
-app.post('/partner/delete-item/:id', checkPartner, checkConfirmed, (req, res) => {
+app.post('/shop/delete-item/:id', checkShop, checkConfirmed, (req, res) => {
 	let item = getItem('id', req.params.id);
 	if (item) {
 		db.query("DELETE FROM items WHERE id=?", [item.id], (err, results) => {
-			if (err) return res.redirect('/partner/items/?success=false');
+			if (err) return res.redirect('/shop/items/?success=false');
 			items = items.filter(e => e.id != item.id);
-			return res.redirect('/partner/items/?success=delete');
+			return res.redirect('/shop/items/?success=delete');
 		});
 	} else {
-		return res.redirect('/partner/items/?err=error');
+		return res.redirect('/shop/items/?err=error');
 	}
 });
 
@@ -737,12 +737,12 @@ app.get('/buy', checkAuth, checkConfirmed, checkUser, checkInWorkHours, (req, re
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	if (typeof (user.last_delivery) == 'undefined' || (((new Date().getTime() - new Date(user.last_delivery).getTime()) / 1000) / 60 > settings.intervalBetweenDeliveries)) {
-		return res.render('pages/partners_page', {
+		return res.render('pages/shops_page', {
 			title: titles[lang].new_buy + settings.titleSuffix[lang],
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			partners: getPartnersInfo()
+			shops: getShopsInfo()
 		});
 	}
 	return res.render('pages/errors', {
@@ -759,7 +759,7 @@ app.get('/buy/:id', checkAuth, checkConfirmed, checkUser, checkInWorkHours, (req
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 	let place, pid, it;
-	let p = getPartner('id', req.params.id);
+	let p = getShop('id', req.params.id);
 	if (p) {
 		place = p.pos;
 		p = p.name;
@@ -782,7 +782,7 @@ app.get('/buy/:id', checkAuth, checkConfirmed, checkUser, checkInWorkHours, (req
 			lang: lang,
 			at: MAPBOX_API,
 			gh: GRAPHHOPPER_API,
-			partner: p,
+			shop: p,
 			place: place,
 			pid: pid,
 			items: it
@@ -810,12 +810,12 @@ app.post('/price-request', checkAuth, checkConfirmed, checkUser, checkInWorkHour
 	// 1 = accepted and didn't find a driver
 	// 2 = distance too far
 	// 3 = not in work hours range
-	// 4 = partner not working
+	// 4 = shop not working
 
 	if (data.distance > settings.maxDeliveryDistance || getDistance(data.from, settings.AlgiersPos) > settings.maxDeliveryDistance || getDistance(data.to, settings.AlgiersPos) > settings.maxDeliveryDistance) {
 		dataToSend.status = 2;
 	} else if (inWorkHours()) {
-		if ((data.partner && !inPartnerWorkHours(data.partner)) && data.partner != 'other') {
+		if ((data.shop && !inShopWorkHours(data.shop)) && data.shop != 'other') {
 			dataToSend.status = 4;
 		} else {
 			user.last_delivery_price = calculatePrice(data.distance, data.weight);
@@ -847,10 +847,10 @@ app.post('/price-request', checkAuth, checkConfirmed, checkUser, checkInWorkHour
 app.post('/delivery-request', checkAuth, checkConfirmed, checkUser, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	if (user && user.hash) {
-		let { type, fromPlace, from, to, distance, price, phone, thing, thingsPrice, weight, partner } = req.body;
+		let { type, fromPlace, from, to, distance, price, phone, thing, thingsPrice, weight, shop } = req.body;
 		if (typeof (type) && typeof (from) && typeof (to) && typeof (distance) && typeof (price) && typeof (thing) && typeof (weight) && generateHash(('' + distance).substring(0, 5), '' + price) == user.hash && price == user.last_delivery_price) {
 			let did = randomHash(10);
-			if (submitNewDelivery(req.session.uid, did, type, fromPlace, from, to, distance, price, thing, thingsPrice, phone, weight, partner)) return res.redirect('/delivery/' + did);
+			if (submitNewDelivery(req.session.uid, did, type, fromPlace, from, to, distance, price, thing, thingsPrice, phone, weight, shop)) return res.redirect('/delivery/' + did);
 			return res.redirect('/delivery-err');
 		}
 	}
@@ -880,7 +880,7 @@ app.get('/delivery/:did', checkAuth, checkConfirmed, (req, res) => {
 		type: user.type,
 		lang: lang
 	}
-	if (delivery && (user.type == 3 || (user.type == 0 && delivery.uid == user.id) || (user.type == 1 && delivery.partner == user.id))) return res.render('pages/delivery', { ...the_return, ...deliveryInfoPage(delivery) });
+	if (delivery && (user.type == 3 || (user.type == 0 && delivery.uid == user.id) || (user.type == 1 && delivery.shop == user.id))) return res.render('pages/delivery', { ...the_return, ...deliveryInfoPage(delivery) });
 
 	the_return.title = titles[lang].pg_dsnt_xst + settings.titleSuffix[lang];
 	return res.render('pages/404', the_return);
@@ -896,7 +896,7 @@ app.get('/deliveries', checkAuth, checkConfirmed, checkNotAdmin, checkConfirmed,
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 1 ? e.uid == user.id : e.partner == user.id))[formatDate(new Date())],
+			deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 1 ? e.uid == user.id : e.shop == user.id))[formatDate(new Date())],
 			day: formatDate(new Date())
 		});
 	}
@@ -919,7 +919,7 @@ app.get('/deliveries/:date', checkAuth, checkConfirmed, checkNotAdmin, (req, res
 				name: user.name,
 				type: user.type,
 				lang: lang,
-				deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : e.partner == user.id))
+				deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : e.shop == user.id))
 			});
 		}
 
@@ -934,7 +934,7 @@ app.get('/deliveries/:date', checkAuth, checkConfirmed, checkNotAdmin, (req, res
 				name: user.name,
 				type: user.type,
 				lang: lang,
-				deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : e.partner == user.id))[formatDate(new Date(req.params.date))],
+				deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : e.shop == user.id))[formatDate(new Date(req.params.date))],
 				day: formatDate(new Date(req.params.date))
 			});
 		}
@@ -1020,15 +1020,15 @@ app.get('/details/:something', checkAdmin, (req, res) => {
 			drivers: d
 		});
 	}
-	if (req.params.something == 'partners') {
+	if (req.params.something == 'shops') {
 		let p = [];
-		partners.forEach(partner => p.push(getPartnerDetails(partner)));
+		shops.forEach(shop => p.push(getShopDetails(shop)));
 		return res.render('pages/details', {
 			title: titles[lang].details + settings.titleSuffix[lang],
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			partners: p
+			shops: p
 		});
 	}
 	if (req.params.something == 'deliveries') {
@@ -1141,29 +1141,29 @@ app.post('/admin/new-key', checkAdmin, (req, res) => {
 	res.redirect('/admin');
 });
 
-app.get('/partners/info', checkAdmin, (req, res) => {
+app.get('/shops/info', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	return res.render('pages/partners_page', {
-		title: titles[lang].partners + settings.titleSuffix[lang],
+	return res.render('pages/shops_page', {
+		title: titles[lang].shops + settings.titleSuffix[lang],
 		name: user.name,
 		type: user.type,
 		lang: lang,
-		partners: getPartnersInfo(true)
+		shops: getShopsInfo(true)
 	});
 });
 
-app.get('/partners/:id', checkAdmin, (req, res) => {
+app.get('/shops/:id', checkAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
-	let partner = getPartner('id', req.params.id);
-	if (partner) {
-		return res.render('pages/partner_settings', {
-			title: titles[lang].partners + settings.titleSuffix[lang],
+	let shop = getShop('id', req.params.id);
+	if (shop) {
+		return res.render('pages/shop_settings', {
+			title: titles[lang].shops + settings.titleSuffix[lang],
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			partner: getPartnerSettings(partner),
+			shop: getShopSettings(shop),
 			at: MAPBOX_API
 		});
 	}
@@ -1180,17 +1180,17 @@ app.get('/partners/:id', checkAdmin, (req, res) => {
 	});
 });
 
-app.get('/partner/details', checkPartner, checkConfirmed, (req, res) => {
+app.get('/shop/details', checkShop, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
 	if (user) {
-		return res.render('pages/partner_settings', {
+		return res.render('pages/shop_settings', {
 			title: titles[lang].details + settings.titleSuffix[lang],
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			partner: getPartnerSettings(user),
+			shop: getShopSettings(user),
 			at: MAPBOX_API
 		});
 	}
@@ -1207,82 +1207,82 @@ app.get('/partner/details', checkPartner, checkConfirmed, (req, res) => {
 	});
 });
 
-app.post('/partners/img/:id', checkPartnerOrAdmin, checkConfirmed, upload.single('img'), (req, res) => {
+app.post('/shops/img/:id', checkShopOrAdmin, checkConfirmed, upload.single('img'), (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let tempPath = req.file.path;
 	let ext = path.extname(req.file.originalname).toLowerCase()
-	let targetPath = path.join(__dirname, `./public/img/partners/${req.params.id}.png`);
+	let targetPath = path.join(__dirname, `./public/img/shops/${req.params.id}.png`);
 
 	if (settings.allowedImgExt.includes(ext.substr(1))) {
 		jimp.read(tempPath, (err, img) => {
 			let wh = Math.min(img.getWidth(), img.getHeight())
 			let c = (x) => Math.max((x / 2) - (wh / 2), 0);
-			img.crop(c(img.getWidth()), c(img.getHeight()), wh, wh).resize(settings.partnerImgSize, settings.partnerImgSize).write(targetPath);
+			img.crop(c(img.getWidth()), c(img.getHeight()), wh, wh).resize(settings.shopImgSize, settings.shopImgSize).write(targetPath);
 		});
 	}
 
-	fs.unlink(tempPath, () => res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#img`));
+	fs.unlink(tempPath, () => res.redirect(`${user.type == 1 ? '/shop/details' : '/shops/' + req.params.id}#img`));
 });
 
-app.post('/partners/desc/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
+app.post('/shops/desc/:id', checkShopOrAdmin, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { desc } = req.body;
-	let p = getPartner('id', req.params.id);
+	let p = getShop('id', req.params.id);
 	if (typeof (desc) && p) {
 		p.description = desc;
-		db.query("UPDATE partners SET description=? WHERE id=?", [desc, p.id]);
+		db.query("UPDATE shops SET description=? WHERE id=?", [desc, p.id]);
 	}
-	return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#home`);
+	return res.redirect(`${user.type == 1 ? '/shop/details' : '/shops/' + req.params.id}#home`);
 });
 
-app.post('/partners/name/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
+app.post('/shops/name/:id', checkShopOrAdmin, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { name } = req.body;
-	let p = getPartner('id', req.params.id);
+	let p = getShop('id', req.params.id);
 	if (typeof (name) && name && p) {
 		p.name = name;
-		db.query("UPDATE partners SET name=? WHERE id=?", [name, p.id]);
+		db.query("UPDATE shops SET name=? WHERE id=?", [name, p.id]);
 	}
-	return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#home`);
+	return res.redirect(`${user.type == 1 ? '/shop/details' : '/shops/' + req.params.id}#home`);
 });
 
-app.post('/partners/pay/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
+app.post('/shops/pay/:id', checkShopOrAdmin, checkConfirmed, (req, res) => {
 	let amount = req.body.amount;
-	let p = getPartner('id', req.params.id);
+	let p = getShop('id', req.params.id);
 	if (typeof (amount) && p) {
 		amount = parseInt(amount) || 0;
 		p.paid = parseInt(isNaN(p.paid) ? amount : p.paid + amount);
-		db.query("UPDATE partners SET paid=? WHERE id=?", [p.paid, p.id]);
+		db.query("UPDATE shops SET paid=? WHERE id=?", [p.paid, p.id]);
 	}
 	return res.send();
 });
 
-app.post('/partners/schedule/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
+app.post('/shops/schedule/:id', checkShopOrAdmin, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { from, to, schedule } = req.body;
-	let p = getPartner('id', req.params.id);
+	let p = getShop('id', req.params.id);
 	let r = /^([01]\d|2[0-3]):?([0-5]\d)$/;
 	if (p && r.test(from) && r.test(to) && new Date('1/1/1 ' + from).getTime() < new Date('1/1/1 ' + to)) {
 		p.schedule = parseInt(schedule) || p.schedule;
 		p.startTime = from;
 		p.endTime = to;
-		db.query("UPDATE partners SET schedule=?, startTime=?, endTime=? WHERE id=?", [p.schedule, p.startTime, p.endTime, p.id]);
+		db.query("UPDATE shops SET schedule=?, startTime=?, endTime=? WHERE id=?", [p.schedule, p.startTime, p.endTime, p.id]);
 	}
-	return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#sch`);
+	return res.redirect(`${user.type == 1 ? '/shop/details' : '/shops/' + req.params.id}#sch`);
 });
 
-app.post('/partners/pos/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
+app.post('/shops/pos/:id', checkShopOrAdmin, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { pos } = req.body;
-	let p = getPartner('id', req.params.id);
+	let p = getShop('id', req.params.id);
 	if (p && pos) {
 		p.pos = parsePosition(pos);
-		db.query("UPDATE partners SET pos=? WHERE id=?", [stringifyPosition(p.pos), p.id]);
+		db.query("UPDATE shops SET pos=? WHERE id=?", [stringifyPosition(p.pos), p.id]);
 	}
-	return res.redirect(`${user.type == 1 ? '/partner/details' : '/partners/' + req.params.id}#pos`);
+	return res.redirect(`${user.type == 1 ? '/shop/details' : '/shops/' + req.params.id}#pos`);
 });
 
-app.post('/drivers/pay/:id', checkPartnerOrAdmin, checkConfirmed, (req, res) => {
+app.post('/drivers/pay/:id', checkShopOrAdmin, checkConfirmed, (req, res) => {
 	let amount = req.body.amount;
 	let driver = getUser('id', req.params.id);
 	if (typeof (amount) && driver && driver.type == 2) {
@@ -1334,7 +1334,7 @@ app.post('/profile/password', checkAuth, checkConfirmed, (req, res) => {
 	return res.redirect('/');
 });
 
-app.post('/profile/name', checkAuth, checkConfirmed, checkNotPartner, (req, res) => {
+app.post('/profile/name', checkAuth, checkConfirmed, checkNotShop, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	if (user) {
 		let { name } = req.body;
@@ -1415,7 +1415,7 @@ app.post('/disable', checkAuth, checkConfirmed, (req, res) => {
 
 	if (user) {
 		if (password && generateHash(password, user.id) == user.password) {
-			db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'partners' : 'drivers'} SET disabled=? WHERE id=?`, [1, user.id], (err, results) => {
+			db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'shops' : 'drivers'} SET disabled=? WHERE id=?`, [1, user.id], (err, results) => {
 				if (err) return res.send({ success: false });
 				user.disabled = true;
 				res.send({ success: true });
@@ -1432,7 +1432,7 @@ app.post('/enable', checkDisabled, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	if (user) {
 		user.disabled = false;
-		db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'partners' : 'drivers'} SET disabled=? WHERE id=?`, [user.disabled ? 1 : 0, user.id]);
+		db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'shops' : 'drivers'} SET disabled=? WHERE id=?`, [user.disabled ? 1 : 0, user.id]);
 	}
 	return res.redirect('/');
 });
@@ -1668,8 +1668,8 @@ function getUser(key, value) {
 	let user;
 	let type = 0;
 	if (users) user = users.find(obj => obj[key] == value);
-	if (!user && partners) {
-		user = partners.find(obj => obj[key] == value);
+	if (!user && shops) {
+		user = shops.find(obj => obj[key] == value);
 		type++;
 	}
 	if (!user && drivers) {
@@ -1692,8 +1692,8 @@ function getDriver(key, value) {
 	return false;
 }
 
-function getPartner(key, value) {
-	return partners.find(obj => obj[key] == value && obj.disabled == false);
+function getShop(key, value) {
+	return shops.find(obj => obj[key] == value && obj.disabled == false);
 }
 
 function getItem(key, value) {
@@ -1726,7 +1726,7 @@ function getAndSetPageLanguage(req, res, lang) {
 	if (lang) {
 		if (user) {
 			user.lang = lang;
-			db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'partners' : user.type == 2 ? 'drivers' : 'admins'} SET lang=? WHERE id=?`, [user.lang, user.id]);
+			db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'shops' : user.type == 2 ? 'drivers' : 'admins'} SET lang=? WHERE id=?`, [user.lang, user.id]);
 		}
 		language = lang;
 	} else if (user && user.lang && ['en', 'fr', 'ar'].includes(user.lang)) {
@@ -1740,7 +1740,7 @@ function getAndSetPageLanguage(req, res, lang) {
 		language = user_lang || settings.defaultWebsiteLanguage;
 		if (user) {
 			user.lang = language;
-			db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'partners' : user.type == 2 ? 'drivers' : 'admins'} SET lang=? WHERE id=?`, [user.lang, user.id]);
+			db.query(`UPDATE ${user.type == 0 ? 'users' : user.type == 1 ? 'shops' : user.type == 2 ? 'drivers' : 'admins'} SET lang=? WHERE id=?`, [user.lang, user.id]);
 		}
 	}
 
@@ -1771,13 +1771,13 @@ function getOnlineDrivers() {
 	return [];
 }
 
-function getPartnersInfo(forAdmin) {
-	return partners.filter(e => e.confirmed && !e.disabled || forAdmin).map(e => {
+function getShopsInfo(forAdmin) {
+	return shops.filter(e => e.confirmed && !e.disabled || forAdmin).map(e => {
 		return {
 			id: e.id,
 			name: e.name,
 			desc: e.description || '',
-			img: fs.existsSync(`./public/img/partners/${e.id}.png`) ? `/img/partners/${e.id}.png` : '/img/partners/default.png'
+			img: fs.existsSync(`./public/img/shops/${e.id}.png`) ? `/img/shops/${e.id}.png` : '/img/shops/default.png'
 		}
 	});
 }
@@ -1799,26 +1799,26 @@ function getSaturday(date) {
 
 function getDeliveriesByDate(date, user = false) {
 	if (deliveries) {
-		if (date == 'today') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && isToday(obj.date));
-		else if (date == 'week') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && obj.date.getTime() < getSaturday(new Date(formatDate())) && obj.date.getTime() > getSunday(new Date(formatDate())));
-		else if (date == 'month') return deliveries.filter(obj => (user === false || obj.driver == user || obj.partner == user) && obj.date.getMonth() == new Date(formatDate()).getMonth() && obj.date.getFullYear() == new Date(formatDate()).getFullYear());
-		else return deliveries.filter(obj => (user === false || obj.driver == user === false || obj.partner == user) && obj.date.toDateString() == new Date(date).toDateString());
+		if (date == 'today') return deliveries.filter(obj => (user === false || obj.driver == user || obj.shop == user) && isToday(obj.date));
+		else if (date == 'week') return deliveries.filter(obj => (user === false || obj.driver == user || obj.shop == user) && obj.date.getTime() < getSaturday(new Date(formatDate())) && obj.date.getTime() > getSunday(new Date(formatDate())));
+		else if (date == 'month') return deliveries.filter(obj => (user === false || obj.driver == user || obj.shop == user) && obj.date.getMonth() == new Date(formatDate()).getMonth() && obj.date.getFullYear() == new Date(formatDate()).getFullYear());
+		else return deliveries.filter(obj => (user === false || obj.driver == user === false || obj.shop == user) && obj.date.toDateString() == new Date(date).toDateString());
 	}
 	return false;
 }
 
-function getPartnerDetails(partner) {
-	let dlv = deliveries.filter(e => e.partner == partner.id);
+function getShopDetails(shop) {
+	let dlv = deliveries.filter(e => e.shop == shop.id);
 	let dlv_amount = dlv.reduce((acc, b) => acc += b.price, 0)
-	let p_amount = normalizePrice(((dlv_amount || 0) * (partner.percentage / 100)), 50)
-	let paid = partner.paid || 0;
+	let p_amount = normalizePrice(((dlv_amount || 0) * (shop.percentage / 100)), 50)
+	let paid = shop.paid || 0;
 	return {
-		id: partner.id,
-		name: partner.name,
-		phone: partner.phone,
+		id: shop.id,
+		name: shop.name,
+		phone: shop.phone,
 		deliveries: dlv.length,
 		deliveries_amount: dlv_amount,
-		percentage: partner.percentage,
+		percentage: shop.percentage,
 		payment_amount: p_amount,
 		paid,
 		paid_status: paid >= p_amount,
@@ -1857,16 +1857,16 @@ function getDriverDetails(driver) {
 	};
 }
 
-function getPartnerSettings(partner) {
+function getShopSettings(shop) {
 	return {
-		name: partner.name,
-		id: partner.id,
-		place: partner.place,
-		desc: partner.description,
-		img: fs.existsSync(`./public/img/partners/${partner.id}.png`) ? `/img/partners/${partner.id}.png` : '/img/partners/default.png',
-		schedule: partner.schedule,
-		startTime: partner.startTime,
-		endTime: partner.endTime
+		name: shop.name,
+		id: shop.id,
+		place: shop.place,
+		desc: shop.description,
+		img: fs.existsSync(`./public/img/shops/${shop.id}.png`) ? `/img/shops/${shop.id}.png` : '/img/shops/default.png',
+		schedule: shop.schedule,
+		startTime: shop.startTime,
+		endTime: shop.endTime
 	}
 }
 
@@ -2010,7 +2010,7 @@ function isToday(date) {
 
 
 function calculateProfit(deliveries) {
-	let p = normalizePrice(deliveries.filter(e => e.status == 4).map(e => { return { p: getPartner('id', e.partner) ? getPartner('id', e.partner).percentage || settings.partnerPercentage : false, price: e.price } }).filter(e => e.p).reduce((acc, b) => acc += (b.price * b.p) / 100, 0) || 0, 50);
+	let p = normalizePrice(deliveries.filter(e => e.status == 4).map(e => { return { p: getShop('id', e.shop) ? getShop('id', e.shop).percentage || settings.shopPercentage : false, price: e.price } }).filter(e => e.p).reduce((acc, b) => acc += (b.price * b.p) / 100, 0) || 0, 50);
 	let d = normalizePrice(deliveries.filter(e => e.status == 4).map(e => { return { p: getUser('id', e.driver) ? getUser('id', e.driver).percentage || settings.driverPercentage : false, price: e.price } }).filter(e => e.p).reduce((acc, b) => acc += (b.price * b.p) / 100, 0) || 0, 50);
 	return p + d;
 }
@@ -2063,8 +2063,8 @@ function sendPin(phone, lang) {
 
 
 // Some scheduling
-function inPartnerWorkHours(partnerid) {
-	let p = partners_schedule[partnerid];
+function inShopWorkHours(shopid) {
+	let p = shops_schedule[shopid];
 	let now = new Date();
 	if (p) {
 		if (p.schedule == 0 && new Date(formatDate()).getDay() == 5) return false;
@@ -2074,31 +2074,31 @@ function inPartnerWorkHours(partnerid) {
 	return false;
 }
 
-function makePartnersSchedules() {
-	if (partners) {
-		partners.forEach(partner => {
-			partners_schedule[partner.id] = {
-				schedule: partner.schedule,
-				time: [partner.startTime, partner.endTime]
+function makeShopsSchedules() {
+	if (shops) {
+		shops.forEach(shop => {
+			shops_schedule[shop.id] = {
+				schedule: shop.schedule,
+				time: [shop.startTime, shop.endTime]
 			}
-			createPartnerScheduleTimes(partner.id);
+			createShopScheduleTimes(shop.id);
 		});
 	}
 }
 
-function createPartnerScheduleTimes(partnerid) {
-	partners_schedule[partnerid].time = [
-		new Date(`${formatDate()} ${partners_schedule[partnerid].time[0]}`).getTime(),
-		new Date(`${formatDate()} ${partners_schedule[partnerid].time[1]}`).getTime()
+function createShopScheduleTimes(shopid) {
+	shops_schedule[shopid].time = [
+		new Date(`${formatDate()} ${shops_schedule[shopid].time[0]}`).getTime(),
+		new Date(`${formatDate()} ${shops_schedule[shopid].time[1]}`).getTime()
 	];
 }
 
 
 
 // Delivery stuff
-function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price, thing, thingsPrice, phone, weight, partner) {
+function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price, thing, thingsPrice, phone, weight, shop) {
 	if (type == 2) {
-		fromPlace = getPartner('id', fromPlace);
+		fromPlace = getShop('id', fromPlace);
 		if (fromPlace) fromPlace = fromPlace.name;
 		else fromPlace = null;
 	}
@@ -2120,13 +2120,13 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		driver: null,
 		estimated_finish_time: null,
 		date: new Date(),
-		partner: null,
+		shop: null,
 		item: null,
 		finish_time: null
 	}
 
 	if (type == 2) {
-		delivery.partner = partner;
+		delivery.shop = shop;
 		let item = getItem('id', thing);
 		if (item) {
 			delivery.item = thing;
@@ -2137,7 +2137,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, delivery.fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, delivery.thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.date, delivery.partner, delivery.item, delivery.finish_time, delivery.thingsPrice], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, delivery.fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, delivery.thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.date, delivery.shop, delivery.item, delivery.finish_time, delivery.thingsPrice], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {
@@ -2214,10 +2214,10 @@ function getDetailsToSendToDriver(delivery, driverPos) {
 				minutes: calculateDeliveryDuration(driverPos, delivery.delivery_from, delivery.distance)
 			}
 			if (delivery.type == 2) {
-				let partner = getPartner('id', delivery.partner);
-				if (typeof (partner) != 'undefined') {
-					data.partner = partner.name;
-					data.partner_phone = partner.phone;
+				let shop = getShop('id', delivery.shop);
+				if (typeof (shop) != 'undefined') {
+					data.shop = shop.name;
+					data.shop_phone = shop.phone;
 				}
 				let item = getItem('id', delivery.item);
 				if (typeof (item) != 'undefined') {
@@ -2262,7 +2262,7 @@ function updateDriverDeliveries(driverID, driverPos, socket) {
 // Scheduling
 nodeSchedule.scheduleJob({ hour: 12, minute: 29, second: 0 }, () => {
 	loadSchedules();
-	makePartnersSchedules();
+	makeShopsSchedules();
 });
 
 // Deleting unconfirmed users

@@ -24,7 +24,7 @@ $('#save-btn').on('click', () => {
 		}
 
 		if (save) {
-			post("/partner", { pos, schedule, startTime, endTime });
+			post("/shop", { pos, schedule, startTime, endTime });
 		}
 	}
 });

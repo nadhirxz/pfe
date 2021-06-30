@@ -1,9 +1,7 @@
 lang_text = {
-    prtnr_registration_text: "Partners Registration",
-    register_text: "Register",
+    prtnr_registration_text: "Shops Registration",
     name_text: "Name",
     phone_text: "Phone Number",
-    email_text: "Email",
     password_text: "Password",
     sec_key_text: "Secret Code",
     placeholders: {

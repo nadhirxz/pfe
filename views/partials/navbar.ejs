@@ -14,15 +14,15 @@
                     <a class="btn btn-c btn-block my-2 deliver_text" href="/deliver"></a>
                     <% } %>
 					<% if (locals.name && type == 1) {%>
-					<a class="btn btn-c btn-block my-2 items" href="/partner/items"></a>
-					<a class="btn btn-c btn-block my-2 details" href="/partner/details"></a>
+					<a class="btn btn-c btn-block my-2 items" href="/shop/items"></a>
+					<a class="btn btn-c btn-block my-2 details" href="/shop/details"></a>
 					<% } %>
 					<% if (locals.name && (type == 0 || type == 1)) {%>
 					<a class="btn btn-c btn-block my-2 dlvs" href="/deliveries"></a>
 					<% } %>
 					<% if (locals.name && type == 3) {%>
 						<a class="btn btn-c btn-block my-2 schedule_text" href="/schedule"></a>
-						<a class="btn btn-c btn-block my-2 partners_text" href="/partners/info"></a>
+						<a class="btn btn-c btn-block my-2 shops_text" href="/shops/info"></a>
 						<a class="btn btn-c btn-block my-2 new_key" href="/admin/new-key"></a>
 					<% } %>
 					<% if(locals.name) {%>

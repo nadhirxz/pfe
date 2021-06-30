@@ -15,7 +15,7 @@
             <div class="form-group">
                 <div class="form-group">
                     <label class="deliver_from_text"></label>
-                    <input type="text" class="form-control" value="<%= partner %>" disabled>
+                    <input type="text" class="form-control" value="<%= shop %>" disabled>
                 </div>
 				<div class="form-group">
 					<label class="thing_text"></label>
@@ -60,7 +60,7 @@
 <script src="/lang/js-pages/buy/<%= lang %>.js"></script>
 <script src="/js/disable_refresh.js"></script>
 <script>
-    fromPlace = "<%= partner %>"
+    fromPlace = "<%= shop %>"
     <% if (place) { %>
     fromPos = [<%= place[0] %>,<%= place[1] %>];
     selectedPlace = "<%= pid %>";

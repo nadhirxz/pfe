@@ -2,7 +2,7 @@ lang_text = {
     home_text: "الرئيسية",
     join: "انضم إلينا",
 	part: "كن سائقا",
-	driv: "كن شريكا",
+	driv: "كن متجرًا شريكًا",
     contact_text: "تواصل معنا",
     description_text: "العــالـم يـأتــي<br>إلــــيـــك",
     register_text: "تسجيل",
