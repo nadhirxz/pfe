@@ -1,7 +1,6 @@
 var lang_text = {
     delivery_text: "Delivery",
     type_text: "Type :",
-    l_d_dlvr_text: "Long Distance Delivery",
     nrml_dlvr_text: "Normal Delivery",
     buy_frm_text: "Buy from",
     user_text: "User :",

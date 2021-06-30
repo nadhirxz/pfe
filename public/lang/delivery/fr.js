@@ -1,7 +1,6 @@
 lang_text = {
     delivery_text: "Livraison",
     type_text: "Type :",
-    l_d_dlvr_text: "Livraison longue distance",
     nrml_dlvr_text: "Livraison normale",
     buy_frm_text: "Un achat de",
     user_text: "Utilisateur :",

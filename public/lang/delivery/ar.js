@@ -1,7 +1,6 @@
 lang_text = {
     delivery_text: "طلب توصيل",
     type_text: "النوع :",
-    l_d_dlvr_text: "توصيل للمسافات الطويلة",
     nrml_dlvr_text: "توصيل عادي",
     buy_frm_text: "شراء من",
     user_text: "المستخدم :",
