@@ -12,11 +12,11 @@
 	font-size: 1.2rem !important;
 }
 
-p, span:not(.navbar-toggler-icon), h6, a, #datepicker, .hr-sect{
+p, span:not(.navbar-toggler-icon, .fa), h6, a, #datepicker, .hr-sect {
 	font-size: 1.6rem !important;
 }
 
-.fa:not(.fa-2x, .fa-globe) {
+.fa:not(.fa-2x, .fa-globe, .fa-crosshairs) {
 	font-size: 1.3rem !important;
 }
 
@@ -37,5 +37,9 @@ h1>span {
 }
 
 .badge {
+	font-size: 1.2rem !important;
+}
+
+.fa-crosshairs {
 	font-size: 1.2rem !important;
 }
