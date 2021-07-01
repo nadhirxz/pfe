@@ -1,3 +1,10 @@
+<% if (lang == 'en') { %>
+<h5 class="col-md-7 m-auto">In order to join us, please follow these steps:</h5>
+<% } else if (lang == 'fr') { %>
+<h5 class="col-md-7 m-auto">Pour nous rejoindre, veuillez suivre ces étapes :</h5>
+<% } else  { %>
+<h4 class="col-md-7 m-auto">للإنضمام إلينا ، يرجى اتباع الخطوات التالية :</h4>
+<% } %>
 <div class="text-<% if (lang == 'ar') { %>right<% } else { %>left<% } %> my-4">
 <% if (lang == 'en') { %>
 	<h5 class="col-md-6 m-auto">1. Contact us through our email (<a href="mailto:mail@gmail.com">mail@gmail.com</a>) or phone (<a href="tel:0XXXXXXXXX">0XXXXXXXXX</a>).</h5>

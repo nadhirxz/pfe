@@ -8,14 +8,11 @@
     <%- include ('../partials/navbar') %>
     <div class="m-3 text-center">
         <% if (lang == 'en') { %>
-        <h1 class="my-4">Shops</h1>
-        <h5 class="col-md-7 m-auto">We're glad you decided to be part of DELIVERY ! In order to join us, please follow these steps:</h5>
+        <h2 class="my-4">Become a Partner Shop !</h2>
         <% } else if (lang == 'fr') { %>
-		<h1 class="my-4">Magasins</h1>
-		<h5 class="col-md-7 m-auto">Nous sommes heureux que vous ayez décidé de faire partie de DELIVERY ! Pour nous rejoindre, veuillez suivre ces étapes :</h5>
+		<h2 class="my-4">Devenir un magasin partenaire !</h2>
 		<% } else  { %>
-		<h1 class="my-4">المتاجر</h1>
-		<h4 class="col-md-7 m-auto">يسعدنا أنك قررت أن تكون جزءًا من DELIVERY ! للإنضمام إلينا ، يرجى اتباع هذه الخطوات:</h4>
+		<h2 class="my-4">كن متجرًا شريكًا !</h2>
         <% } %>
 		<%- include ('../partials/desc') %>
 		<% var reg = { en: "Register", fr: "S'inscrire", ar: "تسجيل" } %>	
