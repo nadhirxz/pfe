@@ -12,5 +12,7 @@ navbar_lang_text = {
 	new_key: "Nouvelle clé",
 	dlvs: "Livraisons",
 	items: "Objets",
-	details: "Détails"
+	details: "Détails",
+	drvrs: "Livreurs",
+	shops: "Magasins"
 }

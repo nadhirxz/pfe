@@ -12,5 +12,7 @@ navbar_lang_text = {
 	new_key: "مفتاح جديد",
 	dlvs: "طلبات التوصيل",
 	items: "السلعة",
-	details: "التفاصيل"
+	details: "التفاصيل",
+	drvrs: "السائقون",
+	shops: "المتاجر"
 }

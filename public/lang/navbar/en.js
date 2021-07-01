@@ -12,5 +12,7 @@ navbar_lang_text = {
 	new_key: "New Key",
 	dlvs: "Deliveries",
 	items: "Items",
-	details: "Details"
+	details: "Details",
+	drvrs: "Drivers",
+	shops: "Shops"
 }
