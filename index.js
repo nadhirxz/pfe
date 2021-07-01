@@ -181,6 +181,7 @@ app.use('/js', express.static(path.join(__dirname, 'public/js')));
 app.use('/css', express.static(path.join(__dirname, 'public/css')));
 app.use('/html', express.static(path.join(__dirname, 'public/html')));
 app.use('/lang', express.static(path.join(__dirname, 'public/lang')));
+app.use('/app', express.static(path.join(__dirname, 'public/app')));
 
 
 

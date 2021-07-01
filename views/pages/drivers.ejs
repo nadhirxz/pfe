@@ -15,6 +15,13 @@
 		<h2 class="my-5">كن سائقًا لـ DELIVERY !</h2>
         <% } %>
 		<%- include ('../partials/desc') %>
+		<% if (lang == 'en') { %>
+		<h5 class="my-4">For a better experience, you can download our <a href="/app/driver.apk">Driver App</a></h5>
+		<% } else if (lang == 'fr') { %>
+		<h5 class="my-4">Pour une meilleure expérience, vous pouvez télécharger <a href="/app/driver.apk">notre application</a></h5>
+		<% } else  { %>
+		<h4 class="my-4">من أجل تجربة أفضل، يمكنك تنزيل <a href="/app/driver.apk">التطبيق الخاص بنا</a></h4>
+		<% } %>
 		<% var reg = { en: "Register", fr: "S'inscrire", ar: "تسجيل" } %>	
 		<a class="btn btn-info col-8 col-md-3 mx-auto" href="/drivers/register"><%= reg[lang] %></a>
     </div>
