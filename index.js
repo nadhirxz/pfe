@@ -764,7 +764,7 @@ app.get('/buy/:id', checkAuth, checkConfirmed, checkUser, checkInWorkHours, (req
 		place = p.pos;
 		p = p.name;
 		pid = req.params.id;
-		it = getItems('owner', req.params.id);
+		it = getItems('owner', req.params.id).filter(e => e.inStock);
 	} else {
 		return res.render('pages/404', {
 			title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
