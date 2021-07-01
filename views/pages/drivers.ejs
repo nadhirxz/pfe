@@ -6,46 +6,23 @@
 
 <body>
     <%- include ('../partials/navbar') %>
-    <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
-        <h1 class="register_text"></h1>
-        <form action="/drivers/register" method="post">
-            <p id="err-msg" class="text-danger"></p>
-            <div class="form-group">
-                <label for="name-field" class="name_text"></label>
-                <input type="text" class="form-control" id="name-field" name="name" required>
-                <div class="invalid-feedback" id="name-feed"></div>
-            </div>
-            <div class="form-group">
-                <label for="phone-field" class="phone_text"></label>
-                <input type="tel" onkeypress="return onlyNumberKey(event)" maxlength="10" class="form-control" id="phone-field" name="phone" required>
-                <div class="invalid-feedback" id="phone-feed"></div>
-            </div>
-            <div class="form-group">
-                <label for="password-field" class="password_text"></label>
-                <div class="input-group input-group-seamless">
-                    <input type="password" data-toggle="password" class="form-control" id="password-field" name="password" required>
-                    <span class="input-group-append">
-                        <span class="input-group-text" id="toggle">
-                            <i id="toggle-icon" class="fa fa-eye-slash"></i>
-                        </span>
-                    </span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="secret-field" class="sec_key_text"></label>
-                <input type="text" class="form-control" id="secret-field" name="secret" required>
-                <div class="invalid-feedback" id="secret-feed"></div>
-            </div>
-            <br>
-            <div id="buttons">
-                <button type="submit" class="btn btn-info col-md-5 register_text" id="submit-btn"></button>
-            </div>
-        </form>
+    <div class="m-3 text-center">
+        <% if (lang == 'en') { %>
+        <h1 class="my-4">Drivers</h1>
+        <h5 class="col-md-7 m-auto">We're glad you decided to be a driver for DELIVERY ! In order to join us, please follow these steps:</h5>
+        <% } else if (lang == 'fr') { %>
+		<h1 class="my-4">Livreurs</h1>
+		<h5 class="col-md-7 m-auto">Nous sommes heureux que vous ayez décidé d'être un livreur pour DELIVERY ! Pour nous rejoindre, veuillez suivre ces étapes :</h5>
+		<% } else  { %>
+		<h1 class="my-4">السائقون</h1>
+		<h4 class="col-md-7 m-auto">يسعدنا أنك قررت أن تكون جزءًا من DELIVERY ! للإنضمام إلينا ، يرجى اتباع هذه الخطوات:</h4>
+        <% } %>
+		<%- include ('../partials/desc') %>
+		<% var reg = { en: "Register", fr: "S'inscrire", ar: "تسجيل" } %>	
+		<a class="btn btn-info col-8 col-md-3 mx-auto" href="/drivers/register"><%= reg[lang] %></a>
     </div>
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
-<script src="/js/errors.js"></script>
-<script src="/js/toggle_password.js"></script>
 
 </html>

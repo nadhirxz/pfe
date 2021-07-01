@@ -424,14 +424,6 @@ app.post('/shop', checkAuth, checkShop, (req, res) => {
 	return res.redirect('/shop');
 });
 
-app.get('/drivers', checkNotAuth, (req, res) => {
-	let lang = getAndSetPageLanguage(req, res);
-	res.render('pages/drivers', {
-		title: titles[lang].drivers + settings.titleSuffix[lang],
-		lang: lang,
-	});
-});
-
 app.get('/driver', checkDriver, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
@@ -459,9 +451,33 @@ app.get('/register', checkNotAuth, (req, res) => {
 	});
 });
 
+app.get('/drivers', checkNotAuth, (req, res) => {
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/drivers', {
+		title: titles[lang].drivers + settings.titleSuffix[lang],
+		lang: lang,
+	});
+});
+
 app.get('/shops', checkNotAuth, (req, res) => {
 	let lang = getAndSetPageLanguage(req, res);
 	res.render('pages/shops', {
+		title: titles[lang].shops_reg + settings.titleSuffix[lang],
+		lang: lang
+	});
+});
+
+app.get('/drivers/register', checkNotAuth, (req, res) => {
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/drivers_reg', {
+		title: titles[lang].drivers + settings.titleSuffix[lang],
+		lang: lang,
+	});
+});
+
+app.get('/shops/register', checkNotAuth, (req, res) => {
+	let lang = getAndSetPageLanguage(req, res);
+	res.render('pages/shops_reg', {
 		title: titles[lang].shops_reg + settings.titleSuffix[lang],
 		lang: lang
 	});

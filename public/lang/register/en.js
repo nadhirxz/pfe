@@ -3,10 +3,13 @@ lang_text = {
     name_text: "Name",
     phone_text: "Phone Number",
     password_text: "Password",
-    click_here_text: "Click Here",
+    sec_key_text: "Secret Code",
+	shop_reg: "Shops Registration",
+	drvr_reg: "Drivers Registration",
     placeholders: {
         "name-field": "Your Name",
         "phone-field": "Phone Number",
-        "password-field": "Password"
+        "password-field": "Password",
+		"secret-field": "Secret Code"
     }
 }
