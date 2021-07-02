@@ -10,7 +10,7 @@ var classes = [
 	"btn-light",
 	"btn-info",
 	"btn-primary",
-	"btn-danger",
+	"btn-warning",
 	"btn-success",
 	"btn-danger",
 	"btn-dark"
