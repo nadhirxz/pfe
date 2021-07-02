@@ -874,6 +874,23 @@ app.post('/delivery-request', checkAuth, checkConfirmed, checkUser, (req, res) =
 	return res.redirect('/');
 });
 
+app.post('/cancel-delivery', checkAuth, checkConfirmed, checkUser, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let { id } = req.body;
+	let delivery = getDelivery('id', id);
+	if (user && delivery && delivery.uid == user.id && (delivery.status < 2 || delivery.status == 3)) {
+		db.query("DELETE FROM deliveries WHERE id=?", [delivery.id], (err, results) => {
+			if (!err) {
+				deliveries = deliveries.filter(e => e.id != delivery.id);
+				getOnlineDrivers().forEach(driver => io.to(driver.socket).emit('canceled_delivery', delivery.id));
+			}
+			return res.send({ success: true });
+		});
+	} else {
+		return res.send();
+	}
+});
+
 app.get('/delivery-err', checkAuth, checkConfirmed, checkUser, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
@@ -897,7 +914,7 @@ app.get('/delivery/:did', checkAuth, checkConfirmed, (req, res) => {
 		type: user.type,
 		lang: lang
 	}
-	if (delivery && (user.type == 3 || (user.type == 0 && delivery.uid == user.id) || (user.type == 1 && delivery.shop == user.id))) return res.render('pages/delivery', { ...the_return, ...deliveryInfoPage(delivery) });
+	if (delivery && (user.type == 3 || (user.type == 0 && delivery.uid == user.id) || (user.type == 1 && delivery.shop == user.id))) return res.render('pages/delivery', { ...the_return, ...deliveryInfoPage(delivery, user.id == delivery.uid) });
 
 	the_return.title = titles[lang].pg_dsnt_xst + settings.titleSuffix[lang];
 	return res.render('pages/404', the_return);
@@ -2182,7 +2199,7 @@ function sendDeliveryStatus(id) {
 	io.to(id).emit('new_delivery_status');
 }
 
-function deliveryInfoPage(delivery) {
+function deliveryInfoPage(delivery, owner) {
 	let item = getItem('id', delivery.item);
 	let driver = getDriver('id', delivery.driver);
 	let obj = {
@@ -2205,6 +2222,7 @@ function deliveryInfoPage(delivery) {
 		if (item.name) obj.thing = item.name;
 		obj.thingsPrice = item.price || null;
 	}
+	if (owner) obj.owner = true;
 	return obj;
 }
 

@@ -48,3 +48,12 @@ function pad(n, z) {
 	n = n + '';
 	return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
 }
+
+if ($('#cancel-btn').length) {
+	$('#cancel-btn').on('click', () => {
+		$.post('/cancel-delivery', { id: window.location.pathname.split('/')[2] }, (data) => {
+			if (data) window.location.href = '/';
+			else window.location.reload()
+		});
+	});
+}
