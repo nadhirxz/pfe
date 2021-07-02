@@ -15,6 +15,7 @@
 		<h2 class="my-5">كن سائقًا لـ DELIVERY !</h2>
         <% } %>
 		<%- include ('../partials/desc') %>
+		<div class="d-none">
 		<% if (lang == 'en') { %>
 		<h5 class="my-4">For a better experience, you can download our <a href="/app/driver.apk">Driver App</a></h5>
 		<% } else if (lang == 'fr') { %>
@@ -22,11 +23,15 @@
 		<% } else  { %>
 		<h4 class="my-4">من أجل تجربة أفضل، يمكنك تنزيل <a href="/app/driver.apk">التطبيق الخاص بنا</a></h4>
 		<% } %>
+		</div>
 		<% var reg = { en: "Register", fr: "S'inscrire", ar: "تسجيل" } %>	
 		<a class="btn btn-info col-8 col-md-3 mx-auto" href="/drivers/register"><%= reg[lang] %></a>
     </div>
 <%- include ('../partials/footer') %>
 </body>
 <%- include ('../partials/scripts') %>
-
+<script>
+	if (typeof (Android) != 'undefined') $('.d-none').remove();
+	else $('.d-none').removeClass('d-none');
+</script>
 </html>
