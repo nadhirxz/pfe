@@ -1,4 +1,5 @@
 if (typeof (Android) != 'undefined' && Android.getAppVersion().endsWith('(Driver)')) {
+	$('.home_text, .shops, .register_text').remove();
 	$('.bg-c').each((i, e) => $(e).addClass('bg-dark').removeClass('bg-c'));
 	$('.btn-info').each((i, e) => $(e).addClass('btn-dark').removeClass('btn-c'));
 	$('#nav-reg-btn').attr('href', '/drivers')
