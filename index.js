@@ -802,7 +802,8 @@ app.get('/buy/:id', checkAuth, checkConfirmed, checkUser, checkInWorkHours, (req
 			shop: p,
 			place: place,
 			pid: pid,
-			items: it
+			items: it,
+			time: inShopWorkHours(pid)
 		});
 	}
 	return res.render('pages/errors', {
@@ -832,7 +833,7 @@ app.post('/price-request', checkAuth, checkConfirmed, checkUser, checkInWorkHour
 	if (data.distance > settings.maxDeliveryDistance || getDistance(data.from, settings.AlgiersPos) > settings.maxDeliveryDistance || getDistance(data.to, settings.AlgiersPos) > settings.maxDeliveryDistance) {
 		dataToSend.status = 2;
 	} else if (inWorkHours()) {
-		if ((data.shop && !inShopWorkHours(data.shop)) && data.shop != 'other') {
+		if (data.shop && !inShopWorkHours(data.shop)) {
 			dataToSend.status = 4;
 		} else {
 			user.last_delivery_price = calculatePrice(data.distance, data.weight);
@@ -1300,6 +1301,7 @@ app.post('/shops/schedule/:id', checkShopOrAdmin, checkConfirmed, (req, res) => 
 		p.schedule = parseInt(schedule) || p.schedule;
 		p.startTime = from;
 		p.endTime = to;
+		makeShopsSchedules();
 		db.query("UPDATE shops SET schedule=?, startTime=?, endTime=? WHERE id=?", [p.schedule, p.startTime, p.endTime, p.id]);
 	}
 	return res.redirect(`${user.type == 1 ? '/shop/details' : '/shops/' + req.params.id}#sch`);

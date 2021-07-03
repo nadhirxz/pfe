@@ -11,6 +11,7 @@
 <body>
     <%- include ('../partials/navbar') %>
     <div class="col-md-8 col-lg-5 m-auto text-center pt-2" id="delivery-from">
+		<% if (locals.time && time) { %>
         <div id="delivery">
             <div class="form-group">
                 <div class="form-group">
@@ -48,6 +49,15 @@
             <button type="button" id="cancel-button" class="btn btn-danger col-4 cancel_text"></button>
             <button type="button" id="next-button" class="btn btn-secondary col-4 disabled next_text"></button>
         </div>
+		<% } else { %>
+			<% var l = {
+				en:  { t: `Sorry, "${shop}" isn't working around this time of the day`, back: "Go Back" },
+				fr: { t: `Désolé, "${shop}" ne travaille pas à cette heure de la journée.`, back: "Revenir" },
+				ar: { t: `عذرا، "${shop}" لا يعمل في هذا الوقت`, back: "رجوع" }
+			} %>
+			<h3 class="m-5"><%= l[lang].t %></h3>
+			<button id="btn" class="btn btn-info col-5" onclick="window.history.back()"><%= l[lang].back %></button>
+		<% } %>
     </div>
     
 <%- include ('../partials/footer') %>
