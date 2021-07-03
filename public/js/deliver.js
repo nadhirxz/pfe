@@ -10,8 +10,8 @@ var deliveryDiv = document.getElementById("delivery");
 
 var loadingImg = document.getElementById('loading-img');
 setTimeout(() => {
-	loadingImg.parentElement.removeChild(loadingImg);
-	deliveryDiv.classList.remove('d-none')
+	$(loadingImg).remove();
+	$(deliveryDiv).removeClass('d-none');
 }, getDelay(2));
 
 var cancelButton = document.getElementById('cancel-button');
@@ -30,10 +30,10 @@ firstNextButton.addEventListener('click', () => {
 		weight = parseInt(document.getElementById('delivery-weight').value) || 0;
 		deliveryDiv.innerHTML = '';
 
-		var title = document.createElement('h2');
-		title.innerHTML = js_lang_text.from_text;
+		var title = document.createElement('h4');
+		title.innerHTML = l.from_text;
 
-		var result = document.createElement('h4');
+		var result = document.createElement('div');
 		result.setAttribute('id', 'result');
 
 		var confirmDeliveryButtonDiv = document.createElement('div');
@@ -56,7 +56,7 @@ firstNextButton.addEventListener('click', () => {
 		var map = createMap(at);
 
 		var buttons = document.createElement('div');
-		var nextButton = createButton(js_lang_text.next_text, "next", "btn btn-info col-4");
+		var nextButton = createButton(l.next_text, "next", "btn btn-info col-4");
 
 		buttons.appendChild(nextButton);
 
@@ -73,17 +73,17 @@ firstNextButton.addEventListener('click', () => {
 				setTimeout(() => {
 					fromPos = position;
 
-					title.innerHTML = js_lang_text.to_text;
+					title.innerHTML = l.to_text;
 
-					let prevButton = createButton(js_lang_text.prev_text, "prev", "btn btn-info col-5 mx-2");
-					let submitButton = createButton(js_lang_text.submit_text, "submit", "btn btn-info col-5 mx-2");
+					let prevButton = createButton(l.prev_text, "prev", "btn btn-info col-5 mx-2");
+					let submitButton = createButton(l.submit_text, "submit", "btn btn-info col-5 mx-2");
 
 					prevButton.addEventListener("click", (e) => {
 						deliveryDiv.style.opacity = 0;
 						setTimeout(() => {
-							title.innerHTML = js_lang_text.from_text;
-							buttons.removeChild(prevButton);
-							buttons.removeChild(submitButton);
+							title.innerHTML = l.from_text;
+							$(prevButton).remove();
+							$(submitButton).remove();
 							buttons.appendChild(nextButton);
 							deliveryDiv.style.opacity = 1;
 						}, 700);
@@ -95,50 +95,66 @@ firstNextButton.addEventListener('click', () => {
 							marker = false;
 							invalidInput.innerHTML = '';
 
-							deliveryDiv.style.opacity = 0;
+							$(deliveryDiv).fadeOut();
+							$('#map').fadeOut();
 							toPos = position;
 
 							setTimeout(() => {
-								title.innerHTML = js_lang_text.your_delivery_text;
-								buttons.removeChild(prevButton);
-								buttons.removeChild(submitButton);
+								$(title).html(l.clc_route_text);
+								$(prevButton).remove();
+								$(submitButton).remove();
 
 								let routeControl = createRouter(gh, map, fromPos, toPos);
 								map.off('click'); // disable adding markers after
 
-								document.getElementById("result").innerHTML = `<img src="/img/loader.svg" id="#loading-img"></img><br><h4>${js_lang_text.clc_route_text}</h4>`;
+								$('#result').html('<img src="/img/loader.svg" class="col-3 mt-4" id="#loading-img"></img>');
 
 								document.getElementsByClassName("leaflet-control-container")[0].style.display = "none";
 								routeControl.on('routesfound', function (e) {
 									let routes = e.routes;
 									let summary = routes[0].summary;
 									distance = Math.round(((summary.totalDistance / 1000) + Number.EPSILON) * 1000) / 1000;
-									document.getElementById("result").innerHTML = `<img src="/img/loader.svg" id="#loading-img"></img><br><h4>${js_lang_text.clc_price_text}</h4>`;
+									
+									$(title).html(l.clc_price_text);
+									$('#result').html('<img src="/img/loader.svg" class="col-3 mt-4" id="#loading-img"></img>');
+
 									$.post('price-request', { distance, weight, from: fromPos, to: toPos }, (data) => {
-										let resultText = "";
-										switch (data.status) {
-											case 0:
-												resultText = js_lang_text.dlvr_info_txt(distance, data.price, data.time);
-												break;
-											case 1:
-												resultText = js_lang_text.dlvr_info_txt(distance, data.price);
-												break;
-											case 2:
-												resultText = js_lang_text.dstnc_too_far_text;
-												break;
-											case 3:
-												resultText = js_lang_text.we_dont_wrk_now_text;
-												break;
-										}
-										document.getElementById("result").innerHTML = resultText;
-										let cancel = createButton(js_lang_text.cancel_text, "cancel", "btn btn-danger col-4 mx-2 my-2");
-										cancel.addEventListener('click', () => {
-											window.location.reload()
-										});
-										document.getElementById('confirmDeliveryButtonDiv').appendChild(cancel);
-										if (data.status == 0 || data.status == 1) {
-											let submit = createButton(js_lang_text.submit_text, "submit", "btn btn-info col-4 mx-2 my-2");
-											submit.addEventListener("click", (e) => {
+										$(title).remove();
+										$('#result').html(
+											data.status == 0
+												? `
+												<div class="jumbotron border">
+													<h2 class="my-3">${l.dlv}</h2>
+													<hr>
+													<div class="text-${lng == 'ar' ? 'right' : 'left'} mx-4">
+														<h5 class="m-2"><b>${l.dst}:</b> ${distance} ${l.km}</h5>
+														<h5 class="m-2"><b>${l.pr}:</b> ${data.price} ${l.dzd}</h5>
+													</div>
+													<h6><a data-toggle="collapse" href="#collapse" role="button" aria-expanded="false" aria-controls="collapse" id="view">${l.vm}</a></h6>
+													<div class="collapse multi-collapse mt-2" id="collapse"></div>
+													<hr>
+													<div class="my-3">
+														<button class="btn btn-info col-4 mx-2" id="submit">${l.submit_text}</button>
+														<button class="btn btn-danger col-4 mx-2" id="cancel">${l.cancel_text}</button>
+													</div>
+													${data.onlineDrivers ? '' : `<h6>${l.no_onln}</h6>`}
+												</div>
+												`
+												: `<h4>${l.dstnc_too_far_text}</h4>
+												<button class="btn btn-danger col-4 mx-2" id="cancel">${l.cancel_text}</button>`
+										);
+
+										if (data.status == 0) {
+											$('#map').appendTo('#collapse');
+											$('#map').addClass('border');
+											$('#map').fadeIn();
+											let view = false;
+											$('#view').on('click', () => {
+												view = !view;
+												if (view) $('#view').text(l.cm);
+												else $('#view').text(l.vm);
+											});
+											$('#submit').on('click', () => {
 												post('/delivery-request/', {
 													type: parseInt($('#delivery-type').val()) || 0,
 													fromPlace: "",
@@ -152,31 +168,29 @@ firstNextButton.addEventListener('click', () => {
 													phone: phone
 												});
 											});
-											document.getElementById('confirmDeliveryButtonDiv').appendChild(submit);
 										}
+										$('#cancel').on('click', () => window.location.href = '/');
 									});
 								});
 
-								deliveryDiv.style.opacity = 1;
+								$('#delivery').fadeIn();
 							}, 700);
 
 						} else {
-							invalidInput.innerHTML = js_lang_text.choose_a_pos_text;
+							invalidInput.innerHTML = l.choose_a_pos_text;
 						}
 					});
 
-					buttons.removeChild(nextButton);
+					$(nextButton).remove();
 					buttons.appendChild(prevButton);
 					buttons.appendChild(submitButton);
 					deliveryDiv.style.opacity = 1;
 				}, 700);
 			} else {
-				invalidInput.innerHTML = js_lang_text.choose_a_pos_text;;
+				invalidInput.innerHTML = l.choose_a_pos_text;;
 			}
 
 		});
-	} else {
-
 	}
 });
 
@@ -217,7 +231,7 @@ function post(path, params, method = 'post') {
 }
 
 function getDelay(sec) {
-    return Math.floor(Math.random() * (sec * 1000 - 300 + 1)) + 300;
+	return Math.floor(Math.random() * (sec * 1000 - 300 + 1)) + 300;
 }
 
 function trackInput() {

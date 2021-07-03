@@ -1,4 +1,4 @@
-js_lang_text = {
+l = {
     next_text: "Suivant",
     prev_text: "Précédent",
     submit_text: "Soumettre",
@@ -6,16 +6,15 @@ js_lang_text = {
     from_text: "De",
     to_text: "À",
     choose_a_pos_text: "Veuillez choisir un poste",
-    your_delivery_text: "Votre livraison",
+    dlv: "Livraison",
     clc_route_text: "Calcul de l'itinéraire ..",
     clc_price_text: "Calcul du prix ..",
     dstnc_too_far_text: "La distance est trop loin pour notre service. Veuillez essayer d'autres endroits",
-    we_dont_wrk_now_text: "Désolé, nous ne travaillons pas à cette heure",
-    dlvr_info_txt: (distance, price, time, w) => {
-        let text = `Distance: ${distance} km`;
-        text += `<br>Prix : ${price} DZD`;
-        if (time) text += `<br>Temps d'attente : ~${time} min`;
-        else text += '<br>Aucun livreur disponible pour le moment';
-        return text;
-    }
+    dst: "Distance",
+	pr: "Prix",
+	km: "km",
+	dzd: "DZD",
+	vm: "Voir la carte",
+	cm: "Fermer la carte",
+	no_onln: "Aucun livreur en ligne",
 }

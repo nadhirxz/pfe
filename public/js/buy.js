@@ -80,13 +80,13 @@ function getNextDiv(fromPlace) {
 	formGroupDiv.innerHTML = '';
 
 	var buttons = document.createElement('div');
-	var nextButton = createButton(js_lang_text.next_text, "next", "btn btn-info col-4");
+	var nextButton = createButton(l.next_text, "next", "btn btn-info col-4");
 
 	buttons.appendChild(nextButton);
 
-	var title = document.createElement('h2');
+	var title = document.createElement('h4');
 
-	var result = document.createElement('h4');
+	var result = document.createElement('div');
 	result.setAttribute('id', 'result');
 
 	var confirmDeliveryButtonDiv = document.createElement('div');
@@ -108,10 +108,10 @@ function getNextDiv(fromPlace) {
 	invalidInput.classList.add('text-danger');
 	formGroupDiv.appendChild(invalidInput);
 
-	title.innerHTML = js_lang_text.to_text;
-	nextButton.innerHTML = js_lang_text.submit_text;
+	title.innerHTML = l.to_text;
+	nextButton.innerHTML = l.submit_text;
 	nextButton.addEventListener("click", (e) => {
-		submitButtonClick(map, invalidInput, formGroupDiv, title, buttons, nextButton);
+		submitButtonClick(map, invalidInput, title, buttons, nextButton);
 	});
 
 
@@ -120,63 +120,82 @@ function getNextDiv(fromPlace) {
 }
 
 
-function submitButtonClick(map, invalidInput, deliveryDiv, title, buttons, submitButton) {
+function submitButtonClick(map, invalidInput, title, buttons, submitButton) {
 	if (marker) {
 		map.removeLayer(marker);
 		marker = false;
 		invalidInput.innerHTML = '';
 
-		deliveryDiv.style.opacity = 0;
+		$('#delivery').fadeOut();
+		$('#map').fadeOut();
 		toPos = position;
 
 		setTimeout(() => {
-			title.innerHTML = js_lang_text.your_delivery_text;
-			buttons.removeChild(submitButton);
+			$(title).text(l.clc_route_text);
+			$(submitButton).remove();
 
 			let routeControl = createRouter(gh, map, fromPos, toPos);
 			map.off('click');
 
 
-			document.getElementById("result").innerHTML = `<img src="/img/loader.svg" id="#loading-img"></img><br><h4>${js_lang_text.clc_route_text}</h4>`;
+			$('#result').html(`<img src="/img/loader.svg" class="col-3 mt-4" id="#loading-img"></img>`);
 
 			document.getElementsByClassName("leaflet-control-container")[0].style.display = "none";
-			routeControl.on('routesfound', function (e) {
+
+			routeControl.on('routesfound', (e) => {
 				let routes = e.routes;
 				let summary = routes[0].summary;
 				distance = Math.round(((summary.totalDistance / 1000) + Number.EPSILON) * 1000) / 1000;
-				document.getElementById("result").innerHTML = `<img src="/img/loader.svg" id="#loading-img"></img><br><h4>${js_lang_text.clc_price_text}</h4>`;
+
+				$(title).text(l.clc_price_text);
+				$('#result').html(`<img src="/img/loader.svg" class="col-3 mt-4" id="#loading-img"></img>`);
+
 				$.post('/price-request', { distance: distance, weight: weight, from: toPos, to: fromPos, shop: selectedPlace, thing: delivery.thing, thingsPrice: thingsPrice }, (data) => {
 					setTimeout(() => {
-						let resultText = "";
-						switch (data.status) {
-							case 0:
-								resultText = js_lang_text.dlvr_info_txt(distance, data.price, data.time, data.thingsPrice);
-								break;
-							case 1:
-								resultText = js_lang_text.dlvr_info_txt(distance, data.price, false, data.thingsPrice);
-								break;
-							case 2:
-								resultText = js_lang_text.dstnc_too_far_text;
-								break;
-							case 3:
-								resultText = js_lang_text.we_dont_wrk_now_text;
-								break;
-							case 4:
-								resultText = js_lang_text.shop_not_wrkn(fromPlace);
-								break;
-						}
-						document.getElementById("result").innerHTML = resultText;
+						$(title).remove();
+						$('#result').html(
+							data.status == 0
+								? `
+								<div class="jumbotron border">
+									<h2 class="my-3">${l.dlv}</h2>
+									<hr>
+									<div class="text-${lng == 'ar' ? 'right' : 'left'} mx-4">
+										<h5 class="m-2"><b>${l.dst}:</b> ${distance} ${l.km}</h5>
+										<h5 class="m-2"><b>${l.pr}:</b> ${data.price} ${l.dzd}</h5>
+										${data.thingsPrice
+										?
+										`<h5 class="m-2"><b>${l.thp}:</b> ${data.thingsPrice} ${l.dzd}</h5>
+										<h5 class="m-2"><b>${l.ttp}:</b> ${data.price + data.thingsPrice} ${l.dzd}</h5>`
+										: ''
+										}
+									</div>
+									<h6><a data-toggle="collapse" href="#collapse" role="button" aria-expanded="false" aria-controls="collapse" id="view">${l.vm}</a></h6>
+									<div class="collapse multi-collapse mt-2" id="collapse"></div>
+									<hr>
+									<div class="my-3">
+										<button class="btn btn-info col-4 mx-2" id="submit">${l.submit_text}</button>
+										<button class="btn btn-danger col-4 mx-2" id="cancel">${l.cancel_text}</button>
+									</div>
+									${data.onlineDrivers ? '' : `<h6>${l.no_onln}</h6>`}
+								</div>
+								`
+								: `<h4>${data.status == 1
+									? l.dstnc_too_far_text
+									: shop_not_wrkn(fromPlace)}</h4>
+								<button class="btn btn-danger col-4 mx-2" id="cancel">${l.cancel_text}</button>`
+						);
 
-						let cancel = createButton(js_lang_text.cancel_text, "cancel", "btn btn-danger col-4 mx-2 my-2");
-						cancel.addEventListener('click', () => {
-							window.location.reload()
-						});
-						document.getElementById('confirmDeliveryButtonDiv').appendChild(cancel);
-
-						if (data.status == 0 || data.status == 1) {
-							let submit = createButton(js_lang_text.submit_text, "submit", "btn btn-info col-4 mx-2 my-2");
-							submit.addEventListener("click", (e) => {
-
+						if (data.status == 0) {
+							$('#map').appendTo('#collapse');
+							$('#map').addClass('border');
+							$('#map').fadeIn();
+							let view = false;
+							$('#view').on('click', () => {
+								view = !view;
+								if (view) $('#view').text(l.cm);
+								else $('#view').text(l.vm);
+							});
+							$('#submit').on('click', () => {
 								post('/delivery-request/', {
 									type: 2,
 									fromPlace: delivery.fromPlace,
@@ -189,17 +208,17 @@ function submitButtonClick(map, invalidInput, deliveryDiv, title, buttons, submi
 									shop: selectedPlace
 								});
 							});
-							document.getElementById('confirmDeliveryButtonDiv').appendChild(submit);
 						}
-					}, getDelay(3));
+						$('#cancel').on('click', () => window.location.href = '/');
+					}, getDelay(1));
 				});
 			});
 
-			deliveryDiv.style.opacity = 1;
+			$('#delivery').fadeIn();
 		}, 700);
 
 	} else {
-		invalidInput.innerHTML = js_lang_text.choose_a_pos_text;
+		invalidInput.innerHTML = l.choose_a_pos_text;
 	}
 }
 

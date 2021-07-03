@@ -832,10 +832,10 @@ app.post('/price-request', checkAuth, checkConfirmed, checkUser, checkInWorkHour
 	// 4 = shop not working
 
 	if (data.distance > settings.maxDeliveryDistance || getDistance(data.from, settings.AlgiersPos) > settings.maxDeliveryDistance || getDistance(data.to, settings.AlgiersPos) > settings.maxDeliveryDistance) {
-		dataToSend.status = 2;
-	} else if (inWorkHours()) {
+		dataToSend.status = 1;
+	} else {
 		if (data.shop && !inShopWorkHours(data.shop)) {
-			dataToSend.status = 4;
+			dataToSend.status = 2;
 		} else {
 			user.last_delivery_price = calculatePrice(data.distance, data.weight);
 			if (data.thing && getItem('id', data.thing)) {
@@ -843,22 +843,11 @@ app.post('/price-request', checkAuth, checkConfirmed, checkUser, checkInWorkHour
 			} else if (data.thingsPrice) {
 				dataToSend.thingsPrice = parseInt(data.thingsPrice) || 0;
 			}
-			let d = getOnlineDrivers();
-			if (!(d && d.length)) {
-				user.hash = generateHash(('' + data.distance).substring(0, 5), '' + user.last_delivery_price);
-				dataToSend.status = 1;
-				dataToSend.price = user.last_delivery_price;
-			} else {
-				let timeToFinish = Math.ceil((d.time + ((data.distance / settings.driverSpeed) * 60)) / settings.nearestMinute) * settings.nearestMinute;
-
-				user.hash = generateHash('' + data.distance, '' + user.last_delivery_price);
-				dataToSend.status = 0;
-				dataToSend.time = timeToFinish;
-				dataToSend.price = user.last_delivery_price;
-			}
+			user.hash = generateHash(('' + data.distance).substring(0, 5), '' + user.last_delivery_price);
+			dataToSend.status = 0;
+			dataToSend.price = user.last_delivery_price;
+			dataToSend.onlineDrivers = getOnlineDrivers().length;
 		}
-	} else {
-		dataToSend.status = 3;
 	}
 	res.send(dataToSend);
 });
