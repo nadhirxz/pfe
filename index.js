@@ -1843,7 +1843,7 @@ function getDeliveriesByDate(date, user = false) {
 
 function getShopDetails(shop) {
 	let dlv = deliveries.filter(e => e.shop == shop.id);
-	let dlv_amount = dlv.reduce((acc, b) => acc += b.price, 0)
+	let dlv_amount = dlv.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0)
 	let p_amount = normalizePrice(((dlv_amount || 0) * (shop.percentage / 100)), 50)
 	let paid = shop.paid || 0;
 	return {
