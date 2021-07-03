@@ -9,7 +9,8 @@
     <div class="px-5 py-5 m-auto text-center">
         <h3><%= error %> </h3>
         <p><%= body %></p>
-        <button class="btn btn-info" onclick="window.history.back()">Go back</button>
+		<% var l = { en: "Go back", fr: "Revenir", ar: "عودة" } %>
+        <button class="btn btn-info col-md-3 col-6" onclick="window.history.back()"><%= l[lang] %></button>
     </div>
 <%- include ('../partials/footer') %>
 </body>
