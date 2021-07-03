@@ -8,11 +8,11 @@
 	font-family: 'Arabic', normal !important;
 }
 
-.btn, .btn>span, input, textarea, select, label, tr, .invalid-feedback {
+.btn, .btn>span, input, textarea, a.dropdown-item, select, label, tr, .invalid-feedback {
 	font-size: 1.2rem !important;
 }
 
-p, span:not(.navbar-toggler-icon, .fa), h6, a, #datepicker, .hr-sect {
+p, span:not(.navbar-toggler-icon, .fa), h6, a:not(.dropdown-item), #datepicker, .hr-sect {
 	font-size: 1.6rem !important;
 }
 
