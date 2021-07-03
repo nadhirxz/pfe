@@ -373,7 +373,8 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 			lang: lang,
 			total_spent: userDeliveries.filter(e => e.status == 4).reduce((acc, obj) => acc += obj.price, 0),
 			total_deliveries: userDeliveries.length,
-			userDeliveries: userDeliveries,
+			deliveries: userDeliveries,
+			userDeliveries: userDeliveries.filter(e => isToday(e.date)),
 			working: working_status,
 			work_hours: inWorkHours()
 		}
@@ -1750,8 +1751,7 @@ function getDelivery(key, value) {
 }
 
 function getDeliveriesOfUser(id) {
-	if (deliveries) return deliveries.filter(e => e.uid == id && isToday(e.date)).map(e => deliveryInfoPage(e));
-	return [false];
+	return deliveries.filter(e => e.uid == id).map(e => deliveryInfoPage(e));
 }
 
 function getAndSetPageLanguage(req, res, lang) {

@@ -23,9 +23,9 @@
         <hr class="pt-3">
         <p class="mb-1"><span class="ttl_delvrs_text mb-0"></span> <b><%= total_deliveries %></b></p>
 		<% if (total_deliveries) { %>
-			<% if (userDeliveries && userDeliveries.length) { %>
+			<% if (deliveries && deliveries.length) { %>
 			<div class="my-2">
-				<% locals.deliveries = userDeliveries; %><%- include ('../partials/delivery_status') %>
+				<%- include ('../partials/delivery_status') %>
 			</div>
 			<% } %>
 		<% } %>
