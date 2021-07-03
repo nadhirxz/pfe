@@ -9,7 +9,7 @@
     <%- include ('../partials/navbar') %>
     <div class="col-md-8 col-lg-5 px-5 m-auto text-center pt-2">
         <% if (locals.drivers) {%>
-            <h4 class="mt-4"><span class="drivers"></h4>
+            <h2 class="mt-4 drivers"></h2>
             <% drivers.forEach(driver => { %>
             <hr class="my-4">
             <h6 class="my-1"><%= driver.name %> - <a href="tel:<%= driver.phone %>"><%= driver.phone %></a></h6>
@@ -19,14 +19,14 @@
             <p class="my-1"><span class="dlv_all"></span> <b><%= driver.all_time_deliveries %></b> (<b><%= driver.all_time_profit %></b> <%= dzd %>)</p>
 			<p class="my-1"><span class="payment"></span> <b<% if(lang == 'ar') { %> dir="ltr"<% } %>><span class="text-<%= driver.paid_status ? 'success' : 'danger' %>"><%= driver.paid %></span> / <%= driver.payment_amount %></b> <%= dzd %> <% if (!driver.paid_status) { %>(<b><%= driver.payment_amount - driver.paid %></b> <%= dzd %> <span class="left_text"></span>)<% } %></p>
 			<p class="my-1"><span class="percentage"></span> <b><%= driver.percentage %>%</b></p>
-			<button class="mt-3 col-4 btn btn-sm btn-info" onclick="pay('d','<%= driver.id %>', '<%= driver.name %>', <%= driver.payment_amount - driver.paid %>)" data-toggle="modal" data-target="#modal"><span class="text_pay"></span></button>
+			<button class="mt-3 col-4 btn btn-sm btn-info text_pay" onclick="pay('d','<%= driver.id %>', '<%= driver.name %>', <%= driver.payment_amount - driver.paid %>)" data-toggle="modal" data-target="#modal"></button>
             <% }); %>
 			<hr class="my-4">
 			<div class="my-4 mx-auto col-6">
 				<a type="button" class="btn btn-block btn-info mx-2 all_details" href="/details"></a>
 			</div>
         <% } else if (locals.shops) { %>
-            <h4 class="mt-4"><span class="shops"></h4>
+            <h2 class="mt-4 shops"></h2>
             <% shops.forEach(shop => { %>
             <hr class="my-4">
             <h6 class="my-1"><%= shop.name %> - <a href="tel:<%= shop.phone %>"><%= shop.phone %></a></h6>
@@ -34,11 +34,11 @@
 			<% locals.deliveries = shop.dlv; %><%- include ('../partials/delivery_status') %>
             <p class="my-1"><span class="payment"></span> <b><span class="text-<%= shop.paid_status ? 'success' : 'danger' %>"><%= shop.paid %></span> / <%= shop.payment_amount %></b> <%= dzd %> <% if (!shop.paid_status) { %>(<b><%= shop.payment_amount - shop.paid %></b> <%= dzd %> <span class="left_text"></span>)<% } %></p>
 			<p class="my-1"><span class="percentage"></span> <b><%= shop.percentage %>%</b></p>
-			<button class="mt-3 col-4 btn btn-sm btn-info" onclick="pay('p', '<%= shop.id %>', '<%= shop.name %>', <%= shop.payment_amount - shop.paid %>)" data-toggle="modal" data-target="#modal"><span class="text_pay"></span></button>
+			<button class="mt-3 col-4 btn btn-sm btn-info text_pay" onclick="pay('p', '<%= shop.id %>', '<%= shop.name %>', <%= shop.payment_amount - shop.paid %>)" data-toggle="modal" data-target="#modal"></button>
             <% }); %>
 			<hr class="my-4">
 			<div class="my-4 mx-auto col-6">
-				<a type="button" class="btn btn-block btn-info mx-2 all_details" href="/details"></a>
+				<a type="button" class="btn btn-block btn-info all_details" href="/details"></a>
 			</div>
         <% } else { %>
 		<% if (locals.day) { %>
@@ -67,9 +67,9 @@
         <% } %>
 		<hr class="my-4">
 		<div class="row">
-			<a class="btn btn-info col mx-1" href="/details/drivers"><span class="drivers"></span></a>
-			<a class="btn btn-info col mx-1" href="/details/shops"><span class="shops"></span></a>
-			<a class="btn btn-info col mx-1" href="/details/deliveries"><span class="dlvs"></span></a>
+			<a class="btn btn-info col mx-1 drivers" href="/details/drivers"></a>
+			<a class="btn btn-info col mx-1 shops" href="/details/shops"></a>
+			<a class="btn btn-info col mx-1 dlvs" href="/details/deliveries"></a>
 		</div>
 		<% } %>
 		<% if (locals.shops || locals.drivers ) { %>
