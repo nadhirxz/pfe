@@ -2276,8 +2276,8 @@ function sendDeliveryToDrivers(delivery) {
 }
 
 function updateDriverDeliveries(driverID, driverPos, socket) {
-	deliveries.filter(e => e.driver == driverID).forEach(delivery => {
-		delivery.estimated_finish_time = getEstimatedFinishTime(driverPos, delivery.delivery_from, delivery.distance);
+	deliveries.filter(e => e.driver == driverID && e.status == 2).forEach(delivery => {
+	    delivery.estimated_finish_time = getEstimatedFinishTime(driverPos, delivery.delivery_from, delivery.distance);
 		socket.emit('update_delivery', { id: delivery.id, time: delivery.estimated_finish_time });
 		db.query("UPDATE deliveries SET estimated_finish_time=? WHERE id=?", [delivery.estimated_finish_time, delivery.id]);
 		sendDeliveryStatus(delivery.id);
