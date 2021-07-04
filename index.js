@@ -1435,7 +1435,7 @@ app.get('/disabled', checkAuth, checkDisabled, (req, res) => {
 	});
 });
 
-app.post('/disable', checkAuth, checkConfirmed, (req, res) => {
+app.post('/disable', checkAuth, checkConfirmed, checkNotAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { password } = req.body;
 
