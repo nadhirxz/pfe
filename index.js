@@ -905,7 +905,7 @@ app.get('/delivery/:did', checkAuth, checkConfirmed, (req, res) => {
 		type: user.type,
 		lang: lang
 	}
-	if (delivery && (user.type == 3 || (user.type == 0 && delivery.uid == user.id) || (user.type == 1 && delivery.shop == user.id))) return res.render('pages/delivery', { ...the_return, ...deliveryInfoPage(delivery, user.id == delivery.uid) });
+	if (delivery && (user.type == 3 || (user.type == 0 && delivery.uid == user.id) || (user.type == 1 && delivery.shop == user.id) || (user.type == 2 && delivery.driver == user.id))) return res.render('pages/delivery', { ...the_return, ...deliveryInfoPage(delivery, user.id == delivery.uid) });
 
 	the_return.title = titles[lang].pg_dsnt_xst + settings.titleSuffix[lang];
 	return res.render('pages/404', the_return);
@@ -915,13 +915,13 @@ app.get('/deliveries', checkAuth, checkConfirmed, checkNotAdmin, checkConfirmed,
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
-	if (user && user.type != 2) {
+	if (user) {
 		return res.render('pages/deliveries', {
 			title: titles[lang].deliveries + settings.titleSuffix[lang],
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : e.shop == user.id))[formatDate(new Date())],
+			deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : user.type == 1 ? e.shop == user.id : e.driver == user.id))[formatDate(new Date())],
 			day: formatDate(new Date())
 		});
 	}
@@ -937,14 +937,14 @@ app.get('/deliveries/:date', checkAuth, checkConfirmed, checkNotAdmin, (req, res
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
-	if (user && user.type != 2) {
+	if (user) {
 		if (req.params.date == 'all') {
 			return res.render('pages/deliveries_all', {
 				title: titles[lang].deliveries + settings.titleSuffix[lang],
 				name: user.name,
 				type: user.type,
 				lang: lang,
-				deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : e.shop == user.id))
+				deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : user.type == 1 ? e.shop == user.id : e.driver == user.id))
 			});
 		}
 
@@ -2277,7 +2277,7 @@ function sendDeliveryToDrivers(delivery) {
 
 function updateDriverDeliveries(driverID, driverPos, socket) {
 	deliveries.filter(e => e.driver == driverID && e.status == 2).forEach(delivery => {
-	    delivery.estimated_finish_time = getEstimatedFinishTime(driverPos, delivery.delivery_from, delivery.distance);
+		delivery.estimated_finish_time = getEstimatedFinishTime(driverPos, delivery.delivery_from, delivery.distance);
 		socket.emit('update_delivery', { id: delivery.id, time: delivery.estimated_finish_time });
 		db.query("UPDATE deliveries SET estimated_finish_time=? WHERE id=?", [delivery.estimated_finish_time, delivery.id]);
 		sendDeliveryStatus(delivery.id);

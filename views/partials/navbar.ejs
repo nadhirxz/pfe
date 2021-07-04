@@ -17,7 +17,7 @@
 					<a class="btn btn-c btn-block my-2 items" href="/shop/items"></a>
 					<a class="btn btn-c btn-block my-2 details" href="/shop/details"></a>
 					<% } %>
-					<% if (locals.name && (type == 0 || type == 1)) {%>
+					<% if (locals.name && (type < 3)) {%>
 					<a class="btn btn-c btn-block my-2 dlvs" href="/deliveries"></a>
 					<% } %>
 					<% if (locals.name && type == 3) {%>
