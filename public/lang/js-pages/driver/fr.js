@@ -15,7 +15,7 @@ l = {
 	distance: "Distance",
 	dzd: "DZD",
 	km: "km",
-	shop: "Partenaire",
+	shop: "Magasin",
 	fnsh_t: "Heure de finition estimée",
 	route: "Route",
 	cancel: "Annuler",
