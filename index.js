@@ -921,7 +921,7 @@ app.get('/deliveries', checkAuth, checkConfirmed, checkNotAdmin, checkConfirmed,
 			name: user.name,
 			type: user.type,
 			lang: lang,
-			deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 1 ? e.uid == user.id : e.shop == user.id))[formatDate(new Date())],
+			deliveries: getGroupedDeliveries(deliveries.filter(e => user.type == 0 ? e.uid == user.id : e.shop == user.id))[formatDate(new Date())],
 			day: formatDate(new Date())
 		});
 	}
