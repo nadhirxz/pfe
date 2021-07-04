@@ -44,8 +44,8 @@ socket.on('update_delivery', (data) => {
 
 function sendPosition(socketmsg) {
 	getPosition()
-	.then(pos => socket.emit(socketmsg, [pos.coords.latitude, pos.coords.longitude]))
-	.catch(err => $('#requests').html(`<h4 id="no-dlv" class="my-5"> ${l.no_pos}</h4 >`));
+		.then(pos => socket.emit(socketmsg, [pos.coords.latitude, pos.coords.longitude]))
+		.catch(err => $('#requests').html(`<h4 id="no-dlv" class="my-5"> ${l.no_pos}</h4 >`));
 }
 
 
@@ -63,7 +63,7 @@ async function createDiv(delivery, status, r) {
 		<div class="jumbotron border${status === 'new' ? ' border-info' : status === true ? ' border-danger' : ''}">
 			<h4${lng == 'ar' ? ' class="h1"' : ''}>${delivery.name}</h4>
 			<h4><a href="tel:${delivery.phone}">${delivery.phone}</a></h4>
-			<div class="hr-sect">${deliveryTypes[delivery.type]} (${delivery.minutes} ${l.min})</div>
+			<div class="hr-sect">${deliveryTypes[delivery.type]}${delivery.status == 2 ? '' : ` (${delivery.minutes} ${l.min})`}</div>
 			<div class="row mx-4">
 				<div class="col-md-7 p-0 text-${lng == 'ar' ? 'right' : 'left'}">
 					<p class="my-0">${l.obj} : <b>${delivery.thing}</b></p>
@@ -213,6 +213,7 @@ function failedDelivery(id) {
 function cancelDelivery(id) {
 	let delivery = getDelivery(id);
 	delete delivery.estimated_finish_time;
+	delivery.status = 1;
 	socket.emit("cancel_delivery", delivery.id);
 	$('#' + id).fadeOut(400, () => {
 		$(this).remove();
