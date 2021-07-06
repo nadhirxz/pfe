@@ -29,10 +29,8 @@
 					<% if (locals.name) {%>
 						<a class="btn btn-c btn-block my-2 profile_text" href="/profile"></a>
 					<% } %>
-					<% if (locals.name && type != 3 && type != 2) { %>
-						<a class="btn btn-c btn-block my-2 about_text" href="/about"></a>
-					<% } %>
                     <% if (locals.name || locals.disabled) {%>
+						<a class="btn btn-c btn-block my-2 about_text" href="/about"></a>
                     <div class="row m-auto">
                         <button class="btn btn-c my-2" type="button" data-toggle="collapse" data-target="#lang-collapse" aria-expanded="false" aria-controls="lang-collapse">
                             <%= lang.toUpperCase() %> <i class="fa fa-globe" aria-hidden="true"></i>
@@ -44,6 +42,7 @@
 					<a class="btn btn btn-c btn-block my-2 shops" href="/shops"></a>
                     <a class="btn btn btn-c btn-block my-2 login_text" href="/login"></a>
                     <a class="btn btn btn-c btn-block my-2 register_text" id="nav-reg-btn" href="/register"></a>
+					<a class="btn btn-c btn-block my-2 about_text" href="/about"></a>
                     <button class="btn btn-c btn-block my-2" type="button" data-toggle="collapse" data-target="#lang-collapse" aria-expanded="false" aria-controls="lang-collapse">
                         <%= lang.toUpperCase() %> <i class="fa fa-globe" aria-hidden="true"></i>
                     </button>
