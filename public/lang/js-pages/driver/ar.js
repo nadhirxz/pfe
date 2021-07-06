@@ -23,7 +23,7 @@ l = {
 	comp: "اكتمال",
 	ref: "رفض",
 	acc: "قبول",
-	notification_text: (n, m, p, d) => `${n} - ${m} د - ${p} دج - ${d} كم`,
+	notification_text: (n, m, p, d) => `${n} - د ${m} - ${d} دج - ${p} كم`,
 	no_deliveries: "لا يوجد أي طلب توصيل",
 	no_pos: "لا يمكن الحصول على مكانك الحالي"
 }
