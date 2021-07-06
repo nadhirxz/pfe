@@ -156,8 +156,8 @@ async function createDiv(delivery, status, r) {
 	}
 
 	if (status === 'new' && typeof (Android) !== 'undefined') {
-		let notification_text = l.notification_text(delivery.price, delivery.distance, delivery.name);
-		if (typeof (delivery.shop) != 'undefined') notification_text += ` - ${delivery.name}`;
+		let notification_text = l.notification_text(delivery.name, delivery.minutes, delivery.price, delivery.distance);
+		if (typeof (delivery.shop) != 'undefined') notification_text += ` - ${delivery.shop}`;
 		Android.showNotification(l.new, notification_text);
 	}
 }

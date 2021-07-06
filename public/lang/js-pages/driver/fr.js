@@ -23,7 +23,7 @@ l = {
 	comp: "Terminé",
 	ref: "Refuser",
 	acc: "Accepter",
-	notification_text: (p, d, n) => { return `${p} DZD - ${d} km - ${n}` },
+	notification_text: (n, m, p, d) => `${n} - ${m} min - ${p} DZD - ${d} km`,
 	no_deliveries: "Pas de livraisons",
 	no_pos: "Impossible d'obtenir votre position actuelle"
 }
