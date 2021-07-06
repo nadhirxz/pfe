@@ -18,7 +18,7 @@ fetch(file).then(response => response.text()).then((data) => {
 		$('#app').html(data);
 	} else {
 		$('body').html(data);
-		$('#credits').html(`DELIVERY © ${new Date().getFullYear()}`);
+		$('#credits').html(`LIVRY © ${new Date().getFullYear()}`);
 		if ($('html').attr('lang') == 'ar') {
 			$('.mr-lg-5').addClass('ml-lg-5').removeClass('mr-lg-5');
 			$('.ml-auto').addClass('mr-auto').removeClass('ml-auto');

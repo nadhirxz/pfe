@@ -3,7 +3,7 @@ let settings = {
 	sessionMaxAge: 1000 * 60 * 60 * 24 * 30 * 12, // 12 months
 	cookieSecure: false, // TRUE ONLY WITH HTTPS
 
-	titleSuffix: { en: " | DELIVERY", fr: " | DELIVERY", ar: " | DELIVERY" },
+	titleSuffix: { en: " | LIVRY", fr: " | LIVRY", ar: " | LIVRY" },
 	defaultWebsiteLanguage: 'fr',
 
 	intervalBetweenSMS: 60 * 2, // two minutes
