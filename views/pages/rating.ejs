@@ -15,21 +15,24 @@
 			user: "User",
 			date: "Date",
 			at: "at",
-			rating: "Rating"
+			rating: "Rating",
+			none: "No ratings"
 		},
 		fr: {
 			dlv: "Livraison",
 			user: "Utilisateur",
 			date: "Date",
 			at: "à",
-			rating: "Evaluation"
+			rating: "Evaluation",
+			none: "Pas d'évaluations"
 		},
 		ar: {
 			dlv: "طلب التوصيل",
 			user: "المستخدم",
 			date: "التاريخ",
 			at: "على",
-			rating: "التقييم"
+			rating: "التقييم",
+			none: "لا يوجد أي تقييم"
 		}
 	}
 	%>
@@ -38,28 +41,33 @@
 <body>
     <%- include ('../partials/navbar') %>
     <div class="px-5 m-auto text-center">
-		<h3 class="my-4"><%= driver %><span><h5>(<%= rating.rating %> <i class="fa fa-star star-selected"></i>)</h5></span></h3>
-		<div class="mx-5">
-			<table class="table table-bordered">
-				<thead>
-					<tr>
-						<th scope="col"><%= l[lang].user %></th>
-						<th scope="col"><%= l[lang].dlv %></th>
-						<th scope="col"><%= l[lang].date %></th>
-						<th scope="col"><%= l[lang].rating %></th>
-					</tr>
-				</thead>
-				<tbody>
-					<% rating.ratings.forEach(rating => { %>
-						<td class="col-3"><%= rating.user %></td>
-						<td class="col-3"><a href="/delivery/<%= rating.id %>"><%= rating.id %></a></td>
-						<td class="col-3"><%= `${pad(rating.date.getDate())}-${pad(rating.date.getMonth()+1)}-${rating.date.getFullYear()}` %> <%= l[lang].at %> <%= `${pad(rating.date.getHours())}:${pad(rating.date.getMinutes())}` %></td>
-						<td class="col-3"><%= rating.rating %> <i class="fa fa-star star-selected"></i></td>
-					</tr>
-					<% }); %>
-				</tbody>
-			</table>
-		</div>
+		<h3 class="my-4"><%= name %><span><h5>(<%= rating.rating %> <i class="fa fa-star star-selected"></i>)</h5></span></h3>
+		<% if (rating && rating.ratings) { %>
+			<div class="mx-5">
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th scope="col"><%= l[lang].user %></th>
+							<th scope="col"><%= l[lang].dlv %></th>
+							<th scope="col"><%= l[lang].date %></th>
+							<th scope="col"><%= l[lang].rating %></th>
+						</tr>
+					</thead>
+					<tbody>
+						<% rating.ratings.forEach(rating => { %>
+							<td class="col-3"><%= rating.user %></td>
+							<td class="col-3"><a href="/delivery/<%= rating.id %>"><%= rating.id %></a></td>
+							<td class="col-3"><%= `${pad(rating.date.getDate())}-${pad(rating.date.getMonth()+1)}-${rating.date.getFullYear()}` %> <%= l[lang].at %> <%= `${pad(rating.date.getHours())}:${pad(rating.date.getMinutes())}` %></td>
+							<td class="col-3"><%= rating.rating %> <i class="fa fa-star star-selected"></i></td>
+						</tr>
+						<% }); %>
+					</tbody>
+				</table>
+			</div>
+		<% } else { %>
+			<hr class="col-10 col-md-5">
+			<h5 class="text-secondary"><%= l[lang].none %></h5>
+		<% } %>
     </div>
 <%- include ('../partials/footer') %>
 </body>
