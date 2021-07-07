@@ -37,7 +37,7 @@
 			<p class="delivery-info-text"><b class="type_text"></b> <span class="buy_frm_text"></span> <%= fromPlace %></p>
 			<% } %>
 
-			<p class="delivery-info-text"><b class="user_text"></b> <%= name %></p>
+			<% if (type != 0) { %><p class="delivery-info-text"><b class="user_text"></b> <%= name %></p><% } %>
 			<% if (d_type && thingsPrice) { %>
 			<p class="delivery-info-text"><b class="thing_text"></b> <%= thing %> (<%= thingsPrice %> <span class="dzd_text"></span>)</p>
 			<% } else { %>
