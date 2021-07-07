@@ -95,10 +95,8 @@
 			</div>
 			<% } %>
 
-			<div id="delivery-status">
-				<button type="button" id="delivery-status-info-btn" class="" style="display: none;"></button>
-				<p id="delivery-status-info-text" class="mt-2" style="display: none;"></p>	
-			</div>
+			<button type="button" id="status-btn" class="d-none"></button>
+			<p id="status-text" class="mt-2 d-none"></p>
 
 			<% if (status < 2 || status == 3 && locals.owner) { %>
 			<button type="button" class="btn btn-danger col-md-3 col-6 cncl_delivery_text" data-toggle="modal" data-target="#modal"></button>

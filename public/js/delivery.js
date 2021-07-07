@@ -1,11 +1,6 @@
 var deliveryInfoDiv = document.getElementById('delivery-info');
 var loadingImg = document.getElementById('loading-img')
 
-var statusText = document.getElementById('delivery-status-info-text');
-var statusBtn = document.getElementById('delivery-status-info-btn');
-var statusDiv = document.getElementById('delivery-status');
-var driverInfo = document.getElementById('driver-info');
-
 var classes = [
 	"btn-light",
 	"btn-info",
@@ -16,11 +11,12 @@ var classes = [
 	"btn-dark"
 ];
 
-$('#delivery-status-info-btn').replaceWith(createTheButton(buttonTexts[status], classes[status]))
-statusBtn.style.display = "block";
+$('#status-btn').replaceWith(createTheButton(buttonTexts[status], classes[status]))
+$('#status-btn').removeClass('d-none');
+$('#status-btn').css('pointer-events', 'none');
 
-statusText.innerHTML = texts[status];
-statusText.style.display = "block";
+$('#status-text').html(texts[status]);
+$('#status-text').removeClass('d-none');
 
 
 let time_to_wait = Date.now() - finish_time;
@@ -34,7 +30,7 @@ function createTheButton(text, theClass) {
 	let button = document.createElement("button");
 	c_classes = ['ml-sm-6', 'col-11', 'col-sm-6', 'btn', 'btn-pill'];
 	button.innerHTML = text;
-	button.setAttribute('id', 'delivery-status-info-btn');
+	button.setAttribute('id', 'status-btn');
 	c_classes.forEach(c => {
 		button.classList.add(c);
 	});
