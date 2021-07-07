@@ -2,20 +2,33 @@
 <%- include ('../partials/html') %>
 <head>
 	<%- include ('../partials/head') %>
+	<%
+        function pad(n,z) {
+            z = z || '0';
+            n = n + '';
+            return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
+        }
+    %>
 	<% var l = {
 		en: {
 			dlv: "Delivery",
 			user: "User",
+			date: "Date",
+			at: "at",
 			rating: "Rating"
 		},
 		fr: {
 			dlv: "Livraison",
 			user: "Utilisateur",
+			date: "Date",
+			at: "à",
 			rating: "Evaluation"
 		},
 		ar: {
 			dlv: "طلب التوصيل",
 			user: "المستخدم",
+			date: "التاريخ",
+			at: "على",
 			rating: "التقييم"
 		}
 	}
@@ -32,15 +45,16 @@
 					<tr>
 						<th scope="col"><%= l[lang].user %></th>
 						<th scope="col"><%= l[lang].dlv %></th>
+						<th scope="col"><%= l[lang].date %></th>
 						<th scope="col"><%= l[lang].rating %></th>
 					</tr>
 				</thead>
 				<tbody>
 					<% rating.ratings.forEach(rating => { %>
-					<tr>
-						<td class="col-4"><%= rating.user %></td>
-						<td class="col-4"><a href="/delivery/<%= rating.id %>"><%= rating.id %></a></td>
-						<td class="col-4"><%= rating.rating %> <i class="fa fa-star star-selected"></i></td>
+						<td class="col-3"><%= rating.user %></td>
+						<td class="col-3"><a href="/delivery/<%= rating.id %>"><%= rating.id %></a></td>
+						<td class="col-3"><%= `${pad(rating.date.getDate())}-${pad(rating.date.getMonth()+1)}-${rating.date.getFullYear()}` %> <%= l[lang].at %> <%= `${pad(rating.date.getHours())}:${pad(rating.date.getMinutes())}` %></td>
+						<td class="col-3"><%= rating.rating %> <i class="fa fa-star star-selected"></i></td>
 					</tr>
 					<% }); %>
 				</tbody>

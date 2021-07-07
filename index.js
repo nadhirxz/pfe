@@ -1994,7 +1994,8 @@ function getRatingDetails(driverID) {
 				return {
 					id: e.id,
 					user: getUser('id', e.uid).name,
-					rating: e.rating
+					rating: e.rating,
+					date: e.date
 				}
 			})
 		}
