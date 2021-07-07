@@ -1489,13 +1489,13 @@ app.get('/rating/:id', checkAdmin, (req, res) => {
 
 	if (driver && rating && rating.votes) {
 		return res.render('pages/rating', {
-			title: titles[lang].disabled + settings.titleSuffix[lang],
+			title: titles[lang].rating + settings.titleSuffix[lang],
 			lang: lang,
 			driver: driver.name,
 			rating
 		});
 	}
-	
+
 	return res.render('pages/404', {
 		title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
 		name: user.name,

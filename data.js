@@ -66,7 +66,8 @@ let titles = {
 		shops: "Shops",
 		your_items: "Your Items",
 		deliveries: "Deliveries",
-		disabled: "Disabled Account"
+		disabled: "Disabled Account",
+		rating: "Rating"
 	},
 	fr: {
 		out_of_srvc: "Hors service",
@@ -101,7 +102,8 @@ let titles = {
 		shops: "Partenaires",
 		your_items: "Votre Objets",
 		deliveries: "Livraisons",
-		disabled: "Compte Désactivé"
+		disabled: "Compte Désactivé",
+		rating: "Evaluation"
 	},
 	ar: {
 		out_of_srvc: "خارج الخدمة",
@@ -136,7 +138,8 @@ let titles = {
 		shops: "المتاجر",
 		your_items: "السلعة الخاصة بك",
 		deliveries: "طلبات التوصيل",
-		disabled: "تم تعطيل الحساب"
+		disabled: "تم تعطيل الحساب",
+		rating: "التقييم"
 	}
 }
 
