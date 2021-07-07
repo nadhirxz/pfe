@@ -1993,7 +1993,7 @@ function getRatingDetails(driverID) {
 			ratings: deliveries.filter(e => e.driver == driverID && e.rating).sort((a, b) => b.date.getTime() - a.date.getTime()).map(e => {
 				return {
 					id: e.id,
-					user: getUser(e.uid).name,
+					user: getUser('id', e.uid).name,
 					rating: e.rating
 				}
 			})
