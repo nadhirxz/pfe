@@ -12,7 +12,7 @@
             <h2 class="mt-4 drivers"></h2>
             <% drivers.forEach(driver => { %>
             <hr class="my-4">
-            <h6 class="my-1"><%= driver.name %> - <a href="tel:<%= driver.phone %>"><%= driver.phone %></a></h6>
+            <h6 class="my-1"><%= driver.name %> - <a href="tel:<%= driver.phone %>"><%= driver.phone %></a> - <a href="<% if (driver.rating.votes > 0) { %>/rating/<%= driver.id %><% } else { %>#<% } %>"><%= driver.rating.rating %> <i class="fa fa-star star-selected"></i> (<%= driver.rating.votes %>)</a></h6>
             <p class="my-1"><span class="dlv_tdy"></span> <b><%= driver.daily_deliveries %></b> (<b><%= driver.daily_profit %></b> <%= dzd %>)</p>
             <p class="my-1"><span class="dlv_week"></span> <b><%= driver.weekly_deliveries %></b> (<b><%= driver.weekly_profit %></b> <%= dzd %>)</p>
 			<p class="my-1"><span class="dlv_mnth"></span> <b><%= driver.monthly_deliveries %></b> (<b><%= driver.monthly_profit %></b> <%= dzd %>)</p>

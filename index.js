@@ -1467,7 +1467,7 @@ app.post('/rate-driver/:id', checkUser, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { rating } = req.body;
 	let delivery = getDelivery('id', req.params.id);
-	if (user && delivery && rating > 0) {
+	if (user && delivery && delivery.uid == user.id && rating > 0) {
 		db.query("UPDATE deliveries SET rating=? WHERE id=?", [parseInt(rating), delivery.id], (err, results) => {
 			if (err) {
 				res.status(403).send();
@@ -1479,6 +1479,29 @@ app.post('/rate-driver/:id', checkUser, (req, res) => {
 	} else {
 		res.status(403).send();
 	}
+});
+
+app.get('/rating/:id', checkAdmin, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let driver = getDriver('id', req.params.id);
+	let rating = getRatingDetails(req.params.id);
+
+	if (driver && rating && rating.votes) {
+		return res.render('pages/rating', {
+			title: titles[lang].disabled + settings.titleSuffix[lang],
+			lang: lang,
+			driver: driver.name,
+			rating
+		});
+	}
+	
+	return res.render('pages/404', {
+		title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
+	});
 });
 
 app.get('/en(/*)?', (req, res) => {
@@ -1897,6 +1920,7 @@ function getDriverDetails(driver) {
 		payment_amount: p_amount,
 		paid,
 		paid_status: paid >= p_amount,
+		rating: getDriverRating(driver.id)
 	};
 }
 
@@ -1952,13 +1976,31 @@ function getGroupedDeliveries(deliveries) {
 
 function getDriverRating(driverID) {
 	let driver = getDriver('id', driverID);
+	let r = { rating: 0, votes: 0 }
 	if (driver) {
 		let ratings = deliveries.filter(e => e.driver == driverID && e.rating).map(e => e.rating);
-		return (ratings.reduce((acc, b) => acc += b, 0) / ratings.length);
+		r.rating = (ratings.reduce((acc, b) => acc += b, 0) / ratings.length) || 0;
+		r.votes = ratings.length;
 	}
-	return null;
+	return r;
 }
 
+function getRatingDetails(driverID) {
+	let r = getDriverRating(driverID);
+	if (r && r.votes) {
+		return {
+			...r,
+			ratings: deliveries.filter(e => e.driver == driverID && e.rating).sort((a, b) => b.date.getTime() - a.date.getTime()).map(e => {
+				return {
+					id: e.id,
+					user: getUser(e.uid).name,
+					rating: e.rating
+				}
+			})
+		}
+	}
+	return r;
+}
 
 
 

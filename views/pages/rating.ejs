@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+	<% var l = {
+		en: {
+			dlv: "Delivery",
+			user: "User",
+			rating: "Rating"
+		},
+		fr: {
+			dlv: "Livraison",
+			user: "Utilisateur",
+			rating: "Evaluation"
+		},
+		ar: {
+			dlv: "طلب التوصيل",
+			user: "المستخدم",
+			rating: "التقييم"
+		}
+	}
+	%>
+</head>
+
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="px-5 m-auto text-center">
+		<h3 class="my-4"><%= driver %></h3>
+		<div class="mx-5">
+			<table class="table table-bordered">
+				<thead>
+					<tr>
+						<th scope="col"><%= l[lang].user %></th>
+						<th scope="col"><%= l[lang].dlv %></th>
+						<th scope="col"><%= l[lang].rating %></th>
+					</tr>
+				</thead>
+				<tbody>
+					<% rating.ratings.forEach(rating => { %>
+					<tr>
+						<td class="col-4"><%= rating.user %></td>
+						<td class="col-4"><a href="/delivery/<%= rating.id %>"><%= rating.id %></a></td>
+						<td class="col-4"><%= rating.rating %> <i class="fa fa-star star-selected"></i></td>
+					</tr>
+					<% }); %>
+				</tbody>
+			</table>
+		</div>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+
+</html>

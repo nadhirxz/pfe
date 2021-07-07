@@ -299,3 +299,7 @@ i {
 .rating-stars ul>li.star.selected>i.fa {
 	color: #FF912C;
 }
+
+.star-selected {
+	color: #FF912C;
+}
