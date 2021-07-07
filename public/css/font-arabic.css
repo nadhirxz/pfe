@@ -12,7 +12,7 @@
 	font-size: 1.2rem !important;
 }
 
-p, span:not(.navbar-toggler-icon, .fa), h6, a, #datepicker, .hr-sect {
+p, span:not(.navbar-toggler-icon, .fa), h6, a, #datepicker, .hr-sect, td, th {
 	font-size: 1.6rem !important;
 }
 
