@@ -64,20 +64,14 @@ $('#success').hide();
 $('#stars li').on('mouseover', function () {
 	var onStar = parseInt($(this).val());
 	$(this).parent().children('li.star').each(function (e) {
-		if (e < onStar) {
-			$(this).addClass('hover');
-		}
-		else {
-			$(this).removeClass('hover');
-		}
+		if (e < onStar) $(this).addClass('hover');
+		else $(this).removeClass('hover');
 	});
+});
 
-})
-$('#stars').children('li').each((i, e) => {
-	$(e).on('mouseout', function () {
-		$(this).parent().children('li.star').each(function (e) {
-			$(this).removeClass('hover');
-		});
+$('#stars ul').on('mouseleave', function () {
+	$(this).children('li.star').each(function (e) {
+		$(this).removeClass('hover');
 	});
 });
 
@@ -85,13 +79,9 @@ $('#stars li').on('click', function () {
 	var onStar = parseInt($(this).val()); // The star currently selected
 	var stars = $(this).parent().children('li.star');
 
-	for (i = 0; i < stars.length; i++) {
-		$(stars[i]).removeClass('selected');
-	}
+	for (i = 0; i < stars.length; i++) $(stars[i]).removeClass('selected');
 
-	for (i = 0; i < onStar; i++) {
-		$(stars[i]).addClass('selected');
-	}
+	for (i = 0; i < onStar; i++) $(stars[i]).addClass('selected');
 
 	var rating = parseInt($('#stars li.selected').last().val());
 	if (lastStar != rating) {
