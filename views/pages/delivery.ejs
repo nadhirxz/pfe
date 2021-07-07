@@ -54,23 +54,47 @@
 				<%= `${pad(date.getDate())}-${pad(date.getMonth()+1)}-${date.getFullYear()}` %> <span class="at_time_text"></span> <%= `${pad(date.getHours())}:${pad(date.getMinutes())}` %>
 			</p>
 
-			<% if (driver) { %>
-			<p class="delivery-info-text" id="driver-info"><b class="driver_text"></b> (<% if (driverStatus == 1) { %><span class="online_text"></span><% } else { %><span class="offline_text"></span><% } %>) <%= driver.name %> - <%= driver.phone %></p>
-			<% }%>
-
 			<% if (estimated_finish_time) { %>
 			<% if (estimated_finish_time.getTime() - Date.now() > 0) { %>
 			<% var estimatedFinishDate = new Date(estimated_finish_time) %>
-			<p class="delivery-info-text"><b class="estimated_finish_time_text"></b> <span id="finish-time"><%= pad(estimatedFinishDate.getHours()) %>:<%= pad(estimatedFinishDate.getMinutes()) %></p>
+			<p class="delivery-info-text"><b class="estimated_finish_time_text"></b> <span id="finish-time"><%= `${pad(estimatedFinishDate.getDate())}-${pad(estimatedFinishDate.getMonth()+1)}-${estimatedFinishDate.getFullYear()}` %> <span class="at_time_text"></span> <%= `${pad(estimatedFinishDate.getHours())}:${pad(estimatedFinishDate.getMinutes())}` %></p>
 			<% } %>
 			<% } %>
 
 			<% if (finish_time) { %>
 			<% var finishDate = new Date(finish_time) %>
-			<p class="delivery-info-text"><b class="finish_time_text"></b> <span id="finish-time"><%= pad(finishDate.getHours()) %>:<%= pad(finishDate.getMinutes()) %></p>
+			<p class="delivery-info-text"><b class="finish_time_text"></b> <span id="finish-time"><%= `${pad(finish_time.getDate())}-${pad(finish_time.getMonth()+1)}-${finish_time.getFullYear()}` %> <span class="at_time_text"></span> <%= `${pad(finish_time.getHours())}:${pad(finish_time.getMinutes())}` %></p>
 			<% } %>
 
+			<% if (driver) { %>
+			<p class="delivery-info-text mb-3" id="driver-info"><b class="driver_text"></b> (<% if (driverStatus == 1) { %><span class="online_text"></span><% } else { %><span class="offline_text"></span><% } %>) <%= driver.name %> - <%= driver.phone %> <a data-toggle="collapse" href="#stars" role="button" aria-expanded="false" aria-controls="collapse" id="rate" class="rate"></a></p>
+			<% }%>
+
             </div>
+
+			<% if (driver) { %>
+			<div class="collapse multi-collapse my-3 mx-auto rating-stars text-center" id="stars">
+				<ul id="stars">
+					<li class="star<% if (rating >= 1) { %> selected<% } %>" value="1">
+						<i class="fa fa-star"></i>
+					</li>
+					<li class="star<% if (rating >= 2) { %> selected<% } %>" value="2">
+						<i class="fa fa-star"></i>
+					</li>
+					<li class="star<% if (rating >= 3) { %> selected<% } %>" value="3">
+						<i class="fa fa-star"></i>
+					</li>
+					<li class="star<% if (rating >= 4) { %> selected<% } %>" value="4">
+						<i class="fa fa-star"></i>
+					</li>
+					<li class="star<% if (rating >= 5) { %> selected<% } %>" value="5">
+						<i class="fa fa-star"></i>
+					</li>
+				</ul>
+				<h2 id="success"><i class="fa fa-check fa-lg text-success pb-2"></i></h2>
+			</div>
+			<% } %>
+
 			<div id="delivery-status">
 				<button type="button" id="delivery-status-info-btn" class="" style="display: none;"></button>
 				<p id="delivery-status-info-text" class="mt-2" style="display: none;"></p>	

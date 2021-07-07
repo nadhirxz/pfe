@@ -1463,6 +1463,24 @@ app.post('/enable', checkDisabled, (req, res) => {
 	return res.redirect('/');
 });
 
+app.post('/rate-driver/:id', checkUser, (req, res) => {
+	let user = getUser('id', req.session.uid);
+	let { rating } = req.body;
+	let delivery = getDelivery('id', req.params.id);
+	if (user && delivery && rating > 0) {
+		db.query("UPDATE deliveries SET rating=? WHERE id=?", [parseInt(rating), delivery.id], (err, results) => {
+			if (err) {
+				res.status(403).send();
+			} else {
+				delivery.rating = parseInt(rating);
+				res.send({ success: true });
+			}
+		});
+	} else {
+		res.status(403).send();
+	}
+});
+
 app.get('/en(/*)?', (req, res) => {
 	getAndSetPageLanguage(req, res, 'en');
 	return res.redirect((req.url.slice(3) + '/').replace(/\/(\/)+/, '/').replace(/\/$/, '') || '/')
@@ -1932,6 +1950,15 @@ function getGroupedDeliveries(deliveries) {
 	return groupBy(deliveries.sort((a, b) => b.date.getTime() - a.date.getTime()).map(e => { return { ...deliveryInfoPage(e), day: formatDate(e.date) } }), 'day');
 }
 
+function getDriverRating(driverID) {
+	let driver = getDriver('id', driverID);
+	if (driver) {
+		let ratings = deliveries.filter(e => e.driver == driverID && e.rating).map(e => e.rating);
+		return (ratings.reduce((acc, b) => acc += b, 0) / ratings.length);
+	}
+	return null;
+}
+
 
 
 
@@ -2147,7 +2174,8 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 		date: new Date(),
 		shop: null,
 		item: null,
-		finish_time: null
+		finish_time: null,
+		rating: null
 	}
 
 	if (type == 2) {
@@ -2162,7 +2190,7 @@ function submitNewDelivery(uid, did, type, fromPlace, from, to, distance, price,
 
 	deliveries.push(delivery);
 
-	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, delivery.fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, delivery.thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.date, delivery.shop, delivery.item, delivery.finish_time, delivery.thingsPrice], (err, results) => {
+	db.query("INSERT INTO deliveries VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [delivery.id, uid, delivery.type, delivery.fromPlace, stringifyPosition(delivery.delivery_from), stringifyPosition(delivery.delivery_to), delivery.price, delivery.thing, delivery.recipients_phone, delivery.weight, delivery.distance, delivery.status, delivery.driver, delivery.estimated_finish_time, delivery.date, delivery.shop, delivery.item, delivery.finish_time, delivery.thingsPrice, delivery.rating], (err, results) => {
 		if (err) {
 			deliveries = deliveries.filter(obj => obj.id != delivery.id);
 		} else {
@@ -2207,7 +2235,8 @@ function deliveryInfoPage(delivery, owner) {
 		driver: driver,
 		driverStatus: driver ? driver.status : null,
 		estimated_finish_time: delivery.estimated_finish_time,
-		finish_time: delivery.finish_time
+		finish_time: delivery.finish_time,
+		rating: delivery.rating
 	}
 	if (item) {
 		if (item.name) obj.thing = item.name;

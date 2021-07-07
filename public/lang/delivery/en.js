@@ -22,5 +22,6 @@ var lang_text = {
     sure_text: "Sure",
     no_text: "No",
 	online_text: "Online",
-	offline_text: "Offline"
+	offline_text: "Offline",
+	rate: "Rate"
 }

@@ -252,14 +252,50 @@ i {
 .btn-c {
 	color: #fff;
 	background-color: #1E343B;
-	transition: all 250ms cubic-bezier(.27,.01,.38,1.06);
-    transition-property: all;
-    transition-duration: 250ms;
-    transition-timing-function: cubic-bezier(0.27, 0.01, 0.38, 1.06);
-    transition-delay: 0s;
+	transition: all 250ms cubic-bezier(.27, .01, .38, 1.06);
+	transition-property: all;
+	transition-duration: 250ms;
+	transition-timing-function: cubic-bezier(0.27, 0.01, 0.38, 1.06);
+	transition-delay: 0s;
 }
 
 .btn-c:hover {
 	color: #fff;
 	background-color: #1b2f36;
+}
+
+#stars {
+	width: fit-content;
+}
+
+/* Rating Star Widgets Style */
+
+.rating-stars ul {
+	list-style-type: none;
+	padding: 0;
+}
+
+.rating-stars ul>li.star {
+	display: inline-block;
+}
+
+/* Idle State of the stars */
+
+.rating-stars ul>li.star>i.fa {
+	font-size: 2.5em;
+	/* Change the size of the stars */
+	color: #ccc;
+	/* Color on idle state */
+}
+
+/* Hover state of the stars */
+
+.rating-stars ul>li.star.hover>i.fa {
+	color: #FFB400;
+}
+
+/* Selected state of the stars */
+
+.rating-stars ul>li.star.selected>i.fa {
+	color: #FF912C;
 }

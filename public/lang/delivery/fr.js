@@ -22,5 +22,6 @@ lang_text = {
     sure_text: "Sûr",
     no_text: "Non",
 	online_text: "En ligne",
-	offline_text: "Hors ligne"
+	offline_text: "Hors ligne",
+	rate: "Evaluer"
 }

@@ -84,6 +84,7 @@ CREATE TABLE deliveries (
 	item VARCHAR(8),
 	finish_time TIMESTAMP NULL,
 	thingsPrice INT(10),
+	rating INT(1),
 	FOREIGN KEY (uid) REFERENCES users(id),
 	FOREIGN KEY (driver) REFERENCES drivers(id),
 	FOREIGN KEY (shop) REFERENCES shops(id),

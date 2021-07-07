@@ -22,5 +22,6 @@ lang_text = {
     sure_text: "متأكد",
     no_text: "لا",
 	online_text: "متصل",
-	offline_text: "غير متصل"
+	offline_text: "غير متصل",
+	rate: "تقييم"
 }
