@@ -37,7 +37,7 @@ nextButton.addEventListener('click', () => {
 
 		delivery.fromPlace = selectedPlace;
 		if ($('#object-select').val() == 'other') thingsPrice = parseInt(thingsPriceInput.value) || 0;
-		else thingsPrice = parseInt($('#object-select').html().split('">')[2].split('(')[1].split(' DZD'));
+		else thingsPrice = parseInt($('#object-select').find(':selected').text().split('(')[1].match(/\d+/)[0]) || 0;
 
 		getNextDiv(delivery.fromPlace);
 	}
