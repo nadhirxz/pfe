@@ -21,7 +21,5 @@ var lang_text = {
     cncl_cnfrm_text: "Are you sure you want to cancel your delivery ?",
     sure_text: "Sure",
     no_text: "No",
-	online_text: "Online",
-	offline_text: "Offline",
 	rate: "Rate"
 }

@@ -21,7 +21,5 @@ lang_text = {
     cncl_cnfrm_text: "Êtes-vous sûr de vouloir annuler votre demande de livraison ?",
     sure_text: "Sûr",
     no_text: "Non",
-	online_text: "En ligne",
-	offline_text: "Hors ligne",
 	rate: "Evaluer"
 }
