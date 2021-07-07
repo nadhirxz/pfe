@@ -25,5 +25,7 @@ lang_text = {
 	your_items: "Your Items",
 	dlv: "Your Deliveries",
 	ur_details: "Your Details",
-	back: "Go Back"
+	back: "Go Back",
+	start: "Start Working",
+	dlv_fnsh: "Deliveries you have finished :",
 }

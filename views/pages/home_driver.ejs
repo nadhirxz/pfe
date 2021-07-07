@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<%- include ('../partials/html') %>
+<head>
+	<%- include ('../partials/head') %>
+	<% var dzd = lang == 'ar' ? 'دج' : 'DZD' %>
+</head>
+<body>
+    <%- include ('../partials/navbar') %>
+    <div class="col-md-8 col-lg-4 px-5 m-auto text-center pt-5">
+		<h3 class="my-0"><%= name %></h3>
+		<h5 class="mt-0 mb-4"><a href="/rating">(<%= rating.rating %> <i class="fa fa-star star-selected"></i>)</a></h5>
+
+		<p class="my-1"><span class="dlv_fnsh"></span> <b><%= deliveries.length %></b> (<b><%= profit %></b> <%= dzd %>)</p>
+		<% if (deliveries && deliveries.length) { %>
+			<div class="my-2">
+				<%- include ('../partials/delivery_status') %>
+			</div>
+		<% } %>
+        <p class="my-1"><span class="amount_to_pay_text"></span> <b><%= amount_to_pay_us %></b> <%= dzd %> (<%= percentage %>%)</p>
+		<a type="button" class="btn btn-block btn-dark my-4 start" href="/driver"></a>
+    </div>
+<%- include ('../partials/footer') %>
+</body>
+<%- include ('../partials/scripts') %>
+
+</html>

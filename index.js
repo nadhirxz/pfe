@@ -343,14 +343,7 @@ let checkDisabled = (req, res, next) => {
 app.get('/', (req, res) => {
 	if (req.session.uid) { // user authenticated
 		let user = getUser('id', req.session.uid);
-		if (user) {
-			switch (user.type) {
-				case 0: return res.redirect('/home'); // normal user
-				case 1: return res.redirect('/home'); // shop
-				case 2: return res.redirect('/driver');
-				case 3: return res.redirect('/admin');
-			}
-		}
+		if (user) return res.redirect(user.type == 3 ? '/admin' : '/home');
 	}
 	req.session.uid = '';
 	let lang = getAndSetPageLanguage(req, res);
@@ -364,33 +357,49 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
-	if (user && (user.type == 0 || user.type == 1)) {
-		let userDeliveries = getDeliveriesOfUser(user.id);
-		let dataToSend = {
-			title: titles[lang].home + settings.titleSuffix[lang],
-			name: user.name,
-			type: user.type,
-			lang: lang,
-			total_spent: userDeliveries.filter(e => e.status == 4).reduce((acc, obj) => acc += obj.price, 0),
-			total_deliveries: userDeliveries.length,
-			deliveries: userDeliveries,
-			userDeliveries: userDeliveries.filter(e => isToday(e.date)),
-			working: working_status,
-			work_hours: inWorkHours()
-		}
+	if (user) {
+		if (user.type == 2) {
+			let dlv = deliveries.filter(e => e.status > 3 && e.driver == user.id);
+			let p = dlv.reduce((acc, b) => acc += b.price, 0);
+			res.render('pages/home_driver', {
+				title: titles[lang].home + settings.titleSuffix[lang],
+				name: user.name,
+				type: user.type,
+				lang: lang,
+				deliveries: dlv,
+				profit: p,
+				percentage: user.percentage,
+				amount_to_pay_us: normalizePrice(((user.percentage / 100) * (p || 0)), 50) || 0,
+				rating: getDriverRating(user.id),
+			});
+		} else {
+			let userDeliveries = getDeliveriesOfUser(user.id);
+			let dataToSend = {
+				title: titles[lang].home + settings.titleSuffix[lang],
+				name: user.name,
+				type: user.type,
+				lang: lang,
+				total_spent: userDeliveries.filter(e => e.status == 4).reduce((acc, obj) => acc += obj.price, 0),
+				total_deliveries: userDeliveries.length,
+				deliveries: userDeliveries,
+				userDeliveries: userDeliveries.filter(e => isToday(e.date)),
+				working: working_status,
+				work_hours: inWorkHours()
+			}
 
-		if (!inWorkHours()) dataToSend.schedule = schedule;
+			if (!inWorkHours()) dataToSend.schedule = schedule;
 
-		let page = 'home';
-		if (user.type == 1) {
-			page = 'home_shop';
-			let d = deliveries.filter(e => e.shop == user.id && e.status == 4);
-			dataToSend.client_deliveries = d.length;
-			dataToSend.client_deliveries_amount = d.reduce((acc, b) => acc += b.price, 0);
-			dataToSend.percentage = user.percentage;
-			dataToSend.amount_to_pay_us = normalizePrice(((user.percentage / 100) * (dataToSend.client_deliveries_amount || 0)), 50) || 0;
+			let page = 'home';
+			if (user.type == 1) {
+				page = 'home_shop';
+				let d = deliveries.filter(e => e.shop == user.id && e.status == 4);
+				dataToSend.client_deliveries = d.length;
+				dataToSend.client_deliveries_amount = d.reduce((acc, b) => acc += b.price, 0);
+				dataToSend.percentage = user.percentage;
+				dataToSend.amount_to_pay_us = normalizePrice(((user.percentage / 100) * (dataToSend.client_deliveries_amount || 0)), 50) || 0;
+			}
+			res.render('pages/' + page, dataToSend);
 		}
-		res.render('pages/' + page, dataToSend);
 	} else {
 		res.redirect('/');
 	}
