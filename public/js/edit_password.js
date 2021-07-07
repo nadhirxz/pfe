@@ -9,6 +9,8 @@ let texts = {
     ar: ["كلمة مرور خاطئة", "لا يمكنك استخدام كلمة السر هذه ، يرجى استخدام كلمة أخرى", "لقد تم تغيير كلمة السر الخاصة بك بنجاح"]
 }
 
+if ($('.navbar').hasClass('bg-dark')) $('.save, .save_text, .chng_pwd_text').addClass('btn-dark').removeClass('.btn-info');
+
 let url = location.search.substring(1)
 if (url) {
     let params = JSON.parse('{"' + decodeURI(url).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}'); // url params parser
