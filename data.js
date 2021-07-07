@@ -66,7 +66,7 @@ let titles = {
 		shops: "Shops",
 		your_items: "Your Items",
 		deliveries: "Deliveries",
-		disabled: "Deactivated Account"
+		disabled: "Disabled Account"
 	},
 	fr: {
 		out_of_srvc: "Hors service",
