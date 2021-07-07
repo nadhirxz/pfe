@@ -1491,26 +1491,12 @@ app.post('/rate-driver/:id', checkUser, (req, res) => {
 });
 
 app.get('/rating/:id', checkAdmin, (req, res) => {
+	getRating(req, res, id);
+});
+
+app.get('/rating', checkDriver, (req, res) => {
 	let user = getUser('id', req.session.uid);
-	let lang = getAndSetPageLanguage(req, res);
-	let driver = getDriver('id', req.params.id);
-	let rating = getRatingDetails(req.params.id);
-
-	if (driver && rating && rating.votes) {
-		return res.render('pages/rating', {
-			title: titles[lang].rating + settings.titleSuffix[lang],
-			lang: lang,
-			driver: driver.name,
-			rating
-		});
-	}
-
-	return res.render('pages/404', {
-		title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
-		name: user.name,
-		type: user.type,
-		lang: lang,
-	});
+	getRating(req, res, user.id);
 });
 
 app.get('/en(/*)?', (req, res) => {
@@ -2012,6 +1998,31 @@ function getRatingDetails(driverID) {
 	}
 	return r;
 }
+
+function getRating(req, res, id) {
+	let user = getUser('id', req.session.uid);
+	let lang = getAndSetPageLanguage(req, res);
+	let driver = getDriver('id', id);
+	let rating = getRatingDetails(id);
+
+	if (driver && rating) {
+		return res.render('pages/rating', {
+			title: titles[lang].rating + settings.titleSuffix[lang],
+			name: driver.name,
+			type: user.type,
+			lang: lang,
+			rating
+		});
+	}
+
+	return res.render('pages/404', {
+		title: titles[lang].pg_dsnt_xst + settings.titleSuffix[lang],
+		name: user.name,
+		type: user.type,
+		lang: lang,
+	});
+}
+
 
 
 
