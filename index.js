@@ -1979,7 +1979,7 @@ function getDriverRating(driverID) {
 	let r = { rating: 0, votes: 0 }
 	if (driver) {
 		let ratings = deliveries.filter(e => e.driver == driverID && e.rating).map(e => e.rating);
-		r.rating = (ratings.reduce((acc, b) => acc += b, 0) / ratings.length) || 0;
+		r.rating = (ratings.reduce((acc, b) => acc += b, 0) / ratings.length).toFixed(1) || 0;
 		r.votes = ratings.length;
 	}
 	return r;
