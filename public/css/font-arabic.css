@@ -16,8 +16,12 @@ p, span:not(.navbar-toggler-icon, .fa), h6, a, #datepicker, .hr-sect {
 	font-size: 1.6rem !important;
 }
 
-.fa:not(.fa-2x, .fa-globe, .fa-crosshairs) {
+.fa:not(.fa-2x, .fa-globe, .fa-crosshairs, .fa-star) {
 	font-size: 1.3rem !important;
+}
+
+.star-selected {
+	font-size: 1rem !important;
 }
 
 .fa-globe {
