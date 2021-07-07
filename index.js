@@ -360,7 +360,7 @@ app.get('/home', checkAuth, checkConfirmed, (req, res) => {
 	if (user) {
 		if (user.type == 2) {
 			let dlv = deliveries.filter(e => e.status > 3 && e.driver == user.id);
-			let p = dlv.reduce((acc, b) => acc += b.price, 0);
+			let p = dlv.filter(e => e.status == 4).reduce((acc, b) => acc += b.price, 0);
 			res.render('pages/home_driver', {
 				title: titles[lang].home + settings.titleSuffix[lang],
 				name: user.name,
