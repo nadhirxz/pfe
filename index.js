@@ -1487,7 +1487,7 @@ app.post('/rate-driver/:id', checkUser, (req, res) => {
 });
 
 app.get('/rating/:id', checkAdmin, (req, res) => {
-	getRating(req, res, id);
+	getRating(req, res, req.params.id);
 });
 
 app.get('/rating', checkDriver, (req, res) => {
