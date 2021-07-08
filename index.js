@@ -575,7 +575,7 @@ app.post('/shops/register', checkNotAuth, (req, res) => {
 		if (phoneValid(phone)) {
 			let user = getUser('phone', phone);
 			if (user) {
-				return res.redirect('/shops?err=' + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
+				return res.redirect('/shops/register?err=' + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
 			} else {
 				let secretkey = getSecretKey('secretKey', generateKey(secret, phone, 1));
 				if (secretkey) {
@@ -597,21 +597,21 @@ app.post('/shops/register', checkNotAuth, (req, res) => {
 						disabled: false
 					}
 					db.query("INSERT INTO shops VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", [shop.id, shop.name, shop.phone, shop.password, shop.pos, shop.confirmed, shop.description, shop.schedule, shop.startTime, shop.endTime, shop.percentage, shop.paid, shop.lang, shop.disabled ? 1 : 0], (err, results) => {
-						if (err) return res.redirect('/shops?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
+						if (err) return res.redirect('/shops/register?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 						shops.push(shop);
 						destroySecretKey(secretkey.id);
 						req.session.uid = id;
 						return res.redirect('/');
 					});
 				} else {
-					return res.redirect('/shops?err=' + errors.invalidSecret + '&name=' + name + '&phone=' + phone);
+					return res.redirect('/shops/register?err=' + errors.invalidSecret + '&name=' + name + '&phone=' + phone);
 				}
 			}
 		} else {
-			return res.redirect('/shops?err=' + errors.invalidPhoneErr + '&name=' + name + '&phone=' + phone);
+			return res.redirect('/shops/register?err=' + errors.invalidPhoneErr + '&name=' + name + '&phone=' + phone);
 		}
 	} else {
-		return res.redirect('/shops?err=' + errors.generalErr);
+		return res.redirect('/shops/register?err=' + errors.generalErr);
 	}
 });
 
@@ -622,7 +622,7 @@ app.post('/drivers/register', checkNotAuth, (req, res) => {
 		if (phoneValid(phone)) {
 			let user = getUser('phone', phone);
 			if (user) {
-				return res.redirect('/drivers?err=' + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
+				return res.redirect('/drivers/register?err=' + errors.phoneExistsErr + '&name=' + name + '&phone=' + phone);
 			} else {
 				let secretkey = getSecretKey('secretKey', generateKey(secret, phone, 2));
 				if (secretkey) {
@@ -643,7 +643,7 @@ app.post('/drivers/register', checkNotAuth, (req, res) => {
 
 					db.query("INSERT INTO drivers VALUES (?,?,?,?,?,?,?,?,?,?,?)", [driver.id, driver.name, driver.phone, driver.password, driver.status, driver.pos, driver.percentage, driver.paid, driver.lang, driver.last_seen, driver.disabled ? 1 : 0], (err, results) => {
 						if (err) {
-							res.redirect('/drivers?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
+							res.redirect('/drivers/register?err=' + errors.generalErr + '&name=' + name + '&phone=' + phone);
 						} else {
 							req.session.uid = driver.id;
 							destroySecretKey(secretkey.id);
@@ -652,14 +652,14 @@ app.post('/drivers/register', checkNotAuth, (req, res) => {
 						}
 					});
 				} else {
-					return res.redirect('/drivers?err=' + errors.invalidSecret + '&name=' + name + '&phone=' + phone);
+					return res.redirect('/drivers/register?err=' + errors.invalidSecret + '&name=' + name + '&phone=' + phone);
 				}
 			}
 		} else {
-			return res.redirect('/drivers?err=' + errors.invalidPhoneErr + '&name=' + name + '&phone=' + phone);
+			return res.redirect('/drivers/register?err=' + errors.invalidPhoneErr + '&name=' + name + '&phone=' + phone);
 		}
 	} else {
-		return res.redirect('/drivers?err=' + errors.generalErr);
+		return res.redirect('/drivers/register?err=' + errors.generalErr);
 	}
 });
 
