@@ -66,7 +66,7 @@
 			<p class="delivery-info-text"><b class="finish_time_text"></b> <span id="finish-time"><%= `${pad(finish_time.getDate())}-${pad(finish_time.getMonth()+1)}-${finish_time.getFullYear()}` %> <span class="at_time_text"></span> <%= `${pad(finish_time.getHours())}:${pad(finish_time.getMinutes())}` %></p>
 			<% } %>
 
-			<% if (driver) { %>
+			<% if (driver && type != 2) { %>
 			<p class="delivery-info-text mb-3" id="driver-info"><b class="driver_text"></b> <% if (driverStatus == 1) { %><i class="fa fa-circle text-success"></i><% } else { %><i class="fa fa-circle text-muted"></i><% } %> <%= driver.name %> - <%= driver.phone %><% if (type == 0 && status > 3) { %> <a data-toggle="collapse" href="#stars" role="button" aria-expanded="false" aria-controls="collapse" id="rate" class="rate"></a><% } %></p>
 			<% }%>
 
