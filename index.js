@@ -1476,7 +1476,7 @@ app.post('/rate-driver/:id', checkUser, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let { rating } = req.body;
 	let delivery = getDelivery('id', req.params.id);
-	if (user && delivery && delivery.uid == user.id && rating > 0) {
+	if (user && delivery && delivery.status > 3 && delivery.uid == user.id && rating > 0) {
 		db.query("UPDATE deliveries SET rating=? WHERE id=?", [parseInt(rating), delivery.id], (err, results) => {
 			if (err) {
 				res.status(403).send();

@@ -67,12 +67,12 @@
 			<% } %>
 
 			<% if (driver) { %>
-			<p class="delivery-info-text mb-3" id="driver-info"><b class="driver_text"></b> <% if (driverStatus == 1) { %><i class="fa fa-circle text-success"></i><% } else { %><i class="fa fa-circle text-muted"></i><% } %> <%= driver.name %> - <%= driver.phone %><% if (type == 0) { %> <a data-toggle="collapse" href="#stars" role="button" aria-expanded="false" aria-controls="collapse" id="rate" class="rate"></a><% } %></p>
+			<p class="delivery-info-text mb-3" id="driver-info"><b class="driver_text"></b> <% if (driverStatus == 1) { %><i class="fa fa-circle text-success"></i><% } else { %><i class="fa fa-circle text-muted"></i><% } %> <%= driver.name %> - <%= driver.phone %><% if (type == 0 && status > 3) { %> <a data-toggle="collapse" href="#stars" role="button" aria-expanded="false" aria-controls="collapse" id="rate" class="rate"></a><% } %></p>
 			<% }%>
 
             </div>
 
-			<% if (driver && type == 0) { %>
+			<% if (driver && type == 0 && status > 3) { %>
 			<div class="collapse multi-collapse my-3 mx-auto rating-stars text-center" id="stars">
 				<ul id="stars">
 					<li class="star<% if (rating >= 1) { %> selected<% } %>" value="1">
