@@ -508,19 +508,15 @@ app.get('/confirm', checkAuth, checkNotConfirmed, (req, res) => {
 app.post('/login', checkNotAuth, (req, res) => {
 	let { phone, password } = req.body;
 	if (phone && password) {
-		if (phoneValid(phone)) {
-			let user = getUser('phone', phone);
-			if (user) {
-				if (user.password == generateHash(password, user.id)) {
-					req.session.uid = user.id;
-					return res.redirect('/home');
-				}
-				return res.redirect('/login?err=' + errors.wrongPasswordErr + '&phone=' + phone);
-			} else {
-				return res.redirect('/login?err=' + errors.phoneDoesntExistErr + '&phone=' + phone);
+		let user = getUser('phone', phone);
+		if (user) {
+			if (user.password == generateHash(password, user.id)) {
+				req.session.uid = user.id;
+				return res.redirect('/home');
 			}
+			return res.redirect('/login?err=' + errors.wrongPasswordErr + '&phone=' + phone);
 		} else {
-			res.redirect('/login?err=' + errors.invalidPhoneErr + '&phone=' + phone);
+			return res.redirect('/login?err=' + errors.phoneDoesntExistErr + '&phone=' + phone);
 		}
 	} else {
 		res.redirect('/login?err=' + errors.missingInputErr);
