@@ -204,6 +204,7 @@ function submitButtonClick(map, invalidInput, title, buttons, submitButton) {
 									distance: Math.round((distance + Number.EPSILON) * 1000) / 1000,
 									price: data.price,
 									thing: delivery.thing,
+									thingsPrice: thingsPrice,
 									weight: weight,
 									shop: selectedPlace
 								});
