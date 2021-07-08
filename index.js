@@ -648,7 +648,7 @@ app.post('/drivers/register', checkNotAuth, (req, res) => {
 							req.session.uid = driver.id;
 							destroySecretKey(secretkey.id);
 							drivers.push(driver);
-							return res.redirect('/driver');
+							return res.redirect('/home');
 						}
 					});
 				} else {
