@@ -6,4 +6,5 @@ var js_lang_text = {
     tried_too_much: "You tried too much.",
     try_again_in : (m) => { return `<br> try again in ${m} ${m > 1 ? 'minutes' : 'minute'}.` },
     err_happened: "An error happened. Please try again.",
+	invld: (n) => `Invalid Code. You have ${n} retries left`,
 }

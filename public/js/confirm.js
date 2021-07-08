@@ -29,9 +29,7 @@ socket.on("pin_confirmed", () => {
 });
 socket.on("pin_invalid", (data) => {
     input.classList.add("is-invalid");
-    let txt = "retries";
-    if(data==1) txt = "retry";
-    invalid.innerHTML = `Invalid Code. You have ${data} ${txt} left.`;
+    invalid.innerHTML = js_lang_text.invld(data);
     loadingImage.classList.add('d-none');
 });
 socket.on("tried_too_much", (data) => {
