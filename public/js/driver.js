@@ -181,7 +181,7 @@ function refuseDelivery(id) {
 	let delivery = getDelivery(id);
 	socket.emit("refused_delivery", delivery.id);
 	$('#' + id).fadeOut(400, () => {
-		$(this).remove();
+		$('#' + id).remove();
 		acceptedDelivery = false;
 		$('.jumbotron .btn-info').each((i, e) => $(e).attr('disabled', false));
 		checkEmpty();
@@ -192,7 +192,7 @@ function completedDelivery(id) {
 	let delivery = getDelivery(id);
 	socket.emit("completed_delivery", delivery.id);
 	$('#' + id).fadeOut(400, () => {
-		$(this).remove();
+		$('#' + id).remove();
 		acceptedDelivery = false;
 		$('.jumbotron .btn-info').each((i, e) => $(e).attr('disabled', false));
 		checkEmpty();
@@ -203,7 +203,7 @@ function failedDelivery(id) {
 	let delivery = getDelivery(id);
 	socket.emit("failed_delivery", delivery.id);
 	$('#' + id).fadeOut(400, () => {
-		$(this).remove();
+		$('#' + id).remove();
 		acceptedDelivery = false;
 		$('.jumbotron .btn-info').each((i, e) => $(e).attr('disabled', false));
 		checkEmpty();
@@ -216,7 +216,7 @@ function cancelDelivery(id) {
 	delivery.status = 1;
 	socket.emit("cancel_delivery", delivery.id);
 	$('#' + id).fadeOut(400, () => {
-		$(this).remove();
+		$('#' + id).remove();
 		acceptedDelivery = false;
 		$('.jumbotron .btn-info').each((i, e) => $(e).attr('disabled', false));
 		createDiv(delivery);
