@@ -353,7 +353,7 @@ app.get('/', (req, res) => {
 	});
 });
 
-app.get('/home', checkAuth, checkConfirmed, (req, res) => {
+app.get('/home', checkAuth, checkConfirmed, checkNotAdmin, (req, res) => {
 	let user = getUser('id', req.session.uid);
 	let lang = getAndSetPageLanguage(req, res);
 
