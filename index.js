@@ -23,7 +23,7 @@ const { HASH_SECRET, COOKIE_SECRET, COOKIE_PARSER_SECRET, DB_HOST, DB_PORT, DB_U
 // Twilio setup
 const twilio = require('twilio')(TWILIO_SID, TWILIO_AUTH_TOKEN);
 // Creating a new service (done only once)
-// twilio.verify.services.create({ friendlyName: 'PFE' }).then(service => console.log(service.sid));
+// twilio.verify.services.create({ friendlyName: 'LIVRY' }).then(service => console.log(service.sid));
 
 
 // Setting some data
@@ -2170,8 +2170,10 @@ function handlePinConfirmation(socket, user, data) {
 }
 
 function sendPin(phone, lang) {
-	console.log(phone, lang)
-	// twilio.verify.services(TWILIO_SERVICE_SID).verifications.create({ locale: (lang || settings.defaultWebsiteLanguage), to: `+213${phone.substr(1)}`, channel: 'sms' });
+	twilio.verify.services(TWILIO_SERVICE_SID).verifications.create({
+		locale: (lang || settings.defaultWebsiteLanguage),
+		to: `+213${phone.substr(1)}`, channel: 'sms'
+	});
 }
 
 
