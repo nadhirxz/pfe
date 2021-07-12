@@ -67,7 +67,7 @@ async function createDiv(delivery, status, r) {
 			<div class="row mx-4">
 				<div class="col-md-7 p-0 text-${lng == 'ar' ? 'right' : 'left'}">
 					<p class="my-0">${l.obj} : <b>${delivery.thing}</b></p>
-					${typeof (delivery.thingsPrice) != 'undefined' ? `<p class="my-0">${l.objp} : <b>${delivery.thingsPrice} ${l.dzd}</b></p>` : ''}
+					${delivery.type > 0 && typeof (delivery.thingsPrice) != 'undefined' ? `<p class="my-0">${l.objp} : <b>${delivery.thingsPrice} ${l.dzd}</b></p>` : ''}
 					${delivery.type == 2 ? `<p class="my-0">${l.from} : <b>${delivery.fromPlace}</b></p>` : ''}
 					${delivery.type < 2 && delivery.recipients_phone ? `${l.rcvr[delivery.type]} : <a href="tel:${delivery.recipients_phone}"><b>${delivery.recipients_phone}</b></a>` : ''}
 				</div>
