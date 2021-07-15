@@ -99,3 +99,5 @@ CREATE TABLE schedule (
 );
 
 INSERT INTO schedule VALUES ('schedule', '08:00', '18:00', 1);
+
+INSERT INTO admins VALUES ('admin', 'Admin', '0000000000', '56e2205c6fbe388cca6779e6cd19e6cc1fa18c14fc50ca61867b7e3e22187e1e', 'fr');
