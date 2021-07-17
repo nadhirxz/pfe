@@ -11,9 +11,9 @@ const cookieParser = require('cookie-parser');
 const mysql = require('mysql');
 const MySQLStore = require('express-mysql-session')(session);
 const multer = require('multer');
-const jimp = require('jimp')
+const jimp = require('jimp');
 const dotenv = require('dotenv');
-const nodeSchedule = require('node-schedule')
+const nodeSchedule = require('node-schedule');
 
 // Getting some values
 dotenv.config();
@@ -1608,13 +1608,13 @@ io.on('connection', (socket) => {
 		db.query("UPDATE drivers SET status=?, pos=? WHERE id=?", [user.status, stringifyPosition(user.pos), user.id]);
 		socket.emit('deliveries', deliveries.filter(e => e.status != 4 && e.status != 5 && (e.driver == null || e.driver == user.id)).map(d => getDetailsToSendToDriver(d, user.pos)));
 	});
+
 	socket.on('driver_position', (data) => {
 		if (user) {
 			user.pos = data;
 			user.status = 1;
 			updateDriverDeliveries(user.id, user.pos, socket);
 			db.query("UPDATE drivers SET status=?, pos=? WHERE id=?", [user.status, stringifyPosition(user.pos), user.id]);
-			let delivery = deliveries.filter(e => e.driver == user.id);
 		}
 	});
 
@@ -1639,6 +1639,7 @@ io.on('connection', (socket) => {
 			}
 		}
 	});
+
 	socket.on('refused_delivery', (data) => {
 		var delivery = getDelivery('id', data);
 		if (delivery) {
@@ -1649,6 +1650,7 @@ io.on('connection', (socket) => {
 			db.query("UPDATE deliveries SET status=? WHERE id=?", [delivery.status, delivery.id]);
 		}
 	});
+
 	socket.on('cancel_delivery', (data) => {
 		var delivery = getDelivery('id', data);
 		if (delivery) {
@@ -1664,10 +1666,12 @@ io.on('connection', (socket) => {
 			db.query("UPDATE deliveries SET status=?, driver=?, estimated_finish_time=? WHERE id=?", [delivery.status, delivery.driver, null, delivery.id]);
 		}
 	});
+
 	socket.on('completed_delivery', (data) => {
 		let delivery = getDelivery('id', data);
 		if (delivery) finishedDelivery(delivery, 4);
 	});
+	
 	socket.on('failed_delivery', (data) => {
 		let delivery = getDelivery('id', data);
 		if (delivery) finishedDelivery(delivery, 5);
